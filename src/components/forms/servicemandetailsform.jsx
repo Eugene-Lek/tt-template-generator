@@ -189,6 +189,9 @@ export default function ServicemanDetailsForm({selected_unit, unit_data, set_dia
                         <h3 className="form-section-sub-header">
                             Coy
                         </h3>
+                        {unit_data.Companies.length == 0 && (
+                            <p className="no-companies-warning">Your S1 department has not added any Coys yet.</p>
+                        )}
                         {unit_data.Companies.map((company, index)=>{
                             return (
                                 <div key={index}>
@@ -202,6 +205,9 @@ export default function ServicemanDetailsForm({selected_unit, unit_data, set_dia
                         <h3 className="form-section-sub-header">
                             Vocation
                         </h3>
+                        {unit_vocations.length == 0 && (
+                            <p className="no-vocations-warning">Your S1 department has not added any Vocations yet.</p>
+                        )}
                         {unit_vocations.map((vocation, index)=>{
                             return (
                                 <div key={index}>
