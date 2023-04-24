@@ -311,7 +311,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                             <div className="missing-vocation-ranks-warning">
                                 <div className="missing-vocation-ranks-warning-text">
                                     <div style={{ fontWeight: 'bold', color: 'red', fontSize: "25px" }}>Alert!</div>
-                                    <div style={{ fontWeight: 'bold', color: 'black', fontSize: "15px" }}>The below mentioned vocation-rank combinations have not been assigned any {section_name} templates :(</div>
+                                    <div style={{ fontWeight: 'bold', color: 'black', fontSize: "15px" }}>The below mentioned vocation-rank combinations have not been assigned any {section_name} templates</div>
                                 </div>
                                 <div className="missing-vocation-ranks-group">
                                     {Object.keys(previously_saved_vocation_ranks_without_templates).map((rank_type, i_outer) => {
