@@ -167,31 +167,7 @@ export function OtherIndividualAchievementsPage({ unit, section_name, available_
                             </ol>
                             <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to write an Introduction template that only applies to all Officers and includes these Personal Particulars.</div>
                             <div className="example-module-explanation">To do so, we need to wrap the Personal Particulars in curly brackets {'{ }'} e.g. {'{Rank}'}.</div>
-                        </div>
-                        <div className="example-module">
-                            <div className="example-module-title">3. Inserting Pre-Unit Achievements (Optional)</div>
-                            <div className="example-module-explanation">By default, the following Pre-Unit Achievements can be selected by users if they apply to the servicemen and can be inserted into Introduction templates:</div>
-                            <ol>
-                                <li>Sword of Honour</li>
-                                <li>Sword of Merit</li>
-                                <li>Golden Bayonet</li>
-                                <li>Silver Bayonet</li>
-                                <li>BMT Best Recruit</li>
-                            </ol>
-                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>For example, these are the default settings for 'Sword of Honour' and 'Sword of Merit':</div>
-
-                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to write an Introduction template that only applies to all Officers and includes these 2 Pre-Unit Achievements (if they are selected by the user).</div>
-                            <div className="example-module-explanation">To do so, we need to wrap the Pre-Unit Achievements in curly brackets {'{ }'} e.g. {'{Sword of Honour}'}.</div>
-
-                            <div className="example-module-explanation" style={{ fontWeight: 'bold', textDecoration: 'underline' }}>Important Note:</div>
-                            <div className="example-module-explanation">If a Pre-Unit Achievement is included in the template but is not selected by the user, it will not be part of the result. (examples below)</div>
-                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>1. No Pre-Unit Achievements Selected:</div>
-                            <div className="example-module-explanation">LTA ETHAN LOKE enlisted in the Singapore Armed Forces on 21 June 2021. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Officer Cadet School where he underwent training to become a commissioned Army Officer. Upon commissioning, LTA LOKE was posted to 'A' Company, 30th Battalion, Singapore Combat Engineers (30SCE) to take on the achievement of Platoon Commander.</div>
-                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>2. 'Sword of Honour' Selected:</div>
-                            <div className="example-module-explanation">LTA ETHAN LOKE enlisted in the Singapore Armed Forces on 21 June 2021. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Officer Cadet School where he underwent training to become a commissioned Army Officer. To this end, LTA LOKE performed the best among his peers and graduated with a Sword of Honour (Top Performer). Upon commissioning, LTA LOKE was posted to 'A' Company, 30th Battalion, Singapore Combat Engineers (30SCE) to take on the achievement of Platoon Commander.</div>
-                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>3. 'Sword of Merit' Selected:</div>
-                            <div className="example-module-explanation">LTA ETHAN LOKE enlisted in the Singapore Armed Forces on 21 June 2021. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Officer Cadet School where he underwent training to become a commissioned Army Officer. To this end, LTA LOKE performed well and graduated with a Sword of Merit (Top 10%). Upon commissioning, LTA LOKE was posted to 'A' Company, 30th Battalion, Singapore Combat Engineers (30SCE) to take on the achievement of Platoon Commander.</div>
-                        </div>
+                        </div>                
                     </div>
                 </details>
                 <details>
