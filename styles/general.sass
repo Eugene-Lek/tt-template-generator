@@ -14,7 +14,7 @@ header
         font-weight: normal
         color: white
         font-weight: normal
-        text-align: center        
+        text-align: center
 
 .select-unit
     width: 200px
@@ -167,6 +167,16 @@ footer
     color: white
     font-size: 20px
 
+.cancel-button-invisible
+    background-color: #ff7f0e
+    font-weight: bold
+    width: 90px
+    border: 0px
+    border-radius: 20px
+    color: white
+    font-size: 20px 
+    opacity: 0.0   
+
 .delete-button-visible
     background-color: #E60023
     font-weight: bold
@@ -185,7 +195,6 @@ footer
     border-radius: 20px
     color: white
     font-size: 20px
-
 
 .add-vocation-form-button
     background-color: #7868ff
@@ -216,7 +225,7 @@ footer
     color: white
     font-size: 20px
     margin-right: auto
-    margin-left: 0px        
+    margin-left: 0px
 
 .add-small-form-button-visible
     background-color: #7868ff
@@ -277,7 +286,7 @@ footer
             font-size: 16px
             box-sizing: border-box
             border: 2px solid #ccc
-            border-radius: 4px            
+            border-radius: 4px
         .rank-category-options
             display: flex
             flex-direction: column
@@ -285,6 +294,54 @@ footer
             display: flex
             flex-direction: row
             gap: 30px
+
+.unit-group
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    width: fit-content
+    max-width: 85%
+    margin-left: auto
+    margin-right: auto
+    gap: 30px
+    justify-content: center
+    .unit-module
+        display: flex
+        flex-direction: column
+        gap: 30px
+        padding: 15px 30px
+        border: 1px solid black
+        border-radius: 5px
+        background-color: #f0eeee
+        width: fit-content
+        justify-content: center
+        margin-bottom: 15px
+        .unit-input-button-group
+            display: flex
+            flex-direction: row
+            flex-wrap: wrap
+            gap: 30px
+            .unit-input
+                width: 170px
+                font-size: 16px
+                box-sizing: border-box
+                border: 2px solid #ccc
+                border-radius: 4px
+            .save-edit-delete-group
+                display: flex
+                flex-direction: row
+                gap: 30px
+
+        .unit-overview
+            display: flex
+            flex-direction: column
+            gap: 15px
+            >div
+                .overview-header
+                    font-size: 16px
+                    font-weight: bold
+                .overview-text
+                    font-size: 16px
 
 .big-section
     display: flex
@@ -371,13 +428,11 @@ footer
         border: 0px
         border-radius: 20px
         color: white
-        font-size: 20px   
+        font-size: 20px
     .search-by-vocation-rank
-        width: 310px          
+        width: 310px
     .search-by-title
-        width: 310px                
-
-
+        width: 310px
 
 .section-title
     font-size: 50px
@@ -502,8 +557,6 @@ footer
         >ol
             margin: auto 0
 
-
-
 .companies-form
     display: flex
     flex-direction: column
@@ -537,8 +590,6 @@ footer
 h1
     font-size: 2.3rem
 
-
-
 .user-form
     display: flex
     flex-direction: column
@@ -547,7 +598,7 @@ h1
     margin-left: auto
     padding: 15px 30px
     gap: 15px
-    >section        
+    >section
         .form-input-field-group
             display: flex
             flex-direction: row
@@ -565,11 +616,15 @@ h1
             flex-direction: row
             flex-wrap: wrap
             justify-content: space-between
-            .form-section-sub-header
-                font-size: 25px
-            >div
-                .form-text
-                    font-size: 20px             
+            .radio-button-section
+                display: flex
+                flex-direction: column
+                max-width: 33%
+                .form-section-sub-header
+                    font-size: 25px
+                >div
+                    .form-text
+                        font-size: 20px
         >div
             .form-text
                 font-size: 20px
@@ -579,9 +634,19 @@ h1
                     list-style-type: none
         .select-vocation-rank-warning
             margin: 0px auto
-            font-size: 20px            
-            color: red     
-            margin: 0px 
+            font-size: 20px
+            color: red
+            margin: 0px
+        .no-vocations-warning
+            margin: 0px auto
+            font-size: 20px
+            color: red
+            margin: 0px
+        .no-companies-warning
+            margin: 0px auto
+            font-size: 20px
+            color: red
+            margin: 0px
     .generate-button
         background-color: #01a4d9
         font-weight: bold
@@ -591,9 +656,6 @@ h1
         color: white
         font-size: 20px
         margin: 15px 0px
-              
-    
-    
 
 .dialog-background
     position: fixed
@@ -626,7 +688,6 @@ h1
             align-items: "center"
             gap: 15px
 
-
 .loading-text-root
     margin: 0px auto
     font-size: 20px
@@ -634,4 +695,3 @@ h1
 .loading-text-form-data
     margin: 30px auto
     font-size: 20px
-
