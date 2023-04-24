@@ -60,7 +60,11 @@ export default function Home({units}) {
             placeholder={"Your Unit"}/>
         </section>
         <section className="big-section">
+<<<<<<< HEAD
           <h2 className="big-section-title">Provide Your Serviceman&apos;s Details</h2>
+=======
+          <h2 className="big-section-title">Provide Your Serviceman's Details</h2>
+>>>>>>> b596a9668b4dcf292357f17f27a18e1a74a6c46e
           <ServicemanDetailsForm
             selected_unit={selected_unit}  
             unit_data={unit_data}
