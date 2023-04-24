@@ -29,7 +29,7 @@ export function ConclusionsPage({ unit, section_name, available_vocation_ranks, 
         }
         fetchSectionData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    })
+    }, [unit])
 
 
     const getVocationRanksWithMissingTemplates = (available_vocation_ranks, section_list, related_vocation_ranks_type) => {

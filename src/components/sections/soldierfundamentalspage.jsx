@@ -29,7 +29,7 @@ export function SoldierFundamentalsPage({ unit, section_name, available_vocation
         }
         fetchSectionData()
 
-    })
+    }, [unit])
 
 
     const getVocationRanksWithMissingTemplates = (available_vocation_ranks, section_list, related_vocation_ranks_type) => {
