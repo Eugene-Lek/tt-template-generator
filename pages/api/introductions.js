@@ -43,7 +43,7 @@ export default async function handler(req, res) {
                                                         ${personal_particulars.join(", ")} 
                                                         
                                                         *Pre-Unit Achievements (case-insensitive):*
-                                                        ${pre_unit_achievements.join(", ")} (case-insensitive)` 
+                                                        ${pre_unit_achievements.join(", ")}` 
                     }
                 )
             }
@@ -56,7 +56,10 @@ export default async function handler(req, res) {
                 return res.status(400).json({ message: `{${candidate_placeholder}} was found in the Testimonial template, but '${candidate_placeholder}' is not a Personal Particular.
                                                         
                                                         *Personal Particulars (case-insensitive):*
-                                                        ${personal_particulars.join(", ")}`
+                                                        ${personal_particulars.join(", ")}
+                                                        
+                                                        *Pre-Unit Achievements (case-insensitive):*
+                                                        ${pre_unit_achievements.join(", ")}`
                     }
                 )
             }
