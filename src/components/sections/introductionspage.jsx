@@ -41,7 +41,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
         }
         fetchSectionData()
 
-    }, [])
+    })
 
 
     const getVocationRanksWithMissingTemplates = (available_vocation_ranks, section_list, related_vocation_ranks_type) => {
@@ -224,7 +224,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                                 permanently_disable_edit={true}
                             />
                             <div className="example-module-explanation" style={{ fontWeight: 'bold', textDecoration: 'underline', fontSize: '20px' }}>Result:</div>
-                            <div className="example-module-explanation">3SG ETHAN LOKE enlisted in the Singapore Armed Forces on 21 June 2021. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Specialist Cadet Course. Subsequently, 3SG LOKE was posted to 'A' Company, 30th Battalion, Singapore Combat Engineers (30SCE) to take on the appointment of Section Commander.</div>
+                            <div className="example-module-explanation">3SG ETHAN LOKE enlisted in the Singapore Armed Forces on 21 June 2021. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Specialist Cadet Course. Subsequently, 3SG LOKE was posted to &apos;A&apos; Company, 30th Battalion, Singapore Combat Engineers (30SCE) to take on the appointment of Section Commander.</div>
                         </div>
                         <div className="example-module">
                             <div className="example-module-title">3. Indicating Where Users Should Manually Insert Personal Elements</div>
