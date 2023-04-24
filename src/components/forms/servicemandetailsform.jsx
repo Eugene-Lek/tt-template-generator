@@ -185,7 +185,7 @@ export default function ServicemanDetailsForm({selected_unit, unit_data, set_dia
                     <input type="date" className="form-input" name="Enlistment Date" value={form_data['Enlistment Date']} onChange={onChangeString}/>
                 </div>           
                 <div className="radio-button-group">
-                    <div>
+                    <div className="radio-button-section">
                         <h3 className="form-section-sub-header">
                             Coy
                         </h3>
@@ -201,7 +201,7 @@ export default function ServicemanDetailsForm({selected_unit, unit_data, set_dia
                             )
                         })}  
                     </div>   
-                    <div>
+                    <div className="radio-button-section">
                         <h3 className="form-section-sub-header">
                             Vocation
                         </h3>
@@ -217,7 +217,7 @@ export default function ServicemanDetailsForm({selected_unit, unit_data, set_dia
                             )
                         })}                          
                     </div>  
-                    <div>
+                    <div className="radio-button-section">
                         <h3 className="form-section-sub-header">
                             Rank Category
                         </h3>
