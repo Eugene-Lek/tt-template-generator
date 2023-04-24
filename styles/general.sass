@@ -1,0 +1,637 @@
+html *
+    font-family: system-ui, sans-serif
+
+header
+    background: #0F5257
+    padding: 15px 30px
+    .header-title
+        font-size: 65px
+        color: white
+        font-weight: normal
+        text-align: center
+    .header-subtitle
+        font-size: 22px
+        font-weight: normal
+        color: white
+        font-weight: normal
+        text-align: center        
+
+.select-unit
+    width: 200px
+    margin-right: auto
+    margin-left: auto
+
+.select-unit-warning
+    margin: 0px auto
+    font-size: 20px
+    color: red
+
+.home-body
+    background-color: #FFFFFF
+
+footer
+    background-color: #444444
+    padding: 10px
+    text-align: center
+    color: white
+    margin-top: 50px
+
+.section-button-group
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: center
+    align-items: center
+    padding: 20px 30px
+    row-gap: 20px
+    border-radius: 15px
+    .section-button-middle-unselected
+        position: relative
+        height: 150px
+        width: 180px
+        border-top: 1px solid black
+        border-bottom: 1px solid black
+        border-left: 0px
+        border-right: 0px
+        font-size: 20px
+        background-color: #f0eeee
+        color: black
+
+    .section-button-middle-unselected::before
+        position: absolute
+        width: 181px
+        height: 50px
+        top: 50px
+        border-left: 2px solid black
+        content: ""
+
+    .section-button-right-unselected
+        position: relative
+        height: 150px
+        width: 180px
+        border-top: 1px solid black
+        border-bottom: 1px solid black
+        border-left: 0px
+        border-right: 1px solid black
+        font-size: 20px
+        background-color: #f0eeee
+        color: black
+
+    .section-button-right-unselected::before
+        position: absolute
+        width: 181px
+        height: 50px
+        top: 50px
+        border-left: 2px solid black
+        content: ""
+
+    .section-button-left-unselected
+        position: relative
+        height: 150px
+        width: 180px
+        border-top: 1px solid black
+        border-bottom: 1px solid black
+        border-left: 1px solid black
+        border-right: 0px
+        font-size: 20px
+        background-color: #f0eeee
+        color: black
+
+    .section-button-selected
+        position: relative
+        height: 175px
+        width: 205px
+        border-top: 2px solid black
+        border-bottom: 2px solid black
+        border-left: 2px solid black
+        border-right: 2px solid black
+        border-radius: 15px
+        font-size: 25px
+        background-color: #7868ff
+        color: white
+
+.save-changes-button-visible
+    background-color: #00ac13
+    font-weight: bold
+    width: 90px
+    border: 0px
+    border-radius: 20px
+    color: white
+    font-size: 20px
+
+.save-changes-button-hidden
+    background-color: #00ac13
+    font-weight: bold
+    width: 90px
+    display: none
+    border: 0px
+    border-radius: 20px
+    color: white
+    font-size: 20px
+
+.edit-button-visible
+    background-color: #01a4d9
+    font-weight: bold
+    width: 90px
+    border: 0px
+    border-radius: 20px
+    color: white
+    font-size: 20px
+
+.edit-button-hidden
+    background-color: #01a4d9
+    font-weight: bold
+    width: 90px
+    display: none
+    border: 0px
+    border-radius: 20px
+    color: white
+    font-size: 20px
+
+.cancel-button-visible
+    background-color: #ff7f0e
+    font-weight: bold
+    width: 90px
+    border: 0px
+    border-radius: 20px
+    color: white
+    font-size: 20px
+
+.cancel-button-hidden
+    background-color: #ff7f0e
+    font-weight: bold
+    width: 90px
+    display: none
+    border: 0px
+    border-radius: 20px
+    color: white
+    font-size: 20px
+
+.delete-button-visible
+    background-color: #E60023
+    font-weight: bold
+    width: 90px
+    border: 0px
+    border-radius: 20px
+    color: white
+    font-size: 20px
+
+.delete-button-hidden
+    background-color: #E60023
+    font-weight: bold
+    width: 90px
+    display: none
+    border: 0px
+    border-radius: 20px
+    color: white
+    font-size: 20px
+
+
+.add-vocation-form-button
+    background-color: #7868ff
+    font-weight: bold
+    width: 100%
+    border: 0px
+    border-radius: 20px
+    color: white
+    font-size: 20px
+
+.add-form-button-right
+    background-color: #7868ff
+    font-weight: bold
+    width: fit-content
+    border: 0px
+    border-radius: 20px
+    color: white
+    font-size: 20px
+    margin-right: 0px
+    margin-left: auto
+
+.add-form-button-left
+    background-color: #7868ff
+    font-weight: bold
+    width: fit-content
+    border: 0px
+    border-radius: 20px
+    color: white
+    font-size: 20px
+    margin-right: auto
+    margin-left: 0px        
+
+.add-small-form-button-visible
+    background-color: #7868ff
+    font-weight: bold
+    width: 200px
+    border: 0px
+    border-radius: 20px
+    color: white
+    font-size: 18px
+
+.add-small-form-button-hidden
+    display: none
+    background-color: #7868ff
+    font-weight: bold
+    width: 200px
+    border: 0px
+    border-radius: 20px
+    color: white
+    font-size: 18px
+
+.personal-particular-module
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    gap: 30px
+    padding: 15px 30px
+    border: 1px solid black
+    border-radius: 5px
+    background-color: #FFD580
+    margin: 15px
+    .personal-particular-input
+        width: 180px
+    .autocapitalise-options
+        display: flex
+        flex-direction: column
+
+.vocation-group
+    width: fit-content
+    max-width: 85%
+    margin-left: auto
+    margin-right: auto
+    gap: 15px
+    .vocation-module
+        display: flex
+        flex-direction: row
+        flex-wrap: wrap
+        gap: 30px
+        padding: 15px 30px
+        border: 1px solid black
+        border-radius: 5px
+        background-color: #f0eeee
+        width: fit-content
+        justify-content: center
+        margin-bottom: 15px
+
+        .vocation-input
+            width: 150px
+            font-size: 16px
+            box-sizing: border-box
+            border: 2px solid #ccc
+            border-radius: 4px            
+        .rank-category-options
+            display: flex
+            flex-direction: column
+        .save-edit-delete-group
+            display: flex
+            flex-direction: row
+            gap: 30px
+
+.big-section
+    display: flex
+    flex-direction: column
+    gap: 45px
+    .big-section-description-group
+        display: flex
+        flex-direction: column
+        gap: 16px
+        margin-bottom: 20px
+        margin-left: auto
+        margin-right: auto
+        max-width: 600px
+
+        .big-section-description
+            font-size: 1.3rem
+            text-align: center
+            margin: 0px
+    .big-section-title
+        font-size: 50px
+        color: #0B486B
+        text-align: center
+        margin-bottom: 0px
+        margin-top: 75px
+
+.show-hide-bar
+    display: flex
+    flex-direction: column
+    gap: 20px
+    >details
+        .instructions-summary
+            box-sizing: border-box
+            width: 85%
+            padding: 15px 15px
+            background-color: #7929a4
+            color: white
+            font-size: 25px
+            font-weight: bold
+            margin-left: auto
+            margin-right: auto
+            cursor: pointer
+        .section-summary
+            box-sizing: border-box
+            width: 85%
+            padding: 15px 15px
+            background-color: #7929a4
+            color: white
+            font-size: 25px
+            font-weight: bold
+            margin-left: auto
+            margin-right: auto
+            cursor: pointer
+
+.missing-vocation-ranks-warning
+    display: flex
+    flex-direction: column
+    padding: 25px 30px
+    gap: 15px
+    .missing-vocation-ranks-warning-text
+        display: flex
+        flex-direction: column
+        gap: 10px
+    .missing-vocation-ranks-group
+        display: flex
+        flex-direction: row
+        flex-wrap: wrap
+        gap: 40px
+        .each-missing-rank-group
+            display: flex
+            flex-direction: column
+            gap: 10px
+            >ul
+                margin: 0px
+
+.search-templates
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    gap: 15px
+    .view-all-button
+        background-color: #00ac13
+        font-weight: bold
+        width: 90px
+        border: 0px
+        border-radius: 20px
+        color: white
+        font-size: 20px   
+    .search-by-vocation-rank
+        width: 310px          
+    .search-by-title
+        width: 310px                
+
+
+
+.section-title
+    font-size: 50px
+    color: #0B486B
+    text-align: center
+    font-weight: bold
+
+.section-group
+    display: flex
+    flex-direction: column
+    box-sizing: border-box
+    width: 85%
+    margin-left: auto
+    margin-right: auto
+    gap: 15px
+    padding: 15px
+    border: 3px solid #7929a4
+    .section-module
+        display: flex
+        flex-direction: column
+        flex-wrap: wrap
+        gap: 15px
+        padding: 15px 30px
+        border: 1px solid black
+        border-radius: 5px
+        background-color: #f0eeee
+        .template-group
+            >p
+                font-size: 15px
+                font-weight: bold
+
+            .title-input
+                width: 300px
+                font-size: 16px
+                box-sizing: border-box
+                border: 2px solid #ccc
+                border-radius: 4px
+            .template-input
+                width: 100%
+                height: 100px
+                box-sizing: border-box
+                border: 2px solid #ccc
+                border-radius: 4px
+                font-size: 16px
+                resize: none
+            .transcript-template-input
+                width: 100%
+                height: 50px
+                box-sizing: border-box
+                border: 2px solid #ccc
+                border-radius: 4px
+                font-size: 16px
+                resize: none
+            .achievements-group
+                display: flex
+                flex-direction: column
+                gap: 15px
+            .awards-group
+                display: flex
+                flex-direction: column
+                gap: 10px
+                width: fit-content
+                >p
+                    font-size: 15px
+                    font-weight: bold
+                .award-group
+                    display: flex
+                    flex-direction: row
+                    gap: 15px
+                    .title-input
+                        width: 200px
+                        font-size: 16px
+                        box-sizing: border-box
+                        border: 2px solid #ccc
+                        border-radius: 4px
+
+        .applies-to-vrc
+            >p
+                font-size: 15px
+                font-weight: bold
+            .applies-to-no-vocation-ranks
+                display: flex
+                flex-direction: column
+                gap: 10px
+                font-size: 15px
+            .applies-to-vocation-ranks-group
+                display: flex
+                flex-direction: row
+                flex-wrap: wrap
+                gap: 25px
+                .each-rank-group
+                    display: flex
+                    flex-direction: column
+                    .vocation-rank-option-group
+                        display: flex
+                        flex-direction: row
+                    >ul
+                        margin: 5px
+                        .vocation-rank-li
+                            display: flex
+                            flex-direction: row
+                            align-items: baseline
+                            list-style-type: none
+        .save-edit-delete-group
+            display: flex
+            flex-direction: row
+            gap: 30px
+            padding-top: 15px
+
+    .example-module
+        display: flex
+        flex-direction: column
+        flex-wrap: wrap
+        gap: 15px
+        padding: 15px 30px
+        .example-module-title
+            font-size: 25px
+            color: #0B486B
+            font-weight: bold
+        .example-module-explanation
+            font-size: 16px
+        >ol
+            margin: auto 0
+
+
+
+.companies-form
+    display: flex
+    flex-direction: column
+    flex-wrap: wrap
+    margin-left: auto
+    margin-right: auto
+    gap: 15px
+    .companies-group
+        display: flex
+        flex-direction: column
+        gap: 10px
+        width: fit-content
+        >p
+            font-size: 15px
+            font-weight: bold
+        .company-group
+            display: flex
+            flex-direction: row
+            gap: 15px
+            .title-input
+                width: 200px
+                font-size: 16px
+                box-sizing: border-box
+                border: 2px solid #ccc
+                border-radius: 4px
+    .save-edit-delete-group
+        display: flex
+        flex-direction: row
+        gap: 20px
+
+h1
+    font-size: 2.3rem
+
+
+
+.user-form
+    display: flex
+    flex-direction: column
+    width: 800px
+    margin-right: auto
+    margin-left: auto
+    padding: 15px 30px
+    gap: 15px
+    >section        
+        .form-input-field-group
+            display: flex
+            flex-direction: row
+            gap: 15px
+            padding: 7.5px 0px
+            .form-input
+                width: 150px
+                font-size: 18px
+                border: 1px solid #ccc
+                border-radius: 3px
+        .form-section-header
+            font-size: 30px
+        .radio-button-group
+            display: flex
+            flex-direction: row
+            flex-wrap: wrap
+            justify-content: space-between
+            .form-section-sub-header
+                font-size: 25px
+            >div
+                .form-text
+                    font-size: 20px             
+        >div
+            .form-text
+                font-size: 20px
+            >ul
+                margin: 0px
+                >li
+                    list-style-type: none
+        .select-vocation-rank-warning
+            margin: 0px auto
+            font-size: 20px            
+            color: red     
+            margin: 0px 
+    .generate-button
+        background-color: #01a4d9
+        font-weight: bold
+        width: fit-content
+        border: 0px
+        border-radius: 20px
+        color: white
+        font-size: 20px
+        margin: 15px 0px
+              
+    
+    
+
+.dialog-background
+    position: fixed
+    top: 0
+    left: 0
+    right: 0
+    bottom: 0
+    background-color: rgba(0,0,0,0.5)
+    .dialog-box
+        display: flex
+        flex-direction: column
+        gap: 15px
+        align-items: center
+        justify-content: center
+        position: absolute
+        top: 50%
+        left: 50%
+        transform: translate(-50%,-50%)
+        background: white
+        padding: 20px
+        border-radius: 10px
+        .dialog-message
+            display: flex
+            flex-direction: column
+            gap: 15px
+        .dialog-buttons
+            display: flex
+            flex-direction: row
+            flex-wrap: wrap
+            align-items: "center"
+            gap: 15px
+
+
+.loading-text-root
+    margin: 0px auto
+    font-size: 20px
+
+.loading-text-form-data
+    margin: 30px auto
+    font-size: 20px
+

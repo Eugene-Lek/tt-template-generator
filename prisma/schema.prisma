@@ -1,0 +1,167 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Unit {
+  id       String @id @default(uuid())
+  name     String @unique
+  password String
+
+  Companies                      String[]
+  Vocations                      Vocation[]
+  VocationRankCombinations       VocationRankCombination[]
+  PreUnitAchievements            PreUnitAchievement[]
+  Introductions                  Introduction[]
+  PrimaryAppointments            PrimaryAppointment[]
+  PrimaryAppointmentAchievements PrimaryAppointmentAchievement[]
+  SecondaryAppointments          SecondaryAppointment[]
+  SoldierFundamentals            SoldierFundamental[]
+  OtherContributions             OtherContribution[]
+  OtherIndividualAchievements    OtherIndividualAchievement[]
+  Conclusions                    Conclusion[]
+}
+
+model Vocation {
+  id       String   @id @default(uuid())
+  name     String
+  ranks    String[]
+  Unit     Unit     @relation(fields: [unitName], references: [name])
+  unitName String
+
+  @@unique([name, unitName])
+}
+
+model VocationRankCombination {
+  id       String @id @default(uuid())
+  vocation String
+  rank     String
+
+  Unit     Unit   @relation(fields: [unitName], references: [name])
+  unitName String
+
+  PreUnitAchievements   PreUnitAchievement[]
+
+  Introduction   Introduction? @relation(fields: [introductionId], references: [id])
+  introductionId String?
+
+  PrimaryAppointments PrimaryAppointment[]
+
+  SecondaryAppointments SecondaryAppointment[]
+
+  SoldierFundamentals SoldierFundamental[]
+
+  OtherContributions OtherContribution[]
+
+  OtherIndividualAchievements OtherIndividualAchievement[]
+
+  Conclusion           Conclusion?         @relation(fields: [conclusionId], references: [id])
+  conclusionId         String?
+
+
+  @@unique([vocation, rank, unitName])
+}
+
+model PreUnitAchievement {
+  id        String                    @id @default(uuid())
+  title     String
+  template  String
+  appliesto VocationRankCombination[]
+
+  unit     Unit   @relation(fields: [unitName], references: [name])
+  unitName String
+}
+
+model Introduction {
+  id                 String                    @id @default(uuid())
+  template           String
+  transcripttemplate String
+  appliesto          VocationRankCombination[]
+
+  unit     Unit   @relation(fields: [unitName], references: [name])
+  unitName String
+}
+
+model PrimaryAppointment {
+  id                 String                          @id @default(uuid())
+  title              String
+  template           String
+  transcripttemplate String
+  appliesto          VocationRankCombination[]
+  achievements       PrimaryAppointmentAchievement[]
+
+  unit     Unit   @relation(fields: [unitName], references: [name])
+  unitName String
+}
+
+model PrimaryAppointmentAchievement {
+  id       String @id @default(uuid())
+  title    String
+  template String
+
+  PrimaryAppointment   PrimaryAppointment @relation(fields: [primaryappointmentId], references: [id])
+  primaryappointmentId String
+
+  unit     Unit   @relation(fields: [unitName], references: [name])
+  unitName String
+}
+
+model SecondaryAppointment {
+  id                 String                    @id @default(uuid())
+  title              String
+  template           String
+  transcripttemplate String
+  appliesto          VocationRankCombination[]
+
+  unit     Unit   @relation(fields: [unitName], references: [name])
+  unitName String
+}
+
+model SoldierFundamental {
+  id        String                    @id @default(uuid())
+  title     String
+  awards    String[]
+  appliesto VocationRankCombination[]
+
+  unit     Unit   @relation(fields: [unitName], references: [name])
+  unitName String
+}
+
+model OtherContribution {
+  id                 String                    @id @default(uuid())
+  title              String
+  template           String
+  transcripttemplate String
+  appliesto          VocationRankCombination[]
+
+  unit     Unit   @relation(fields: [unitName], references: [name])
+  unitName String
+}
+
+model OtherIndividualAchievement {
+  id                 String                    @id @default(uuid())
+  title              String
+  template           String
+  transcripttemplate String
+  appliesto          VocationRankCombination[]
+
+  unit     Unit   @relation(fields: [unitName], references: [name])
+  unitName String
+}
+
+model Conclusion {
+  id                 String                    @id @default(uuid())
+  template           String
+  transcripttemplate String
+  appliesto          VocationRankCombination[]
+
+  unit     Unit   @relation(fields: [unitName], references: [name])
+  unitName String
+}
