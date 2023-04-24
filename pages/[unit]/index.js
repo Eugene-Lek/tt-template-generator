@@ -1,3 +1,4 @@
+import Head from 'next/head'
 import { Header } from "src/components/header/header"
 import { Footer } from "src/components/footer/footer"
 import {Dialog} from "src/components/home/dialog"
@@ -96,6 +97,11 @@ export default function UnitAdminHome({ unit , init_companies, init_vocations_li
     }
     return (
         <>
+            <Head>
+                <title>T&T Generator</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <link rel="icon" href="/favicon.ico" />
+            </Head>            
             <Header title={title} />
             <main className="home-body">
                 <section className="big-section">
@@ -233,8 +239,8 @@ export default function UnitAdminHome({ unit , init_companies, init_vocations_li
     )
 }
 
-export async function getServerSideProps() {
-    const unit = "30SCE"
+export async function getServerSideProps({params}) {
+    const unit = params.unit.toUpperCase()
     const unit_data_dict = await prisma.Unit.findUnique({
         where: {
             name: unit
