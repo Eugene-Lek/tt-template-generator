@@ -9,6 +9,7 @@ export default async function handler(req, res) {
         var { unit, id, template, transcript_template, related_vocation_ranks } = req.body
     }
     if (req.method == 'POST' || req.method == 'PUT') {
+        console.time("Save API")
         // General Parameter Validation
         if (!transcript_template) {
             return res.status(400).json({ message: 'The transcript template is missing' })
@@ -32,7 +33,6 @@ export default async function handler(req, res) {
         const valid_placholders = [...personal_particulars, ...pre_unit_achievements].map(str => str.toLowerCase())
 
         const inserted_placeholders_transcript = [...transcript_template.matchAll(/\{[^}]+\}/g)] // global search
-        console.log(inserted_placeholders_transcript)
         for (let i=0; i<inserted_placeholders_transcript.length; i++){
             const candidate_data = inserted_placeholders_transcript[i]
             const candidate = candidate_data[0].slice(1,-1) // index 0 corresponds to the actual match detected. The rest is metadata
@@ -79,6 +79,7 @@ export default async function handler(req, res) {
                 id: true
             }
         })
+        console.timeEnd("Save API")
     }
 
     try {
@@ -97,7 +98,6 @@ export default async function handler(req, res) {
                     }
                 })
                 const unit_introductions = unit_introductions_dict.Introductions
-                console.log(unit_introductions)
                 if (unit_introductions.length < 1) {
                     var init_introductions_list = [{
                         id: uuidv4(),
@@ -174,6 +174,7 @@ export default async function handler(req, res) {
 
             case 'PUT':
                 // Update the old Introduction object
+                console.timeEnd("Save API")
                 await prisma.Introduction.update({
                     where: {
                         id: id
@@ -187,6 +188,7 @@ export default async function handler(req, res) {
                     }
                 })
                 res.status(200).json({ message: 'Save Successful' })
+                console.timeEnd("Save API")
                 break
 
             case 'DELETE':
