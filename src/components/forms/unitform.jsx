@@ -11,6 +11,7 @@ export const UnitForm = ({
     set_units_data,
     index,
     set_dialog_settings,
+    set_create_unit_dialog_settings,
     display
 }) => {
     /*INITIALISING OF DISPLAY*/
@@ -163,18 +164,34 @@ export const UnitForm = ({
         // Otherwise, create a new unit object with 'POST'
         const is_update = previously_saved_unit != ''
         const http_method = is_update ? "PATCH" : "POST"
-        console.log(unit_cleaned)
-        createOrEditUnit({
-            id,
-            unit: unit_cleaned,
-            units_data,
-            set_units_data,
-            index,
-            http_method
-        })
+        if (http_method == "PATCH"){
+            createOrEditUnit({
+                id,
+                unit: unit_cleaned,
+                units_data,
+                set_units_data,
+                index,
+                http_method
+            })
+        } else if (http_method == "POST"){
+            set_create_unit_dialog_settings({
+                "unit": unit,
+                "displayed": true,
+                "onClickDialog": handleCreateUnitSelection,
+                "onClickDialogProps": {
+                    id,
+                    unit: unit_cleaned,
+                    units_data,
+                    set_units_data,
+                    index,
+                    http_method                    
+                }
+            })
+        }
+
     }
 
-    /*FUNCTIONS THAT HANDLE THE USER'S RESPONSE TO THE RESET PASSWORD DIALOG*/
+    /*FUNCTIONS THAT HANDLE THE USER'S RESPONSE TO THE RESET PASSWORD/CREATE UNIT DIALOG*/
     const handleResetPasswordConfirmation = ({
         id,
         action
@@ -198,6 +215,40 @@ export const UnitForm = ({
         })
     }
 
+    const handleCreateUnitSelection = ({
+        id,
+        unit,
+        units_data,
+        set_units_data,
+        index,
+        http_method,
+        selected_copy_unit,                
+        action
+    }) => {
+        console.log("reached")
+        // Close the dialog no matter what
+        set_create_unit_dialog_settings({
+            "unit": '',
+            "displayed": false,
+            "onClickDialog": function () { return },
+            "onClickDialogProps": {}
+        })
+        // Break out of the function if the delete operation is cancelled
+        if (action == "cancel" || action == "exit") {
+            return
+        }
+        // Otherwise execute the reset password operation
+        createOrEditUnit({
+            id,
+            unit,
+            units_data,
+            set_units_data,
+            index,
+            http_method,
+            selected_copy_unit,
+        })
+    }    
+
     /* HELPER FUNCTIONS THAT DIRECTLY INVOKE API CALLS TO EXECUTE POST/PATCH/DELETE REQUESTS */
     const createOrEditUnit = async ({
         id,
@@ -205,7 +256,8 @@ export const UnitForm = ({
         units_data,
         set_units_data,
         index,
-        http_method
+        http_method,
+        selected_copy_unit,
     }) => {
         console.log(unit)
         try {
@@ -217,7 +269,8 @@ export const UnitForm = ({
                 body: JSON.stringify({
                     unit,
                     id,
-                    field_to_patch: "unitName"
+                    field_to_patch: "unitName",
+                    selected_copy_unit
                 })
             })
             // Only change the button displays when the data has been successfully saved
