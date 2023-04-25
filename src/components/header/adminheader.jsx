@@ -76,8 +76,7 @@ export const AdminHeader = ({ title, subtitle, unit, id, set_dialog_settings }) 
             "onClickDialog": handleResetPasswordConfirmation,
             "onClickDialogProps": {
                 id,
-            },
-            "isBlocking": true
+            }
         })
     }
 

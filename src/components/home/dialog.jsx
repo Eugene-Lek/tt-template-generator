@@ -11,11 +11,7 @@ export function Dialog({ message, buttons, line_props, onClickDialog, onClickDia
       var line_props_refined = line_props
     }
     return ( 
-      <div className="dialog-background" onClick={() => {
-        if (!isBlocking){
-          onClickDialog({...onClickDialogProps, action:"exit"}) 
-        }
-          }}>
+      <div className="dialog-background" onClick={() => {onClickDialog({...onClickDialogProps, action:"exit"})}}>
         <div className="dialog-box" onClick={(e) => e.stopPropagation()}>
           <div className="dialog-message">
             {lines.map((line, i) => {

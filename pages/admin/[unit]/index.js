@@ -230,8 +230,7 @@ export default function UnitAdminHome({ unit , id, init_companies, init_vocation
                         line_props={dialog_settings.line_props}
                         displayed={dialog_settings.displayed} 
                         onClickDialog={dialog_settings.onClickDialog}  
-                        onClickDialogProps={dialog_settings.onClickDialogProps}  
-                        isBlocking={dialog_settings.isBlocking}               
+                        onClickDialogProps={dialog_settings.onClickDialogProps}              
                     />
                 )}
             </main>
