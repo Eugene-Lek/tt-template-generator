@@ -14,7 +14,7 @@ export const ConclusionForm = ({
     conclusions_list,
     set_conclusions_list,
     button_state,
-    index,
+    form_index,
     unit,
     set_dialog_settings,
     permanently_disable_edit,
@@ -139,7 +139,7 @@ export const ConclusionForm = ({
 
     /*FUNCTIONS THAT UPDATE conclusions_list WHENEVER ANY (UNSAVED) CHANGES ARE MADE*/
 
-    const onChangeText = (event, index) => {
+    const onChangeText = (event, form_index) => {
 
         if (permanently_disable_edit) {
             return
@@ -151,7 +151,7 @@ export const ConclusionForm = ({
         //console.log(temp_conclusions_list)
     }
 
-    const onChangeCheckbox = (event, index) => {
+    const onChangeCheckbox = (event, form_index) => {
 
         if (permanently_disable_edit) {
             return
@@ -211,13 +211,13 @@ export const ConclusionForm = ({
             related_vocation_ranks,
             conclusions_list,
             set_conclusions_list,
-            index,
+            form_index,
             unit,
             http_method
         })
     }
 
-    const onClickDelete = async (event, index) => {
+    const onClickDelete = async (event, form_index) => {
         event.preventDefault()
 
         if (permanently_disable_edit) {
@@ -231,7 +231,7 @@ export const ConclusionForm = ({
                 id,
                 conclusions_list,
                 set_conclusions_list,
-                index,
+                form_index,
                 unit
             })
             return
@@ -263,7 +263,7 @@ export const ConclusionForm = ({
                 id,
                 conclusions_list,
                 set_conclusions_list,
-                index,
+                form_index,
                 unit
             }
         })
@@ -274,7 +274,7 @@ export const ConclusionForm = ({
         id,
         conclusions_list,
         set_conclusions_list,
-        index,
+        form_index,
         unit,
         action
     }) => {
@@ -296,7 +296,7 @@ export const ConclusionForm = ({
             id,
             conclusions_list,
             set_conclusions_list,
-            index,
+            form_index,
             unit
         })
     }
@@ -310,7 +310,7 @@ export const ConclusionForm = ({
         related_vocation_ranks,
         conclusions_list,
         set_conclusions_list,
-        index,
+        form_index,
         unit,
         http_method
     }) => {
@@ -359,7 +359,7 @@ export const ConclusionForm = ({
         id,
         conclusions_list,
         set_conclusions_list,
-        index,
+        form_index,
         unit,
     }) => {
         try {
@@ -415,7 +415,7 @@ export const ConclusionForm = ({
                                             return (
                                                 <li key={i_inner} className="vocation-rank-li">
                                                     <input
-                                                        onChange={(event) => { onChangeCheckbox(event, index) }}
+                                                        onChange={(event) => { onChangeCheckbox(event, form_index) }}
                                                         type="checkbox"
                                                         name={`${vocation}||${rank}`}
                                                         checked={available_related_vocation_ranks[vocation].includes(rank)}
@@ -432,17 +432,17 @@ export const ConclusionForm = ({
                 </div>
                 <div className="template-group">
                     <p>Transcript Template:</p>
-                    <textarea onChange={(event) => { onChangeText(event, index) }} className="transcript-template-input" name="transcript_template" placeholder="e.g. {Rank} {Full Name} served as a {Primary Appointment} in {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE)." value={transcript_template} disabled={edit_disabled}></textarea>
+                    <textarea onChange={(event) => { onChangeText(event, form_index) }} className="transcript-template-input" name="transcript_template" placeholder="e.g. {Rank} {Full Name} served as a {Primary Appointment} in {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE)." value={transcript_template} disabled={edit_disabled}></textarea>
                 </div>                      
                 <div className="template-group">
                     <p>Testimonial Template:</p>
-                    <textarea onChange={(event) => { onChangeText(event, index) }} className="template-input" name="template" placeholder="e.g. {Rank} {Full Name} enlisted in the Singapore Armed Forces on {Enlistment Date}. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Specialist Cadet Course. {Golden Bayonet} {Silver Bayonet} Subsequently, {Rank} {Surname} was posted to {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE) where he was assigned the role of {Primary Appointment}." value={template} disabled={edit_disabled}></textarea>
+                    <textarea onChange={(event) => { onChangeText(event, form_index) }} className="template-input" name="template" placeholder="e.g. {Rank} {Full Name} enlisted in the Singapore Armed Forces on {Enlistment Date}. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Specialist Cadet Course. {Golden Bayonet} {Silver Bayonet} Subsequently, {Rank} {Surname} was posted to {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE) where he was assigned the role of {Primary Appointment}." value={template} disabled={edit_disabled}></textarea>
                 </div>
                 <div className="save-edit-delete-group">
                     <button type="submit" className={save_button_class}>Save</button>
                     <button onClick={onEdit} className={edit_button_class}>Edit</button>
                     <button onClick={onCancelChanges} className={cancel_button_class}>Cancel</button>
-                    <button onClick={(event) => { onClickDelete(event, index) }} className={delete_button_class}>Delete</button>
+                    <button onClick={(event) => { onClickDelete(event, form_index) }} className={delete_button_class}>Delete</button>
                 </div>
             </form>
         </div>

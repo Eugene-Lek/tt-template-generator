@@ -154,7 +154,7 @@ export const OtherIndividualAchievementForm = ({
         console.log(temp_other_individual_achievements_list)
     }
 
-    const onChangeCheckbox = (event, index) => {
+    const onChangeCheckbox = (event, form_index) => {
 
         if (permanently_disable_edit) {
             return
@@ -429,7 +429,7 @@ export const OtherIndividualAchievementForm = ({
                                             return (
                                                 <li key={i_inner} className="vocation-rank-li">
                                                     <input
-                                                        onChange={(event) => { onChangeCheckbox(event, index) }}
+                                                        onChange={(event) => { onChangeCheckbox(event, form_index) }}
                                                         type="checkbox"
                                                         name={`${vocation}||${rank}`}
                                                         checked={available_related_vocation_ranks[vocation].includes(rank)}
