@@ -18,9 +18,9 @@ export default async function handler(req, res) {
             return res.status(400).json({ message: 'At least 1 award must be provided' })
         }
         // Find related Vocation-Rank-Combination objects via related_vocation_ranks_list
-        const related_vocation_ranks_nested_list = Object.keys(related_vocation_ranks).map((rank_type) => {
-            return related_vocation_ranks[rank_type].map((vocation) => {
-                return { vocation, rank: rank_type, unitName: unit }
+        const related_vocation_ranks_nested_list = Object.keys(related_vocation_ranks).map((vocation) => {
+            return related_vocation_ranks[vocation].map((rank) => {
+                return { vocation, rank, unitName: unit }
             })
         })
         const related_vocation_ranks_list = [].concat(...related_vocation_ranks_nested_list)
@@ -58,42 +58,28 @@ export default async function handler(req, res) {
                         previously_saved_official_name: "",
                         awards: [''],
                         previously_saved_awards: [''],
-                        related_vocation_ranks: {
-                            Officer: [],
-                            Specialist: [],
-                            Enlistee: []
-                        },
-                        previously_saved_related_vocation_ranks: {
-                            Officer: [],
-                            Specialist: [],
-                            Enlistee: []
-                        },
+                        related_vocation_ranks: {},
+                        previously_saved_related_vocation_ranks: {},
                         button_state: "save",
                         display: 'block'
                     }]
                 } else {
                     var init_list = unit_soldier_fundamentals.map((soldier_fundamental) => {
-                        const applies_to_VRC = soldier_fundamental.appliesto
-                        const applies_to_officers = applies_to_VRC.filter((vrc) => vrc.rank == "Officer").map((vrc) => vrc.vocation)
-                        const applies_to_specialists = applies_to_VRC.filter((vrc) => vrc.rank == "Specialist").map((vrc) => vrc.vocation)
-                        const applies_to_enlistee = applies_to_VRC.filter((vrc) => vrc.rank == "Enlistee").map((vrc) => vrc.vocation)
-
+                        const applies_to_vocation_ranks_entries = soldier_fundamental.appliesto.map(obj => [obj.vocation, obj.rank])
+                        const related_vocation_ranks = Object.fromEntries(applies_to_vocation_ranks_entries)
+                        Object.keys(related_vocation_ranks).forEach(vocation => {
+                            if (typeof related_vocation_ranks[vocation] !== Array) {
+                                related_vocation_ranks[vocation] = [related_vocation_ranks[vocation]]
+                            }
+                        })
                         return {
                             id: soldier_fundamental.id,
                             official_name: soldier_fundamental.title,
                             previously_saved_official_name: soldier_fundamental.title,
                             awards: soldier_fundamental.awards,
                             previously_saved_awards: soldier_fundamental.awards,
-                            related_vocation_ranks: {
-                                Officer: applies_to_officers,
-                                Specialist: applies_to_specialists,
-                                Enlistee: applies_to_enlistee
-                            },
-                            previously_saved_related_vocation_ranks: {
-                                Officer: applies_to_officers,
-                                Specialist: applies_to_specialists,
-                                Enlistee: applies_to_enlistee
-                            },
+                            related_vocation_ranks: related_vocation_ranks,
+                            previously_saved_related_vocation_ranks: related_vocation_ranks,
                             button_state: "edit",
                             display: 'block'
                         }

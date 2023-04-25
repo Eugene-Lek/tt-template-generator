@@ -24,8 +24,8 @@ export const IntroductionForm = ({
     // This is important because Vocation-Rank-Combination objects and their connections are retained even if
     // their corresponding Vocation object is deleted. 
     // Therefore, we need to filter out these introductions
-    const available_related_vocation_ranks_list = Object.keys(available_vocation_ranks).map((rank_type) => {
-        return [rank_type, available_vocation_ranks[rank_type].filter((vocation) => related_vocation_ranks[rank_type]?.includes(vocation))]
+    const available_related_vocation_ranks_list = Object.keys(available_vocation_ranks).map((vocation) => {
+        return [vocation, available_vocation_ranks[vocation].filter((rank) => related_vocation_ranks[vocation]?.includes(rank))]
     })
     const available_related_vocation_ranks = Object.fromEntries(available_related_vocation_ranks_list)
 
@@ -146,7 +146,7 @@ export const IntroductionForm = ({
         }
 
         const temp_introductions_list = cloneDeep(introductions_list)
-        temp_introductions_list[intro_index][event.target.name] = event.target.value        
+        temp_introductions_list[intro_index][event.target.name] = event.target.value
         set_introductions_list(temp_introductions_list)
         //console.log(temp_introductions_list)
     }
@@ -157,12 +157,12 @@ export const IntroductionForm = ({
             return
         }
 
-        const [checkbox_rank, checkbox_vocation] = event.target.name.split("||")
+        const [checkbox_vocation, checkbox_rank] = event.target.name.split("||")
         let temp_introductions_list = cloneDeep(introductions_list)
 
         if (event.target.checked) {
             // If the vocation-rank has already been assigned to another template, block the change in checkbox and alert the user about the issue
-            const already_assigned_elsewhere = vocation_ranks_with_templates[checkbox_rank]?.includes(checkbox_vocation)
+            const already_assigned_elsewhere = vocation_ranks_with_templates[checkbox_vocation]?.includes(checkbox_rank)
             if (already_assigned_elsewhere) {
                 const error_message = `*'${checkbox_vocation} ${checkbox_rank}' has already been assigned to another Introdution template.*
                                         You must unassign '${checkbox_vocation} ${checkbox_rank}' from the other Introduction Template before you can assign it to this one.
@@ -171,46 +171,19 @@ export const IntroductionForm = ({
                 return
             }
             // Otherwise, update the introductions_list to reflect the change in checkbox
-            temp_introductions_list[intro_index]['related_vocation_ranks'][checkbox_rank].push(checkbox_vocation)
-        } else {
-            temp_introductions_list[intro_index]['related_vocation_ranks'][checkbox_rank] = temp_introductions_list[intro_index]['related_vocation_ranks'][checkbox_rank]
-                .filter(vocation => vocation !== checkbox_vocation)
-        }
-
-        set_introductions_list(temp_introductions_list)
-        console.log(temp_introductions_list)
-    }
-
-    const onAllRank = (event, intro_index) => {
-        const checkbox_rank = event.target.name
-        let temp_introductions_list = cloneDeep(introductions_list)
-
-        if (event.target.checked) {
-            // If one of the vocation-rank has already been assigned to another template, block the change in all checkboxes and alert the user about the issue
-            let already_assigned_elsewhere = false
-            available_vocation_ranks[checkbox_rank].forEach((checkbox_vocation) => {
-                already_assigned_elsewhere = vocation_ranks_with_templates[checkbox_rank]?.includes(checkbox_vocation) //vocation has been assigned to a template
-                                                && !related_vocation_ranks[checkbox_rank]?.includes(checkbox_vocation) // vocation is not assigned to this template
-                if (already_assigned_elsewhere) {
-                    const error_message = `'${checkbox_vocation} ${checkbox_rank}' has already been assigned an Introdution template.
-                                            You must unassign '${checkbox_vocation} ${checkbox_rank}' from the other Introduction Template before you can assign it to this one.
-                                            (Remember to click 'Save' after unassigning it)`
-                    displayErrorMessage(error_message)
-                    already_assigned_elsewhere = true
-                    return
-                }
-            })
-            if (!already_assigned_elsewhere) {
-                temp_introductions_list[intro_index]['related_vocation_ranks'][checkbox_rank] = cloneDeep(available_vocation_ranks[checkbox_rank])
+            if (!temp_introductions_list[intro_index]['related_vocation_ranks'][checkbox_vocation]){
+                temp_introductions_list[intro_index]['related_vocation_ranks'][checkbox_vocation] = [checkbox_rank]
+            } else {
+                temp_introductions_list[intro_index]['related_vocation_ranks'][checkbox_vocation].push(checkbox_rank)
             }
-            // Otherwise, update the introductions_list to reflect the change in checkboxes            
         } else {
-            temp_introductions_list[intro_index]['related_vocation_ranks'][checkbox_rank] = []
+            temp_introductions_list[intro_index]['related_vocation_ranks'][checkbox_vocation] = temp_introductions_list[intro_index]['related_vocation_ranks'][checkbox_vocation]
+                .filter(rank => rank !== checkbox_rank)
         }
+
         set_introductions_list(temp_introductions_list)
         console.log(temp_introductions_list)
     }
-
 
     /*FUNCTIONS WHICH MANAGE TO 'SAVE' OR 'DELETE' BUTTON CLICKS*/
 
@@ -282,7 +255,7 @@ export const IntroductionForm = ({
             ],
             "line_props": [
                 { color: "#000000", font_size: "25px", text_align: "center", margin_right: "auto", margin_left: "auto" },
-                { color: "#000000", font_size: "16px", text_align: "left", margin_left: "0", margin_right: "auto" }              
+                { color: "#000000", font_size: "16px", text_align: "left", margin_left: "0", margin_right: "auto" }
             ],
             "displayed": true,
             "onClickDialog": handleDeleteConfirmation,
@@ -416,7 +389,7 @@ export const IntroductionForm = ({
     }
 
     return (
-        <div style={{display: display}}>
+        <div style={{ display: display }}>
             <form onSubmit={onClickSave} className="section-module">
 
                 <div className="applies-to-vrc">
@@ -427,22 +400,16 @@ export const IntroductionForm = ({
                         </div>
                     }
                     <div className="applies-to-vocation-ranks-group">
-                        {Object.keys(available_vocation_ranks).map((rank, i_outer) => {
+                        {Object.keys(available_vocation_ranks).map((vocation, i_outer) => {
                             return (
-                                <div key={i_outer} className="each-rank-group">
+                                <div key={i_outer} className="each-vocation-group">
                                     <div className="vocation-rank-option-group">
-                                        <input
-                                            onChange={(event) => { onAllRank(event, intro_index) }}
-                                            type="checkbox"
-                                            name={rank}
-                                            checked={available_related_vocation_ranks[rank].length == available_vocation_ranks[rank].length}
-                                            disabled={edit_disabled}></input>
-                                        <label>All {rank}s</label>
+                                        <label>{vocation}</label>
                                     </div>
                                     <ul>
-                                        {available_vocation_ranks[rank].map((vocation, i_inner) => {
-                                            // If the vocation is an empty string, i.e. is not selected, skip it
-                                            if (!vocation) {
+                                        {available_vocation_ranks[vocation].map((rank, i_inner) => {
+                                            // If the rank is an empty string, i.e. is not selected, skip it
+                                            if (!rank) {
                                                 return
                                             }
                                             return (
@@ -450,10 +417,10 @@ export const IntroductionForm = ({
                                                     <input
                                                         onChange={(event) => { onChangeCheckbox(event, intro_index) }}
                                                         type="checkbox"
-                                                        name={`${rank}||${vocation}`}
-                                                        checked={available_related_vocation_ranks[rank].includes(vocation)}
+                                                        name={`${vocation}||${rank}`}
+                                                        checked={available_related_vocation_ranks[vocation].includes(rank)}
                                                         disabled={edit_disabled}></input>
-                                                    <label>{vocation}</label>
+                                                    <label>{rank}</label>
                                                 </li>
                                             )
                                         })}
@@ -466,7 +433,7 @@ export const IntroductionForm = ({
                 <div className="template-group">
                     <p>Transcript Template:</p>
                     <textarea onChange={(event) => { onChangeText(event, intro_index) }} className="transcript-template-input" name="transcript_template" placeholder="e.g. {Rank} {Full Name} served as a {Primary Appointment} in {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE)." value={transcript_template} disabled={edit_disabled}></textarea>
-                </div>                
+                </div>
                 <div className="template-group">
                     <p>Testimonial Template:</p>
                     <textarea onChange={(event) => { onChangeText(event, intro_index) }} className="template-input" name="template" placeholder="e.g. {Rank} {Full Name} enlisted in the Singapore Armed Forces on {Enlistment Date}. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Specialist Cadet Course. {Golden Bayonet} {Silver Bayonet} Subsequently, {Rank} {Surname} was posted to {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE) where he was assigned the role of {Primary Appointment}." value={template} disabled={edit_disabled}></textarea>

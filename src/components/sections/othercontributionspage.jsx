@@ -33,17 +33,17 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
     }, [unit])
 
 
-    const getVocationRanksWithMissingTemplates = (available_vocation_ranks, section_list, related_vocation_ranks_type) => {
-        const vocation_ranks_without_templates_entries = Object.keys(available_vocation_ranks).map((rank_type) => {
+    const getVocationRanksWithMissingTemplates = (available_vocation_ranks, section_list) => {
+        const vocation_ranks_without_templates_entries = Object.keys(available_vocation_ranks).map((vocation) => {
             // Generate the missing vocation list based either on saved or unsaved vocation-template assignments. 
-            const nested_vocations_assigned_templates_list = section_list.map((section) => section[related_vocation_ranks_type][rank_type])
-            const vocations_assigned_templates_list = [].concat(...nested_vocations_assigned_templates_list)
-            const missing_vocations_list = available_vocation_ranks[rank_type].filter((vocation) => !vocations_assigned_templates_list.includes(vocation))
-            if (missing_vocations_list.length == 0) {
+            const nested_ranks_assigned_templates_list = section_list.map((section) => section["previously_saved_related_vocation_ranks"][vocation])
+            const ranks_assigned_templates_list = [].concat(...nested_ranks_assigned_templates_list)
+            const missing_ranks_list = available_vocation_ranks[vocation].filter((rank) => !ranks_assigned_templates_list.includes(rank))
+            if (missing_ranks_list.length == 0) {
                 // Return nothing due to no missing vocations for a particular rank
                 return
             }
-            return [rank_type, missing_vocations_list]
+            return [vocation, missing_ranks_list]
         })
         const vocation_ranks_without_templates = Object.fromEntries(vocation_ranks_without_templates_entries.filter((element) => element)) // Remove undefined elements due to no missing vocations for a particular rank
         return vocation_ranks_without_templates
@@ -61,16 +61,8 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
             previously_saved_template: "",
             transcript_template: "",
             previously_saved_transcript_template: "",
-            related_vocation_ranks: {
-                Officer: [],
-                Specialist: [],
-                Enlistee: []
-            },
-            previously_saved_related_vocation_ranks: {
-                Officer: [],
-                Specialist: [],
-                Enlistee: []
-            },
+            related_vocation_ranks: {},
+            previously_saved_related_vocation_ranks: {},
             button_state: "save"
         }, ...cloneDeep(other_contributions_list)])
     }
@@ -95,8 +87,8 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
         const selected_vocation = option.value.replace(rank_regex_expression, '').trim()
         let temp_other_contributions_list = cloneDeep(other_contributions_list)
         temp_other_contributions_list.forEach(other_contribution => {
-            if (other_contribution["related_vocation_ranks"][selected_rank]?.includes(selected_vocation) ||
-                other_contribution["previously_saved_related_vocation_ranks"][selected_rank]?.includes(selected_vocation)) {
+            if (other_contribution["related_vocation_ranks"][selected_vocation]?.includes(selected_rank) ||
+                other_contribution["previously_saved_related_vocation_ranks"][selected_vocation]?.includes(selected_rank)) {
                 other_contribution['display'] = 'block'
             }
             else {
@@ -128,14 +120,14 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
 
     // Call this function again every time the page reloads to get the most up to date list of vocation-ranks without templates
     // The page reloads whenever any setState function belonging to the page or its parent is called. 
-    var previously_saved_vocation_ranks_without_templates = getVocationRanksWithMissingTemplates(available_vocation_ranks, other_contributions_list, "previously_saved_related_vocation_ranks")
-    const available_vocation_ranks_strings = [].concat(...Object.keys(available_vocation_ranks).map((rank) => {
-        return available_vocation_ranks[rank].map(vocation => `${vocation} ${rank}`)
+    var previously_saved_vocation_ranks_without_templates = getVocationRanksWithMissingTemplates(available_vocation_ranks, other_contributions_list)
+    const available_vocation_ranks_strings = [].concat(...Object.keys(available_vocation_ranks).map((vocation) => {
+        return available_vocation_ranks[vocation].map(rank => `${vocation} ${rank}`)
     }))
     available_vocation_ranks_strings.sort()
     const available_vocation_ranks_options = available_vocation_ranks_strings.map(vocation_rank => ({ label: vocation_rank, value: vocation_rank }))
     let available_other_contribution_titles = [].concat(...other_contributions_list.map(obj => [obj.contribution, obj.previously_saved_contribution]))
-    available_other_contribution_titles = [... new Set(available_other_contribution_titles)]
+    available_other_contribution_titles = [... new Set(available_other_contribution_titles)].filter(option=>option) // remove empty strings
     available_other_contribution_titles.sort()
     const available_other_contribution_options = available_other_contribution_titles.map((contribution) => ({ label: contribution, value: contribution }))
 
@@ -188,12 +180,12 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
                                     <div style={{ fontWeight: 'bold', color: 'black', fontSize: "15px" }}>Although optional, the below mentioned vocation-rank combinations have not been assigned any {section_name} templates</div>
                                 </div>
                                 <div className="missing-vocation-ranks-group">
-                                    {Object.keys(previously_saved_vocation_ranks_without_templates).map((rank_type, i_outer) => {
+                                    {Object.keys(previously_saved_vocation_ranks_without_templates).map((vocation, i_outer) => {
                                         return (
                                             <div key={i_outer} className="each-missing-rank-group">
-                                                <div>{rank_type}</div>
+                                                <div>{vocation}</div>
                                                 <ul>
-                                                    {previously_saved_vocation_ranks_without_templates[rank_type].map((vocation, i_inner) => <li key={i_inner} >{vocation}</li>)}
+                                                    {previously_saved_vocation_ranks_without_templates[vocation].map((rank, i_inner) => <li key={i_inner} >{rank}</li>)}
                                                 </ul>
                                             </div>
                                         )

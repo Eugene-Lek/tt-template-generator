@@ -9,7 +9,6 @@ export default async function handler(req, res) {
         var { unit, id, template, transcript_template, related_vocation_ranks } = req.body
     }
     if (req.method == 'POST' || req.method == 'PUT') {
-        console.time("Save API")
         // General Parameter Validation
         if (!transcript_template) {
             return res.status(400).json({ message: 'The transcript template is missing' })
@@ -65,9 +64,9 @@ export default async function handler(req, res) {
             }
         }     
         // Find related Vocation-Rank-Combination objects via related_vocation_ranks_list
-        const related_vocation_ranks_nested_list = Object.keys(related_vocation_ranks).map((rank_type) => {
-            return related_vocation_ranks[rank_type].map((vocation) => {
-                return { vocation, rank: rank_type, unitName: unit }
+        const related_vocation_ranks_nested_list = Object.keys(related_vocation_ranks).map((vocation) => {
+            return related_vocation_ranks[vocation].map((rank) => {
+                return { vocation, rank, unitName: unit }
             })
         })
         const related_vocation_ranks_list = [].concat(...related_vocation_ranks_nested_list)
@@ -79,7 +78,6 @@ export default async function handler(req, res) {
                 id: true
             }
         })
-        console.timeEnd("Save API")
     }
 
     try {
@@ -105,25 +103,20 @@ export default async function handler(req, res) {
                         previously_saved_template: "",
                         transcript_template: "",
                         previously_saved_transcript_template: "",
-                        related_vocation_ranks: {
-                            Officer: [],
-                            Specialist: [],
-                            Enlistee: []
-                        },
-                        previously_saved_related_vocation_ranks: {
-                            Officer: [],
-                            Specialist: [],
-                            Enlistee: []
-                        },
+                        related_vocation_ranks: {},
+                        previously_saved_related_vocation_ranks: {},
                         button_state: "save",
                         display: "block"
                     }]
                 } else {
                     var init_introductions_list = unit_introductions.map((introduction) => {
-                        const applies_to_VRC = introduction.appliesto
-                        const applies_to_officers = applies_to_VRC.filter((vrc) => vrc.rank == "Officer").map((vrc) => vrc.vocation)
-                        const applies_to_specialists = applies_to_VRC.filter((vrc) => vrc.rank == "Specialist").map((vrc) => vrc.vocation)
-                        const applies_to_enlistee = applies_to_VRC.filter((vrc) => vrc.rank == "Enlistee").map((vrc) => vrc.vocation)
+                        const applies_to_vocation_ranks_entries = introduction.appliesto.map(obj=> [obj.vocation, obj.rank])
+                        const related_vocation_ranks = Object.fromEntries(applies_to_vocation_ranks_entries)
+                        Object.keys(related_vocation_ranks).forEach(vocation=>{
+                            if (typeof related_vocation_ranks[vocation] !== Array){
+                                related_vocation_ranks[vocation] = [related_vocation_ranks[vocation]]
+                            }
+                        })
 
                         return {
                             id: introduction.id,
@@ -131,16 +124,8 @@ export default async function handler(req, res) {
                             previously_saved_template: introduction.template,
                             transcript_template: introduction.transcripttemplate,
                             previously_saved_transcript_template: introduction.transcripttemplate,
-                            related_vocation_ranks: {
-                                Officer: applies_to_officers,
-                                Specialist: applies_to_specialists,
-                                Enlistee: applies_to_enlistee
-                            },
-                            previously_saved_related_vocation_ranks: {
-                                Officer: applies_to_officers,
-                                Specialist: applies_to_specialists,
-                                Enlistee: applies_to_enlistee
-                            },
+                            related_vocation_ranks: related_vocation_ranks,
+                            previously_saved_related_vocation_ranks: related_vocation_ranks,
                             button_state: "edit",
                             display: "block"
                         }
@@ -174,7 +159,6 @@ export default async function handler(req, res) {
 
             case 'PUT':
                 // Update the old Introduction object
-                console.timeEnd("Save API")
                 await prisma.Introduction.update({
                     where: {
                         id: id
@@ -188,7 +172,6 @@ export default async function handler(req, res) {
                     }
                 })
                 res.status(200).json({ message: 'Save Successful' })
-                console.timeEnd("Save API")
                 break
 
             case 'DELETE':

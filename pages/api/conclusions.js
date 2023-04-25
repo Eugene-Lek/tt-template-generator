@@ -49,9 +49,9 @@ export default async function handler(req, res) {
             }
         }                  
         // Find related Vocation-Rank-Combination objects via related_vocation_ranks_list
-        const related_vocation_ranks_nested_list = Object.keys(related_vocation_ranks).map((rank_type) => {
-            return related_vocation_ranks[rank_type].map((vocation) => {
-                return { vocation, rank: rank_type, unitName: unit }
+        const related_vocation_ranks_nested_list = Object.keys(related_vocation_ranks).map((vocation) => {
+            return related_vocation_ranks[vocation].map((rank) => {
+                return { vocation, rank, unitName: unit }
             })
         })
         const related_vocation_ranks_list = [].concat(...related_vocation_ranks_nested_list)
@@ -89,42 +89,28 @@ export default async function handler(req, res) {
                         previously_saved_template: "",
                         transcript_template: "",
                         previously_saved_transcript_template: "",                        
-                        related_vocation_ranks: {
-                            Officer: [],
-                            Specialist: [],
-                            Enlistee: []
-                        },
-                        previously_saved_related_vocation_ranks: {
-                            Officer: [],
-                            Specialist: [],
-                            Enlistee: []
-                        },
+                        related_vocation_ranks:{},
+                        previously_saved_related_vocation_ranks: {},
                         button_state: "save",
                         display: "block"
                     }]
                 } else {
-                    var init_conclusions_list = unit_conclusions.map((conclusion) => {
-                        const applies_to_VRC = conclusion.appliesto
-                        const applies_to_officers = applies_to_VRC.filter((vrc) => vrc.rank == "Officer").map((vrc) => vrc.vocation)
-                        const applies_to_specialists = applies_to_VRC.filter((vrc) => vrc.rank == "Specialist").map((vrc) => vrc.vocation)
-                        const applies_to_enlistee = applies_to_VRC.filter((vrc) => vrc.rank == "Enlistee").map((vrc) => vrc.vocation)
-
+                    var init_list = unit_conclusions.map((conclusion) => {
+                        const applies_to_vocation_ranks_entries = conclusion.appliesto.map(obj => [obj.vocation, obj.rank])
+                        const related_vocation_ranks = Object.fromEntries(applies_to_vocation_ranks_entries)
+                        Object.keys(related_vocation_ranks).forEach(vocation => {
+                            if (typeof related_vocation_ranks[vocation] !== Array) {
+                                related_vocation_ranks[vocation] = [related_vocation_ranks[vocation]]
+                            }
+                        })
                         return {
                             id: conclusion.id,
                             template: conclusion.template,
                             previously_saved_template: conclusion.template,
                             transcript_template: conclusion.transcripttemplate,
                             previously_saved_transcript_template: conclusion.transcripttemplate,                            
-                            related_vocation_ranks: {
-                                Officer: applies_to_officers,
-                                Specialist: applies_to_specialists,
-                                Enlistee: applies_to_enlistee
-                            },
-                            previously_saved_related_vocation_ranks: {
-                                Officer: applies_to_officers,
-                                Specialist: applies_to_specialists,
-                                Enlistee: applies_to_enlistee
-                            },
+                            related_vocation_ranks: related_vocation_ranks,
+                            previously_saved_related_vocation_ranks: related_vocation_ranks,
                             button_state: "edit",
                             display: "block"
                         }

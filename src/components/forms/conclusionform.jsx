@@ -14,7 +14,7 @@ export const ConclusionForm = ({
     conclusions_list,
     set_conclusions_list,
     button_state,
-    intro_index,
+    index,
     unit,
     set_dialog_settings,
     permanently_disable_edit,
@@ -24,8 +24,8 @@ export const ConclusionForm = ({
     // This is important because Vocation-Rank-Combination objects and their connections are retained even if
     // their corresponding Vocation object is deleted. 
     // Therefore, we need to filter out these conclusions
-    const available_related_vocation_ranks_list = Object.keys(available_vocation_ranks).map((rank_type) => {
-        return [rank_type, available_vocation_ranks[rank_type].filter((vocation) => related_vocation_ranks[rank_type]?.includes(vocation))]
+    const available_related_vocation_ranks_list = Object.keys(available_vocation_ranks).map((vocation) => {
+        return [vocation, available_vocation_ranks[vocation].filter((rank) => related_vocation_ranks[vocation]?.includes(rank))]
     })
     const available_related_vocation_ranks = Object.fromEntries(available_related_vocation_ranks_list)
 
@@ -111,7 +111,7 @@ export const ConclusionForm = ({
         set_delete_button_class("delete-button-hidden")
         set_edit_disabled(false)
         const temp_conclusions_list = cloneDeep(conclusions_list)
-        temp_conclusions_list[intro_index]['button_state'] = "save"
+        temp_conclusions_list[index]['button_state'] = "save"
         set_conclusions_list(temp_conclusions_list)
     }
 
@@ -128,10 +128,10 @@ export const ConclusionForm = ({
         set_delete_button_class("delete-button-visible")
         set_edit_disabled(true)
         const temp_conclusions_list = cloneDeep(conclusions_list)
-        temp_conclusions_list[intro_index]['button_state'] = "edit"
-        temp_conclusions_list[intro_index]['template'] = previously_saved_template
-        temp_conclusions_list[intro_index]['transcript_template'] = previously_saved_transcript_template        
-        temp_conclusions_list[intro_index]['related_vocation_ranks'] = cloneDeep(previously_saved_related_vocation_ranks)
+        temp_conclusions_list[index]['button_state'] = "edit"
+        temp_conclusions_list[index]['template'] = previously_saved_template
+        temp_conclusions_list[index]['transcript_template'] = previously_saved_transcript_template        
+        temp_conclusions_list[index]['related_vocation_ranks'] = cloneDeep(previously_saved_related_vocation_ranks)
         set_conclusions_list(temp_conclusions_list)
         //console.log(temp_conclusions_list)
     }
@@ -139,74 +139,48 @@ export const ConclusionForm = ({
 
     /*FUNCTIONS THAT UPDATE conclusions_list WHENEVER ANY (UNSAVED) CHANGES ARE MADE*/
 
-    const onChangeText = (event, intro_index) => {
+    const onChangeText = (event, index) => {
 
         if (permanently_disable_edit) {
             return
         }
 
         const temp_conclusions_list = cloneDeep(conclusions_list)
-        temp_conclusions_list[intro_index][event.target.name] = event.target.value
+        temp_conclusions_list[index][event.target.name] = event.target.value
         set_conclusions_list(temp_conclusions_list)
         //console.log(temp_conclusions_list)
     }
 
-    const onChangeCheckbox = (event, intro_index) => {
+    const onChangeCheckbox = (event, index) => {
 
         if (permanently_disable_edit) {
             return
         }
 
-        const [checkbox_rank, checkbox_vocation] = event.target.name.split("||")
+        const [checkbox_vocation, checkbox_rank] = event.target.name.split("||")
         let temp_conclusions_list = cloneDeep(conclusions_list)
 
         if (event.target.checked) {
             // If the vocation-rank has already been assigned to another template, block the change in checkbox and alert the user about the issue
-            const already_assigned_elsewhere = vocation_ranks_with_templates[checkbox_rank]?.includes(checkbox_vocation)
+            const already_assigned_elsewhere = vocation_ranks_with_templates[checkbox_vocation]?.includes(checkbox_rank)
             if (already_assigned_elsewhere) {
-                const error_message = `*'${checkbox_vocation} ${checkbox_rank}' has already been assigned to another Conclusion template.*
-                                        You must unassign '${checkbox_vocation} ${checkbox_rank}' from the other Conclusion Template before you can assign it to this one.
+                const error_message = `*'${checkbox_vocation} ${checkbox_rank}' has already been assigned to another Introdution template.*
+                                        You must unassign '${checkbox_vocation} ${checkbox_rank}' from the other Introduction Template before you can assign it to this one.
                                         *(Remember to click 'Save' after unassigning it)*`
                 displayErrorMessage(error_message)
                 return
             }
             // Otherwise, update the conclusions_list to reflect the change in checkbox
-            temp_conclusions_list[intro_index]['related_vocation_ranks'][checkbox_rank].push(checkbox_vocation)
-        } else {
-            temp_conclusions_list[intro_index]['related_vocation_ranks'][checkbox_rank] = temp_conclusions_list[intro_index]['related_vocation_ranks'][checkbox_rank]
-                .filter(vocation => vocation !== checkbox_vocation)
-        }
-
-        set_conclusions_list(temp_conclusions_list)
-        console.log(temp_conclusions_list)
-    }
-
-    const onAllRank = (event, intro_index) => {
-        const checkbox_rank = event.target.name
-        let temp_conclusions_list = cloneDeep(conclusions_list)
-
-        if (event.target.checked) {
-            // If one of the vocation-rank has already been assigned to another template, block the change in all checkboxes and alert the user about the issue
-            let already_assigned_elsewhere = false
-            available_vocation_ranks[checkbox_rank].forEach((checkbox_vocation) => {
-                already_assigned_elsewhere = vocation_ranks_with_templates[checkbox_rank]?.includes(checkbox_vocation) //vocation has been assigned to a template
-                                                && !related_vocation_ranks[checkbox_rank]?.includes(checkbox_vocation) // vocation is not assigned to this template
-                if (already_assigned_elsewhere) {
-                    const error_message = `'${checkbox_vocation} ${checkbox_rank}' has already been assigned an Introdution template.
-                                            You must unassign '${checkbox_vocation} ${checkbox_rank}' from the other Conclusion Template before you can assign it to this one.
-                                            (Remember to click 'Save' after unassigning it)`
-                    displayErrorMessage(error_message)
-                    already_assigned_elsewhere = true
-                    return
-                }
-            })
-            if (!already_assigned_elsewhere) {
-                temp_conclusions_list[intro_index]['related_vocation_ranks'][checkbox_rank] = cloneDeep(available_vocation_ranks[checkbox_rank])
+            if (!temp_conclusions_list[index]['related_vocation_ranks'][checkbox_vocation]){
+                temp_conclusions_list[index]['related_vocation_ranks'][checkbox_vocation] = [checkbox_rank]
+            } else {
+                temp_conclusions_list[index]['related_vocation_ranks'][checkbox_vocation].push(checkbox_rank)
             }
-            // Otherwise, update the conclusions_list to reflect the change in checkboxes            
         } else {
-            temp_conclusions_list[intro_index]['related_vocation_ranks'][checkbox_rank] = []
+            temp_conclusions_list[index]['related_vocation_ranks'][checkbox_vocation] = temp_conclusions_list[index]['related_vocation_ranks'][checkbox_vocation]
+                .filter(rank => rank !== checkbox_rank)
         }
+
         set_conclusions_list(temp_conclusions_list)
         console.log(temp_conclusions_list)
     }
@@ -237,13 +211,13 @@ export const ConclusionForm = ({
             related_vocation_ranks,
             conclusions_list,
             set_conclusions_list,
-            intro_index,
+            index,
             unit,
             http_method
         })
     }
 
-    const onClickDelete = async (event, intro_index) => {
+    const onClickDelete = async (event, index) => {
         event.preventDefault()
 
         if (permanently_disable_edit) {
@@ -257,7 +231,7 @@ export const ConclusionForm = ({
                 id,
                 conclusions_list,
                 set_conclusions_list,
-                intro_index,
+                index,
                 unit
             })
             return
@@ -289,7 +263,7 @@ export const ConclusionForm = ({
                 id,
                 conclusions_list,
                 set_conclusions_list,
-                intro_index,
+                index,
                 unit
             }
         })
@@ -300,7 +274,7 @@ export const ConclusionForm = ({
         id,
         conclusions_list,
         set_conclusions_list,
-        intro_index,
+        index,
         unit,
         action
     }) => {
@@ -322,7 +296,7 @@ export const ConclusionForm = ({
             id,
             conclusions_list,
             set_conclusions_list,
-            intro_index,
+            index,
             unit
         })
     }
@@ -336,7 +310,7 @@ export const ConclusionForm = ({
         related_vocation_ranks,
         conclusions_list,
         set_conclusions_list,
-        intro_index,
+        index,
         unit,
         http_method
     }) => {
@@ -362,12 +336,12 @@ export const ConclusionForm = ({
                 set_delete_button_class("delete-button-visible")
                 set_edit_disabled(true)
                 const temp_conclusions_list = cloneDeep(conclusions_list)
-                temp_conclusions_list[intro_index]['button_state'] = "edit"
-                temp_conclusions_list[intro_index]['previously_saved_template'] = template
-                temp_conclusions_list[intro_index]['template'] = template // Display the cleaned template
-                temp_conclusions_list[intro_index]['previously_saved_transcript_template'] = transcript_template
-                temp_conclusions_list[intro_index]['transcript_template'] = transcript_template // Display the cleaned transcript_template                
-                temp_conclusions_list[intro_index]['previously_saved_related_vocation_ranks'] = cloneDeep(related_vocation_ranks)
+                temp_conclusions_list[index]['button_state'] = "edit"
+                temp_conclusions_list[index]['previously_saved_template'] = template
+                temp_conclusions_list[index]['template'] = template // Display the cleaned template
+                temp_conclusions_list[index]['previously_saved_transcript_template'] = transcript_template
+                temp_conclusions_list[index]['transcript_template'] = transcript_template // Display the cleaned transcript_template                
+                temp_conclusions_list[index]['previously_saved_related_vocation_ranks'] = cloneDeep(related_vocation_ranks)
                 set_conclusions_list(temp_conclusions_list)
                 console.log(temp_conclusions_list)
             } else if (!response.ok) {
@@ -385,7 +359,7 @@ export const ConclusionForm = ({
         id,
         conclusions_list,
         set_conclusions_list,
-        intro_index,
+        index,
         unit,
     }) => {
         try {
@@ -401,7 +375,7 @@ export const ConclusionForm = ({
             })
             if (response.status == 200) {
                 const temp_conclusions_list = cloneDeep(conclusions_list)
-                temp_conclusions_list.splice(intro_index, 1)
+                temp_conclusions_list.splice(index, 1)
                 set_conclusions_list(temp_conclusions_list)
             } else if (!response.ok) {
                 const response_data = await response.json()
@@ -426,22 +400,16 @@ export const ConclusionForm = ({
                         </div>
                     }
                     <div className="applies-to-vocation-ranks-group">
-                        {Object.keys(available_vocation_ranks).map((rank, i_outer) => {
+                        {Object.keys(available_vocation_ranks).map((vocation, i_outer) => {
                             return (
-                                <div key={i_outer} className="each-rank-group">
+                                <div key={i_outer} className="each-vocation-group">
                                     <div className="vocation-rank-option-group">
-                                        <input
-                                            onChange={(event) => { onAllRank(event, intro_index) }}
-                                            type="checkbox"
-                                            name={rank}
-                                            checked={available_related_vocation_ranks[rank].length == available_vocation_ranks[rank].length}
-                                            disabled={edit_disabled}></input>
-                                        <label>All {rank}s</label>
+                                        <label>{vocation}</label>
                                     </div>
                                     <ul>
-                                        {available_vocation_ranks[rank].map((vocation, i_inner) => {
-                                            // If the vocation is an empty string, i.e. is not selected, skip it
-                                            if (!vocation) {
+                                        {available_vocation_ranks[vocation].map((rank, i_inner) => {
+                                            // If the rank is an empty string, i.e. is not selected, skip it
+                                            if (!rank) {
                                                 return
                                             }
                                             return (
@@ -449,10 +417,10 @@ export const ConclusionForm = ({
                                                     <input
                                                         onChange={(event) => { onChangeCheckbox(event, intro_index) }}
                                                         type="checkbox"
-                                                        name={`${rank}||${vocation}`}
-                                                        checked={available_related_vocation_ranks[rank].includes(vocation)}
+                                                        name={`${vocation}||${rank}`}
+                                                        checked={available_related_vocation_ranks[vocation].includes(rank)}
                                                         disabled={edit_disabled}></input>
-                                                    <label>{vocation}</label>
+                                                    <label>{rank}</label>
                                                 </li>
                                             )
                                         })}
@@ -464,17 +432,17 @@ export const ConclusionForm = ({
                 </div>
                 <div className="template-group">
                     <p>Transcript Template:</p>
-                    <textarea onChange={(event) => { onChangeText(event, intro_index) }} className="transcript-template-input" name="transcript_template" placeholder="e.g. {Rank} {Full Name} served as a {Primary Appointment} in {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE)." value={transcript_template} disabled={edit_disabled}></textarea>
+                    <textarea onChange={(event) => { onChangeText(event, index) }} className="transcript-template-input" name="transcript_template" placeholder="e.g. {Rank} {Full Name} served as a {Primary Appointment} in {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE)." value={transcript_template} disabled={edit_disabled}></textarea>
                 </div>                      
                 <div className="template-group">
                     <p>Testimonial Template:</p>
-                    <textarea onChange={(event) => { onChangeText(event, intro_index) }} className="template-input" name="template" placeholder="e.g. {Rank} {Full Name} enlisted in the Singapore Armed Forces on {Enlistment Date}. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Specialist Cadet Course. {Golden Bayonet} {Silver Bayonet} Subsequently, {Rank} {Surname} was posted to {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE) where he was assigned the role of {Primary Appointment}." value={template} disabled={edit_disabled}></textarea>
+                    <textarea onChange={(event) => { onChangeText(event, index) }} className="template-input" name="template" placeholder="e.g. {Rank} {Full Name} enlisted in the Singapore Armed Forces on {Enlistment Date}. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Specialist Cadet Course. {Golden Bayonet} {Silver Bayonet} Subsequently, {Rank} {Surname} was posted to {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE) where he was assigned the role of {Primary Appointment}." value={template} disabled={edit_disabled}></textarea>
                 </div>
                 <div className="save-edit-delete-group">
                     <button type="submit" className={save_button_class}>Save</button>
                     <button onClick={onEdit} className={edit_button_class}>Edit</button>
                     <button onClick={onCancelChanges} className={cancel_button_class}>Cancel</button>
-                    <button onClick={(event) => { onClickDelete(event, intro_index) }} className={delete_button_class}>Delete</button>
+                    <button onClick={(event) => { onClickDelete(event, index) }} className={delete_button_class}>Delete</button>
                 </div>
             </form>
         </div>

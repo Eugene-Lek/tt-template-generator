@@ -28,18 +28,13 @@ const init_sections = [
 export default function UnitAdminHome({ unit , id, init_companies, init_vocations_list}) {
     const title = `${unit}'s T&T Template Generator Admin Page`
     const [forms_list, set_forms_list] = useState(init_vocations_list)
-    const available_vocation_ranks_raw = forms_list.map((form)=> {return {vocation: form.previously_saved_vocation, rank: form.previously_saved_ranks}})
-    // Return the vocation if its rank is present.
-    const available_officer_vocations = available_vocation_ranks_raw.map((combi) => {if (combi.rank.have_officer){return combi.vocation}}).filter(voc=>voc)
-    const available_specialist_vocations = available_vocation_ranks_raw.map((combi) => {if (combi.rank.have_specialist){return combi.vocation}}).filter(voc=>voc)
-    const available_enlistee_vocations = available_vocation_ranks_raw.map((combi) => {if (combi.rank.have_enlistee){return combi.vocation}}).filter(voc=>voc)
-    const available_vocation_ranks_entries = [
-        ['Officer', available_officer_vocations],
-        ['Specialist', available_specialist_vocations],
-        ['Enlistee', available_enlistee_vocations]
-    ].filter(entry=>entry[1].length>0) // Remove ranks without any relevant vocations
-    const available_vocation_ranks = Object.fromEntries(available_vocation_ranks_entries)
-
+    const available_vocation_ranks_raw = forms_list.map((form)=> {
+        const ranks_list = [form.previously_saved_ranks.have_officer ? 'Officer' : '',
+        form.previously_saved_ranks.have_specialist ? 'Specialist' : '',
+        form.previously_saved_ranks.have_enlistee ? 'Enlistee' : ''].filter(rank => rank) // Remove empty strings
+        return [form.previously_saved_vocation, ranks_list]})
+    const available_vocation_ranks = Object.fromEntries(available_vocation_ranks_raw)
+    console.log(available_vocation_ranks)
     const [sections, set_sections] = useState(init_sections)
 
     const [dialog_settings, set_dialog_settings] = useState({

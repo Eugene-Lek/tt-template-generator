@@ -48,8 +48,8 @@ export const PrimaryAppointmentForm = ({
     // This is important because Vocation-Rank-Combination objects and their connections are retained even if
     // their corresponding Vocation object is deleted. 
     // Therefore, we need to filter out these vocations
-    const available_related_vocation_ranks_list = Object.keys(available_vocation_ranks).map((rank_type) => {
-        return [rank_type, available_vocation_ranks[rank_type].filter((vocation) => related_vocation_ranks[rank_type]?.includes(vocation))]
+    const available_related_vocation_ranks_list = Object.keys(available_vocation_ranks).map((vocation) => {
+        return [vocation, available_vocation_ranks[vocation].filter((rank) => related_vocation_ranks[vocation]?.includes(rank))]
     })
     const available_related_vocation_ranks = Object.fromEntries(available_related_vocation_ranks_list)
 
@@ -176,40 +176,39 @@ export const PrimaryAppointmentForm = ({
         console.log(temp_primary_appointments_list)
     }
 
-    const onChangeCheckbox = (event, form_index) => {
+    const onChangeCheckbox = (event, index) => {
 
         if (permanently_disable_edit) {
             return
         }
 
-        const [checkbox_rank, checkbox_vocation] = event.target.name.split("||")
+        const [checkbox_vocation, checkbox_rank] = event.target.name.split("||")
         let temp_primary_appointments_list = cloneDeep(primary_appointments_list)
 
         if (event.target.checked) {
-            temp_primary_appointments_list[form_index]['related_vocation_ranks'][checkbox_rank].push(checkbox_vocation)
+            // If the vocation-rank has already been assigned to another template, block the change in checkbox and alert the user about the issue
+            const already_assigned_elsewhere = vocation_ranks_with_templates[checkbox_vocation]?.includes(checkbox_rank)
+            if (already_assigned_elsewhere) {
+                const error_message = `*'${checkbox_vocation} ${checkbox_rank}' has already been assigned to another Introdution template.*
+                                        You must unassign '${checkbox_vocation} ${checkbox_rank}' from the other Introduction Template before you can assign it to this one.
+                                        *(Remember to click 'Save' after unassigning it)*`
+                displayErrorMessage(error_message)
+                return
+            }
+            // Otherwise, update the primary_appointments_list to reflect the change in checkbox
+            if (!temp_primary_appointments_list[index]['related_vocation_ranks'][checkbox_vocation]){
+                temp_primary_appointments_list[index]['related_vocation_ranks'][checkbox_vocation] = [checkbox_rank]
+            } else {
+                temp_primary_appointments_list[index]['related_vocation_ranks'][checkbox_vocation].push(checkbox_rank)
+            }
         } else {
-            temp_primary_appointments_list[form_index]['related_vocation_ranks'][checkbox_rank] = temp_primary_appointments_list[form_index]['related_vocation_ranks'][checkbox_rank]
-                .filter(vocation => vocation !== checkbox_vocation)
+            temp_primary_appointments_list[index]['related_vocation_ranks'][checkbox_vocation] = temp_primary_appointments_list[index]['related_vocation_ranks'][checkbox_vocation]
+                .filter(rank => rank !== checkbox_rank)
         }
 
         set_primary_appointments_list(temp_primary_appointments_list)
         console.log(temp_primary_appointments_list)
     }
-
-    const onAllRank = (event, form_index) => {
-        const checkbox_rank = event.target.name
-        let temp_primary_appointments_list = cloneDeep(primary_appointments_list)
-
-        if (event.target.checked) {
-            temp_primary_appointments_list[form_index]['related_vocation_ranks'][checkbox_rank] = cloneDeep(available_vocation_ranks[checkbox_rank])
-        } else {
-            temp_primary_appointments_list[form_index]['related_vocation_ranks'][checkbox_rank] = []
-        }
-        set_primary_appointments_list(temp_primary_appointments_list)
-        console.log(temp_primary_appointments_list)
-    }
-
-
     /*FUNCTIONS WHICH MANAGE TO 'SAVE' OR 'DELETE' BUTTON CLICKS*/
 
     const onClickSave = async (event) => {
@@ -448,33 +447,27 @@ export const PrimaryAppointmentForm = ({
                         </div>
                     }
                     <div className="applies-to-vocation-ranks-group">
-                        {Object.keys(available_vocation_ranks).map((rank, i_outer) => {
+                        {Object.keys(available_vocation_ranks).map((vocation, i_outer) => {
                             return (
-                                <div key={i_outer} className="each-rank-group">
+                                <div key={i_outer} className="each-vocation-group">
                                     <div className="vocation-rank-option-group">
-                                        <input
-                                            onChange={(event) => { onAllRank(event, form_index) }}
-                                            type="checkbox"
-                                            name={rank}
-                                            checked={available_related_vocation_ranks[rank].length == available_vocation_ranks[rank].length}
-                                            disabled={edit_disabled}></input>
-                                        <label>All {rank}s</label>
+                                        <label>{vocation}</label>
                                     </div>
                                     <ul>
-                                        {available_vocation_ranks[rank].map((vocation, i_inner) => {
-                                            // If the vocation is an empty string, i.e. is not selected, skip it
-                                            if (!vocation) {
+                                        {available_vocation_ranks[vocation].map((rank, i_inner) => {
+                                            // If the rank is an empty string, i.e. is not selected, skip it
+                                            if (!rank) {
                                                 return
                                             }
                                             return (
                                                 <li key={i_inner} className="vocation-rank-li">
                                                     <input
-                                                        onChange={(event) => { onChangeCheckbox(event, form_index) }}
+                                                        onChange={(event) => { onChangeCheckbox(event, intro_index) }}
                                                         type="checkbox"
-                                                        name={`${rank}||${vocation}`}
-                                                        checked={available_related_vocation_ranks[rank].includes(vocation)}
+                                                        name={`${vocation}||${rank}`}
+                                                        checked={available_related_vocation_ranks[vocation].includes(rank)}
                                                         disabled={edit_disabled}></input>
-                                                    <label>{vocation}</label>
+                                                    <label>{rank}</label>
                                                 </li>
                                             )
                                         })}
