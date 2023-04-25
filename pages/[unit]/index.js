@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import { Header } from "src/components/header/header"
 import { Footer } from "src/components/footer/footer"
 import {Dialog} from "src/components/home/dialog"
 import { useState } from "react"
@@ -14,6 +13,7 @@ import { OtherContributionsPage } from "@/src/components/sections/othercontribut
 import { OtherIndividualAchievementsPage } from "@/src/components/sections/otherindividualachievementspage"
 import { ConclusionsPage } from "@/src/components/sections/conclusionspage"
 import { CompaniesForm } from "@/src/components/forms/companyform"
+import { AdminHeader } from '@/src/components/header/adminheader'
 
 const init_sections = [
     {title: "Introduction", className: "section-button-selected", selected: true},
@@ -25,7 +25,7 @@ const init_sections = [
     {title: "Conclusion", className: "section-button-right-unselected", selected: false}
 ]
 
-export default function UnitAdminHome({ unit , init_companies, init_vocations_list}) {
+export default function UnitAdminHome({ unit , id, init_companies, init_vocations_list}) {
     const title = `${unit}'s T&T Template Generator Admin Page`
     const [forms_list, set_forms_list] = useState(init_vocations_list)
     const available_vocation_ranks_raw = forms_list.map((form)=> {return {vocation: form.previously_saved_vocation, rank: form.previously_saved_ranks}})
@@ -102,7 +102,7 @@ export default function UnitAdminHome({ unit , init_companies, init_vocations_li
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>            
-            <Header title={title} />
+            <AdminHeader title={title} unit={unit} id={id} set_dialog_settings={set_dialog_settings}/>
             <main className="home-body">
                 <section className="big-section">
                     <h2 className="big-section-title">1. Add Companies</h2>
@@ -230,7 +230,8 @@ export default function UnitAdminHome({ unit , init_companies, init_vocations_li
                         line_props={dialog_settings.line_props}
                         displayed={dialog_settings.displayed} 
                         onClickDialog={dialog_settings.onClickDialog}  
-                        onClickDialogProps={dialog_settings.onClickDialogProps}                 
+                        onClickDialogProps={dialog_settings.onClickDialogProps}  
+                        isBlocking={dialog_settings.isBlocking}               
                     />
                 )}
             </main>
@@ -245,9 +246,8 @@ export async function getServerSideProps({params}) {
         where: {
             name: unit
         },
-        select: {
-            Vocations: true,
-            Companies: true
+        include: {
+            Vocations: true
         }
     })
     const unit_companies = unit_data_dict.Companies
@@ -305,6 +305,7 @@ export async function getServerSideProps({params}) {
     return {
         props: {
             unit,
+            id: unit_data_dict.id, 
             init_companies,
             init_vocations_list
         }
