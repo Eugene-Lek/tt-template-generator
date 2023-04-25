@@ -428,7 +428,7 @@ export const OtherContributionForm = ({
                                             return (
                                                 <li key={i_inner} className="vocation-rank-li">
                                                     <input
-                                                        onChange={(event) => { onChangeCheckbox(event, intro_index) }}
+                                                        onChange={(event) => { onChangeCheckbox(event, index) }}
                                                         type="checkbox"
                                                         name={`${vocation}||${rank}`}
                                                         checked={available_related_vocation_ranks[vocation].includes(rank)}
