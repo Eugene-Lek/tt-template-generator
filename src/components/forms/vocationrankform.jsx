@@ -214,14 +214,17 @@ export const VocationRankForm = ({
         set_dialog_settings({
             "message":
                 `*Are you sure you want to delete the vocation '${previously_saved_vocation}'?*
-                *Note:* If you wish to re-add the vocation '${previously_saved_vocation}' later on, you must spell it exactly as '${previously_saved_vocation}' (case-sensitive). Otherwise, you will need to manually re-select all the templates that apply to it.`,
+                
+                If you wish to re-add the vocation '${previously_saved_vocation}' later on, you must spell it exactly as '${previously_saved_vocation}' (case-sensitive).
+                Otherwise, you will need to manually re-select all the templates that apply to it.`,
             "buttons": [
                 { text: "Yes", action: "delete", background: "#E60023", color: "#FFFFFF" },
                 { text: "No", action: "cancel", background: "#00ac13", color: "#FFFFFF" }
             ],
             "line_props": [
                 { color: "#000000", font_size: "25px", text_align: "center", margin_right: "auto", margin_left: "auto" },
-                { color: "#000000", font_size: "16px", text_align: "left", margin_right: "0", margin_left: "auto" }],
+                { color: "#000000", font_size: "16px", text_align: "left", margin_right: "auto", margin_left: "0"},
+                { color: "#000000", font_size: "16px", text_align: "left", margin_right: "auto", margin_left: "0"}],
             "displayed": true,
             "onClickDialog": handleDeleteConfirmation,
             "onClickDialogProps": {
