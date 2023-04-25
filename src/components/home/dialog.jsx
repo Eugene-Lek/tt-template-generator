@@ -1,19 +1,21 @@
 import {Line} from "src/components/home/line"
 
-export function Dialog({ message, buttons, line_props, onClickDialog, onClickDialogProps}) {
+export function Dialog({ message, buttons, line_props, onClickDialog, onClickDialogProps, isBlocking=false}) {
     
     const lines = message.split("\n") // Remove all extra spaces then split by new line
     const num_lines = lines.length
     const num_line_props_provided = line_props.length
     if (num_line_props_provided<num_lines){
       var line_props_refined = [...line_props, ...Array(num_lines-num_line_props_provided).fill(line_props.slice(-1)[0])]
-      console.log("Reached")
-      console.log(line_props_refined)
     } else {
       var line_props_refined = line_props
     }
     return ( 
-      <div className="dialog-background" onClick={() => onClickDialog({...onClickDialogProps, action:"exit"})}>
+      <div className="dialog-background" onClick={() => {
+        if (!isBlocking){
+          onClickDialog({...onClickDialogProps, action:"exit"}) 
+        }
+          }}>
         <div className="dialog-box" onClick={(e) => e.stopPropagation()}>
           <div className="dialog-message">
             {lines.map((line, i) => {
