@@ -212,7 +212,7 @@ export function OtherIndividualAchievementsPage({ unit, section_name, available_
                                     onChange={onSelectByTitle}
                                     options={available_other_individual_achievement_options}
                                     value={selected_other_individual_achievement_title}
-                                    placeholder={"Search by Contribution"}
+                                    placeholder={"Search by Achievement"}
                                 />
                                 <Select
                                     className="search-by-vocation-rank"
