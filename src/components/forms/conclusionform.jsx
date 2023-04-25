@@ -432,11 +432,11 @@ export const ConclusionForm = ({
                 </div>
                 <div className="template-group">
                     <p>Transcript Template:</p>
-                    <textarea onChange={(event) => { onChangeText(event, index) }} className="transcript-template-input" name="transcript_template" placeholder="e.g. {Rank} {Full Name} served as a {Primary Appointment} in {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE)." value={transcript_template} disabled={edit_disabled}></textarea>
+                    <textarea onChange={(event) => { onChangeText(event, index) }} className="transcript-template-input" name="transcript_template" placeholder="In summary, {rank} {surname} was a valued member of the Battalion and we thank him for his contributions" value={transcript_template} disabled={edit_disabled}></textarea>
                 </div>                      
                 <div className="template-group">
                     <p>Testimonial Template:</p>
-                    <textarea onChange={(event) => { onChangeText(event, index) }} className="template-input" name="template" placeholder="e.g. {Rank} {Full Name} enlisted in the Singapore Armed Forces on {Enlistment Date}. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Specialist Cadet Course. {Golden Bayonet} {Silver Bayonet} Subsequently, {Rank} {Surname} was posted to {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE) where he was assigned the role of {Primary Appointment}." value={template} disabled={edit_disabled}></textarea>
+                    <textarea onChange={(event) => { onChangeText(event, index) }} className="template-input" name="template" placeholder="In summary, {rank} {surname} served with pride and purpose. Throughout his tenure in {coy} Company, he adopted a positive attitude and was able to gain the respect of both superiors and peers. We are confident that {rank} {surname} will be a valuable asset to his future employers. We thank him for his contributions to National Service and wish him the very best for his future endeavours." value={template} disabled={edit_disabled}></textarea>
                 </div>
                 <div className="save-edit-delete-group">
                     <button type="submit" className={save_button_class}>Save</button>
