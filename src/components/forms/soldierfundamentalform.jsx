@@ -174,15 +174,6 @@ export const SoldierFundamentalForm = ({
         let temp_soldier_fundamentals_list = cloneDeep(soldier_fundamentals_list)
 
         if (event.target.checked) {
-            // If the vocation-rank has already been assigned to another template, block the change in checkbox and alert the user about the issue
-            const already_assigned_elsewhere = vocation_ranks_with_templates[checkbox_vocation]?.includes(checkbox_rank)
-            if (already_assigned_elsewhere) {
-                const error_message = `*'${checkbox_vocation} ${checkbox_rank}' has already been assigned to another Introdution template.*
-                                        You must unassign '${checkbox_vocation} ${checkbox_rank}' from the other Introduction Template before you can assign it to this one.
-                                        *(Remember to click 'Save' after unassigning it)*`
-                displayErrorMessage(error_message)
-                return
-            }
             // Otherwise, update the soldier_fundamentals_list to reflect the change in checkbox
             if (!temp_soldier_fundamentals_list[index]['related_vocation_ranks'][checkbox_vocation]){
                 temp_soldier_fundamentals_list[index]['related_vocation_ranks'][checkbox_vocation] = [checkbox_rank]

@@ -164,15 +164,6 @@ export const SecondaryAppointmentForm = ({
         let temp_secondary_appointments_list = cloneDeep(secondary_appointments_list)
 
         if (event.target.checked) {
-            // If the vocation-rank has already been assigned to another template, block the change in checkbox and alert the user about the issue
-            const already_assigned_elsewhere = vocation_ranks_with_templates[checkbox_vocation]?.includes(checkbox_rank)
-            if (already_assigned_elsewhere) {
-                const error_message = `*'${checkbox_vocation} ${checkbox_rank}' has already been assigned to another Introdution template.*
-                                        You must unassign '${checkbox_vocation} ${checkbox_rank}' from the other Introduction Template before you can assign it to this one.
-                                        *(Remember to click 'Save' after unassigning it)*`
-                displayErrorMessage(error_message)
-                return
-            }
             // Otherwise, update the secondary_appointments_list to reflect the change in checkbox
             if (!temp_secondary_appointments_list[index]['related_vocation_ranks'][checkbox_vocation]){
                 temp_secondary_appointments_list[index]['related_vocation_ranks'][checkbox_vocation] = [checkbox_rank]
