@@ -14,6 +14,7 @@ model Unit {
   id       String @id @default(uuid())
   name     String @unique
   password String
+  isRandomlyGeneratedPassword Boolean
 
   Companies                      String[]
   Vocations                      Vocation[]
