@@ -29,7 +29,7 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
         }
         fetchSectionData()
 
-    }), [unit]
+    }, [unit])
 
 
     const getVocationRanksWithMissingTemplates = (available_vocation_ranks, section_list, related_vocation_ranks_type) => {
