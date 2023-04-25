@@ -4,15 +4,21 @@ import { Header } from "@/src/components/header/header";
 import { Dialog } from "@/src/components/home/dialog";
 import Head from 'next/head'
 import Select from "react-select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid"
 import { cloneDeep } from "lodash";
 import prisma from "@/lib/prisma";
+import { CreateUnitDialog } from "@/src/components/home/createunitdialog";
+
+
+const do_not_initialise_phrase = 'Do not Initialise'
+
 export default function SuperAdmin({ units_init_data }) {
 
     const [units_data, set_units_data] = useState(units_init_data)
     const [selected_unit, set_selected_unit] = useState('')
     const [selected_unit_to_delete, set_selected_unit_to_delete] = useState('')
+    const [selected_copy_unit, set_selected_copy_unit] = useState('')
     const [unit_to_delete_data, set_unit_to_delete_data] = useState({})
 
     const [dialog_settings, set_dialog_settings] = useState({
@@ -23,6 +29,30 @@ export default function SuperAdmin({ units_init_data }) {
         "onClickDialog": function () { return },
         "onClickDialogProps": {}
     })
+    const [create_unit_dialog_settings, set_create_unit_dialog_settings] = useState({
+        "unit": '',
+        "displayed": false,
+        "onClickDialog": function () { return },
+        "onClickDialogProps": {}
+    })
+
+    // Make an API call to obtain the most updated unit information.
+    useEffect(() => {
+        const fetchSectionData = async () => {
+            const units_response = await fetch(`/api/units`, {
+                method: "GET",
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            const units_response_data = await units_response.json()
+            set_units_data(units_response_data.units_init_data)
+            console.log("fetched")
+        }
+        fetchSectionData()
+
+    }, [units_data.filter(obj=>obj.previously_saved_unit).length])
+
 
     /*DEFINING COMMONLY USED DIALOG FUNCTIONS*/
     const closeDialogueBox = () => {
@@ -122,14 +152,14 @@ export default function SuperAdmin({ units_init_data }) {
         set_unit_to_delete_data(unit_data)
     }
     let available_unit_names = [].concat(...units_data.map(unit_data => [unit_data.unit, unit_data.previously_saved_unit]))
-    available_unit_names = [... new Set(available_unit_names)]
+    available_unit_names = [... new Set(available_unit_names)].filter(name=>name) // remove empty strings
     available_unit_names.sort()
     const available_unit_options = available_unit_names.map((unit) => ({ label: unit, value: unit }))
 
 
     const onClickDelete = async (event, previously_saved_unit) => {
         event.preventDefault()
-   
+
         // Generate a Delete Confirmation Dialog by changing the state of the existing dialog object
         set_dialog_settings({
             "message":
@@ -152,9 +182,9 @@ export default function SuperAdmin({ units_init_data }) {
             }
         })
     }
-    
+
     /*FUNCTIONS WHICH HANDLE A USER'S RESPONSE TO THE DISPLAYED DIALOGUE BOX*/
-    
+
     const handleDeleteConfirmation = ({
         previously_saved_unit,
         units_data,
@@ -181,7 +211,7 @@ export default function SuperAdmin({ units_init_data }) {
             set_units_data,
         })
     }
-    
+
     const deleteUnit = async ({
         previously_saved_unit,
         units_data,
@@ -199,7 +229,7 @@ export default function SuperAdmin({ units_init_data }) {
             })
             if (response.status == 200) {
                 let temp_units_data = cloneDeep(units_data)
-                temp_units_data = temp_units_data.filter(obj=>obj.previously_saved_unit!==previously_saved_unit)
+                temp_units_data = temp_units_data.filter(obj => obj.previously_saved_unit !== previously_saved_unit)
                 set_units_data(temp_units_data)
                 set_unit_to_delete_data({})
                 console.log(units_data)
@@ -207,11 +237,11 @@ export default function SuperAdmin({ units_init_data }) {
                 const response_data = await response.json()
                 displayErrorMessage(response_data.message)
             }
-    
+
         } catch (error) {
             displayErrorMessage(error.message)
         }
-    
+
     }
 
     return (
@@ -255,6 +285,7 @@ export default function SuperAdmin({ units_init_data }) {
                                 set_units_data={set_units_data}
                                 index={index}
                                 set_dialog_settings={set_dialog_settings}
+                                set_create_unit_dialog_settings={set_create_unit_dialog_settings}
                             />;
                         })}
                     </div>
@@ -277,7 +308,7 @@ export default function SuperAdmin({ units_init_data }) {
                     </div>
                     <div className="unit-group">
                         {Object.keys(unit_to_delete_data).length > 0 ? (
-                            <div style={{display: "flex", flexDirection: "column"}}>
+                            <div style={{ display: "flex", flexDirection: "column" }}>
                                 <div className="unit-module">
                                     <div className="unit-input-button-group">
                                         <input className="unit-input" value={unit_to_delete_data.unit} disabled></input>
@@ -310,7 +341,7 @@ export default function SuperAdmin({ units_init_data }) {
                                 </div>
                                 <button onClick={(event) => { onClickDelete(event, unit_to_delete_data.previously_saved_unit) }} className={"delete-button-visible"}>Delete</button>
                             </div>
-                        ) : <div className="overview-text" style={{ color: "red" }}>No unit has been selected</div>}
+                        ) : <div className="overview-text" style={{ color: "red" , marginBottom: "250px"}}>No unit has been selected</div>}
                     </div>
                 </section>
                 {dialog_settings.displayed && (
@@ -323,6 +354,20 @@ export default function SuperAdmin({ units_init_data }) {
                         onClickDialogProps={dialog_settings.onClickDialogProps}
                     />
                 )}
+                {create_unit_dialog_settings.displayed && (
+                    <CreateUnitDialog
+                        unit={create_unit_dialog_settings.unit}
+                        selected_copy_unit={selected_copy_unit}
+                        set_selected_copy_unit={set_selected_copy_unit}  
+                        available_unit_options={[
+                            {label: do_not_initialise_phrase, value: do_not_initialise_phrase}, 
+                            ...available_unit_options
+                        ].filter(obj=> obj.label !== create_unit_dialog_settings.unit)}                                             
+                        onClickDialog={create_unit_dialog_settings.onClickDialog}
+                        onClickDialogProps={create_unit_dialog_settings.onClickDialogProps}
+                    />
+                )}
+
             </main>
         </>
     )

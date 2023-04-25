@@ -18,9 +18,10 @@ const genPassword = (passwordLength) => {
 
 
 export default async function handler(req, res) {
-    const { id, unit, field_to_patch } = req.body
+
 
     if (req.method == "POST" || req.method == "PUT") {
+        var { id, unit, field_to_patch, selected_copy_unit } = req.body        
         // Parameter Validation
         if (unit == super_admin_page_name) {
             return res.status(400).json({ message: "super-admin is an invalid unit name." })
@@ -31,6 +32,59 @@ export default async function handler(req, res) {
     }
     try {
         switch (req.method) {
+            case "GET":
+                const units_data = await prisma.Unit.findMany({
+                    include: {
+                        Vocations: true,
+                        Introductions: true,
+                        PreUnitAchievements: true,
+                        PrimaryAppointments: true,
+                        SecondaryAppointments: true,
+                        SoldierFundamentals: true,
+                        OtherContributions: true,
+                        OtherIndividualAchievements: true,
+                        Conclusions: true
+                    }
+                })
+                if (units_data.length == 0) {
+                    var units_init_data = [
+                        {
+                            id: uuidv4(),
+                            unit: "",
+                            overview_data: {
+                                Companies: [],
+                                Vocations: [],
+                                Introductions: [],
+                                PreUnitAchievements: [],
+                                PrimaryAppointments: [],
+                                PrimaryAppointmentsAchievements: [],
+                                SecondaryAppointments: [],
+                                SoldierFundamentals: [],
+                                OtherContributions: [],
+                                OtherIndividualAchievements: [],
+                                Conclusions: []
+                            },
+                            previously_saved_unit: "",
+                            button_state: "save",
+                            display: "block"
+                        }
+                    ]
+                } else {
+                    var units_init_data = units_data.map(unit => {
+                        return {
+                            id: unit.id,
+                            unit: unit.name,
+                            previously_saved_unit: unit.name,
+                            overview_data: unit,
+                            button_state: "edit",
+                            display: "block"
+                        }
+                    }
+                    )
+                }
+                return res.status(200).json({units_init_data: units_init_data})
+                break
+
             case "POST":
                 // Generate a random password
                 const random_password = genPassword(random_password_length)
@@ -42,14 +96,217 @@ export default async function handler(req, res) {
                 // This second hash is then compared to the stored hash, and if they are the same, 
                 // the user is authenticated. 
                 const hashed_password = await bcrypt.hash(random_password, salt)
-                await prisma.Unit.create({
-                    data: {
-                        id: id,
-                        name: unit,
-                        password: hashed_password,
-                        isRandomlyGeneratedPassword: true
-                    }
-                })
+                if (!selected_copy_unit){
+                    await prisma.Unit.create({
+                        data: {
+                            id: id,
+                            name: unit,
+                            password: hashed_password,
+                            isRandomlyGeneratedPassword: true
+                        }
+                    })
+                } else {
+                    // Get the data of the unit we wish to copy
+                    const copy_unit_data = await prisma.Unit.findUnique({
+                        where: {
+                            name: selected_copy_unit
+                        },
+                        select: {
+                            Companies: true,
+                            Vocations: true,
+                            VocationRankCombinations: true, 
+                            Introductions: {
+                                include: {
+                                    appliesto: {
+                                        select: {
+                                            id: true
+                                        }
+                                    }
+                                }
+                            },
+                            PreUnitAchievements: {
+                                include: {
+                                    appliesto: {
+                                        select: {
+                                            id: true
+                                        }
+                                    }
+                                }
+                            },                     
+                            PrimaryAppointments: {
+                                include: {
+                                    achievements: true,
+                                    appliesto: {
+                                        select: {
+                                            id: true
+                                        }
+                                    }
+                                }
+                            },           
+                            SecondaryAppointments: {
+                                include: {
+                                    appliesto: {
+                                        select: {
+                                            id: true
+                                        }
+                                    }
+                                }                            
+                            },          
+                            SoldierFundamentals: {
+                                include: {
+                                    appliesto: {
+                                        select: {
+                                            id: true
+                                        }
+                                    }
+                                }                            
+                            },            
+                            OtherContributions: {
+                                include: {
+                                    appliesto: {
+                                        select: {
+                                            id: true
+                                        }
+                                    }
+                                }                            
+                            },            
+                            OtherIndividualAchievements: {
+                                include: {
+                                    appliesto: {
+                                        select: {
+                                            id: true
+                                        }
+                                    }
+                                }
+                            },
+                            Conclusions: {
+                                include: {
+                                    appliesto: {
+                                        select: {
+                                            id: true
+                                        }
+                                    }
+                                }
+                            }                                                        
+                        }
+                    })   
+                    console.log(copy_unit_data)
+                    console.log(typeof copy_unit_data)
+                    await prisma.Unit.create({
+                        data: {
+                            id: id,
+                            name: unit,
+                            password: hashed_password,
+                            isRandomlyGeneratedPassword: true,
+                            Vocations: {
+                                create: copy_unit_data.Vocations.map(obj=>{
+                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.unitName = undefined // Get rid of foreign key
+                                    return obj
+                                })
+                            },
+                            VocationRankCombinations: {
+                                create: copy_unit_data.VocationRankCombinations.map(obj=>{
+                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.unitName = undefined // Get rid of foreign key
+                                    return obj
+                                })
+                            }, 
+                            PreUnitAchievements: {
+                                create: copy_unit_data.PreUnitAchievements.map(obj=>{
+                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.unitName = undefined // Get rid of foreign key
+                                    obj.appliesto = {
+                                        connect: obj.appliesto
+                                    }
+                                    return obj
+                                })
+                            },
+                            Introductions: {
+                                create: copy_unit_data.Introductions.map(obj=>{
+                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.unitName = undefined // Get rid of foreign key
+                                    obj.appliesto = {
+                                        connect: obj.appliesto
+                                    }
+                                    return obj
+                                })
+                            },
+                            PrimaryAppointments: {
+                                create: copy_unit_data.PrimaryAppointments.map(obj=>{
+                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.unitName = undefined // Get rid of foreign key
+                                    obj.appliesto = {
+                                        connect: obj.appliesto
+                                    }
+                                    obj.achievements = {
+                                        create: obj.achievements.map(inner_obj=>{
+                                            inner_obj.id = undefined
+                                            inner_obj.unitName = undefined // Get rid of foreign key
+                                            inner_obj.primaryappointmentId = undefined // Get rid of foreign 
+                                            inner_obj.unit = {
+                                                connect: {id: id}
+                                            }
+                                            return inner_obj
+                                        })
+                                    }
+                                    return obj
+                                })
+                            },
+                            SecondaryAppointments: {
+                                create: copy_unit_data.SecondaryAppointments.map(obj=>{
+                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.unitName = undefined // Get rid of foreign key
+                                    obj.appliesto = {
+                                        connect: obj.appliesto
+                                    }
+                                    return obj
+                                })
+                            }, 
+                            SoldierFundamentals: {
+                                create: copy_unit_data.SoldierFundamentals.map(obj=>{
+                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.unitName = undefined // Get rid of foreign key
+                                    obj.appliesto = {
+                                        connect: obj.appliesto
+                                    }
+                                    return obj
+                                })
+                            },
+                            OtherContributions: {
+                                create: copy_unit_data.OtherContributions.map(obj=>{
+                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.unitName = undefined // Get rid of foreign key
+                                    obj.appliesto = {
+                                        connect: obj.appliesto
+                                    }
+                                    return obj
+                                })
+                            },
+                            OtherIndividualAchievements: {
+                                create: copy_unit_data.OtherIndividualAchievements.map(obj=>{
+                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.unitName = undefined // Get rid of foreign key
+                                    obj.appliesto = {
+                                        connect: obj.appliesto
+                                    }
+                                    return obj
+                                })
+                            },
+                            Conclusions: {
+                                create: copy_unit_data.Conclusions.map(obj=>{
+                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.unitName = undefined // Get rid of foreign key
+                                    obj.appliesto = {
+                                        connect: obj.appliesto
+                                    }
+                                    return obj
+                                })
+                            }                                                                                                                                        
+                        }
+                    })                                     
+                }
+                // Create a unit account with this information
                 return res.status(200).json({ random_password: random_password, message: "Unit Admin account successfully created." })
                 break
             case "PATCH":
