@@ -252,7 +252,7 @@ export function ConclusionsPage({ unit, section_name, available_vocation_ranks, 
                         {load_status == "loading" && (
                             <p className="loading-text-form-data">Loading...</p>
                         )}
-                        {conclusions_list.map((conclusion, intro_index) => {
+                        {conclusions_list.map((conclusion, index) => {
                             return (
                                 <ConclusionForm
                                     key={conclusion.id}
@@ -269,7 +269,7 @@ export function ConclusionsPage({ unit, section_name, available_vocation_ranks, 
                                     display={conclusion.display}
                                     conclusions_list={conclusions_list}
                                     set_conclusions_list={set_conclusions_list}
-                                    intro_index={intro_index}
+                                    index={index}
                                     unit={unit}
                                     set_dialog_settings={set_dialog_settings}
                                 />

@@ -175,13 +175,13 @@ export const SoldierFundamentalForm = ({
 
         if (event.target.checked) {
             // Otherwise, update the soldier_fundamentals_list to reflect the change in checkbox
-            if (!temp_soldier_fundamentals_list[index]['related_vocation_ranks'][checkbox_vocation]){
-                temp_soldier_fundamentals_list[index]['related_vocation_ranks'][checkbox_vocation] = [checkbox_rank]
+            if (!temp_soldier_fundamentals_list[form_index]['related_vocation_ranks'][checkbox_vocation]){
+                temp_soldier_fundamentals_list[form_index]['related_vocation_ranks'][checkbox_vocation] = [checkbox_rank]
             } else {
-                temp_soldier_fundamentals_list[index]['related_vocation_ranks'][checkbox_vocation].push(checkbox_rank)
+                temp_soldier_fundamentals_list[form_index]['related_vocation_ranks'][checkbox_vocation].push(checkbox_rank)
             }
         } else {
-            temp_soldier_fundamentals_list[index]['related_vocation_ranks'][checkbox_vocation] = temp_soldier_fundamentals_list[index]['related_vocation_ranks'][checkbox_vocation]
+            temp_soldier_fundamentals_list[form_index]['related_vocation_ranks'][checkbox_vocation] = temp_soldier_fundamentals_list[form_index]['related_vocation_ranks'][checkbox_vocation]
                 .filter(rank => rank !== checkbox_rank)
         }
 
@@ -395,18 +395,18 @@ export const SoldierFundamentalForm = ({
         set_soldier_fundamentals_list(temp_soldier_fundamentals_list)
     }
 
-    const onClickDeleteAward = (event, award_index) => {
+    const onClickDeleteAward = (event, award_form_index) => {
         event.preventDefault()
         const temp_soldier_fundamentals_list = cloneDeep(soldier_fundamentals_list)
-        temp_soldier_fundamentals_list[form_index]['awards'].splice(award_index, 1)
+        temp_soldier_fundamentals_list[form_index]['awards'].splice(award_form_index, 1)
         set_soldier_fundamentals_list(temp_soldier_fundamentals_list)        
         console.log(temp_soldier_fundamentals_list)
     }
 
-    const onChangeAward = (event, award_index) => {
+    const onChangeAward = (event, award_form_index) => {
         event.preventDefault()
         const temp_soldier_fundamentals_list = cloneDeep(soldier_fundamentals_list)
-        temp_soldier_fundamentals_list[form_index]['awards'][award_index] = event.target.value
+        temp_soldier_fundamentals_list[form_index]['awards'][award_form_index] = event.target.value
         set_soldier_fundamentals_list(temp_soldier_fundamentals_list)   
         console.log(temp_soldier_fundamentals_list)
     }
@@ -460,11 +460,11 @@ export const SoldierFundamentalForm = ({
                 <div className="template-group">
                     <div className="awards-group">
                         <p>Award:</p>
-                            {awards.map((award, award_index) => {
+                            {awards.map((award, award_form_index) => {
                                 return (
-                                    <div key={award_index} className="award-group">
-                                        <input onChange={(event) => { onChangeAward(event, award_index) }} className="title-input" name='official_name' placeholder="e.g. Gold Award" value={award} disabled={edit_disabled}></input>
-                                        <button onClick={(event) => { onClickDeleteAward(event, award_index) }} className={small_delete_button_class}>Delete</button>
+                                    <div key={award_form_index} className="award-group">
+                                        <input onChange={(event) => { onChangeAward(event, award_form_index) }} className="title-input" name='official_name' placeholder="e.g. Gold Award" value={award} disabled={edit_disabled}></input>
+                                        <button onClick={(event) => { onClickDeleteAward(event, award_form_index) }} className={small_delete_button_class}>Delete</button>
                                     </div>
                                 )
                             })}

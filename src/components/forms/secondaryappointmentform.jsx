@@ -162,16 +162,15 @@ export const SecondaryAppointmentForm = ({
 
         const [checkbox_vocation, checkbox_rank] = event.target.name.split("||")
         let temp_secondary_appointments_list = cloneDeep(secondary_appointments_list)
-
         if (event.target.checked) {
             // Otherwise, update the secondary_appointments_list to reflect the change in checkbox
-            if (!temp_secondary_appointments_list[index]['related_vocation_ranks'][checkbox_vocation]){
-                temp_secondary_appointments_list[index]['related_vocation_ranks'][checkbox_vocation] = [checkbox_rank]
+            if (!temp_secondary_appointments_list[form_index]['related_vocation_ranks'][checkbox_vocation]){
+                temp_secondary_appointments_list[form_index]['related_vocation_ranks'][checkbox_vocation] = [checkbox_rank]
             } else {
-                temp_secondary_appointments_list[index]['related_vocation_ranks'][checkbox_vocation].push(checkbox_rank)
+                temp_secondary_appointments_list[form_index]['related_vocation_ranks'][checkbox_vocation].push(checkbox_rank)
             }
         } else {
-            temp_secondary_appointments_list[index]['related_vocation_ranks'][checkbox_vocation] = temp_secondary_appointments_list[index]['related_vocation_ranks'][checkbox_vocation]
+            temp_secondary_appointments_list[form_index]['related_vocation_ranks'][checkbox_vocation] = temp_secondary_appointments_list[form_index]['related_vocation_ranks'][checkbox_vocation]
                 .filter(rank => rank !== checkbox_rank)
         }
 

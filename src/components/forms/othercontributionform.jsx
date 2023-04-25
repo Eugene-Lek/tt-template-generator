@@ -165,13 +165,13 @@ export const OtherContributionForm = ({
 
         if (event.target.checked) {
             // Otherwise, update the other_contributions_list to reflect the change in checkbox
-            if (!temp_other_contributions_list[index]['related_vocation_ranks'][checkbox_vocation]){
-                temp_other_contributions_list[index]['related_vocation_ranks'][checkbox_vocation] = [checkbox_rank]
+            if (!temp_other_contributions_list[form_index]['related_vocation_ranks'][checkbox_vocation]){
+                temp_other_contributions_list[form_index]['related_vocation_ranks'][checkbox_vocation] = [checkbox_rank]
             } else {
-                temp_other_contributions_list[index]['related_vocation_ranks'][checkbox_vocation].push(checkbox_rank)
+                temp_other_contributions_list[form_index]['related_vocation_ranks'][checkbox_vocation].push(checkbox_rank)
             }
         } else {
-            temp_other_contributions_list[index]['related_vocation_ranks'][checkbox_vocation] = temp_other_contributions_list[index]['related_vocation_ranks'][checkbox_vocation]
+            temp_other_contributions_list[form_index]['related_vocation_ranks'][checkbox_vocation] = temp_other_contributions_list[form_index]['related_vocation_ranks'][checkbox_vocation]
                 .filter(rank => rank !== checkbox_rank)
         }
 

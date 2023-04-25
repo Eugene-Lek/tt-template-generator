@@ -176,7 +176,7 @@ export const PrimaryAppointmentForm = ({
         console.log(temp_primary_appointments_list)
     }
 
-    const onChangeCheckbox = (event, index) => {
+    const onChangeCheckbox = (event, form_index) => {
 
         if (permanently_disable_edit) {
             return
@@ -187,13 +187,13 @@ export const PrimaryAppointmentForm = ({
 
         if (event.target.checked) {
             // Otherwise, update the primary_appointments_list to reflect the change in checkbox
-            if (!temp_primary_appointments_list[index]['related_vocation_ranks'][checkbox_vocation]){
-                temp_primary_appointments_list[index]['related_vocation_ranks'][checkbox_vocation] = [checkbox_rank]
+            if (!temp_primary_appointments_list[form_index]['related_vocation_ranks'][checkbox_vocation]){
+                temp_primary_appointments_list[form_index]['related_vocation_ranks'][checkbox_vocation] = [checkbox_rank]
             } else {
-                temp_primary_appointments_list[index]['related_vocation_ranks'][checkbox_vocation].push(checkbox_rank)
+                temp_primary_appointments_list[form_index]['related_vocation_ranks'][checkbox_vocation].push(checkbox_rank)
             }
         } else {
-            temp_primary_appointments_list[index]['related_vocation_ranks'][checkbox_vocation] = temp_primary_appointments_list[index]['related_vocation_ranks'][checkbox_vocation]
+            temp_primary_appointments_list[form_index]['related_vocation_ranks'][checkbox_vocation] = temp_primary_appointments_list[form_index]['related_vocation_ranks'][checkbox_vocation]
                 .filter(rank => rank !== checkbox_rank)
         }
 
