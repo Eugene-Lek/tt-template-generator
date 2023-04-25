@@ -6,7 +6,8 @@ export function Dialog({ message, buttons, line_props, onClickDialog, onClickDia
     const num_lines = lines.length
     const num_line_props_provided = line_props.length
     if (num_line_props_provided<num_lines){
-      var line_props_refined = [...line_props, ...Array(num_lines-num_line_props_provided).fill(line_props.slice(-1))]
+      var line_props_refined = [...line_props, ...Array(num_lines-num_line_props_provided).fill(line_props.slice(-1)[0])]
+      console.log("Reached")
       console.log(line_props_refined)
     } else {
       var line_props_refined = line_props
