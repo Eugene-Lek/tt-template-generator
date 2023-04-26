@@ -415,7 +415,7 @@ export const ConclusionForm = ({
                                             return (
                                                 <li key={i_inner} className="vocation-rank-li">
                                                     <input
-                                                        onChange={(event) => { onChangeCheckbox(event, form_index) }}
+                                                        onChange={(event) => { onChangeCheckbox(event, index) }}
                                                         style={{transform: "scale(1.3)", marginRight: "10px"}}
                                                         type="checkbox"
                                                         name={`${vocation}||${rank}`}
