@@ -32,20 +32,21 @@ export function SoldierFundamentalsPage({ unit, section_name, available_vocation
     }, [unit])
 
 
-    const getVocationRanksWithMissingTemplates = (available_vocation_ranks, section_list) => {
-        const vocation_ranks_without_templates_entries = Object.keys(available_vocation_ranks).map((vocation) => {
-            // Generate the missing vocation list based either on saved or unsaved vocation-template assignments. 
-            const nested_ranks_assigned_templates_list = section_list.map((section) => section["previously_saved_related_vocation_ranks"][vocation])
-            const ranks_assigned_templates_list = [].concat(...nested_ranks_assigned_templates_list)
-            const missing_ranks_list = available_vocation_ranks[vocation].filter((rank) => !ranks_assigned_templates_list.includes(rank))
-            if (missing_ranks_list.length == 0) {
-                // Return nothing due to no missing vocations for a particular rank
-                return
-            }
-            return [vocation, missing_ranks_list]
+    const getVocationRanksTemplateOverview = (available_vocation_ranks, section_list) => {
+        let vocation_ranks_template_overview = cloneDeep(available_vocation_ranks)
+        Object.keys(vocation_ranks_template_overview).forEach(vocation => {
+            const rank_template_entries = vocation_ranks_template_overview[vocation].map(rank => [rank, []])
+            vocation_ranks_template_overview[vocation] = Object.fromEntries(rank_template_entries)
         })
-        const vocation_ranks_without_templates = Object.fromEntries(vocation_ranks_without_templates_entries.filter((element) => element)) // Remove undefined elements due to no missing vocations for a particular rank
-        return vocation_ranks_without_templates
+        section_list.forEach(section => {
+            const section_related_vocation_ranks = section.previously_saved_related_vocation_ranks
+            Object.keys(section_related_vocation_ranks).forEach(vocation => {
+                section_related_vocation_ranks[vocation].forEach(rank => {
+                    vocation_ranks_template_overview[vocation]?.[rank].push(section.previously_saved_appointment)
+                })
+            })
+        })
+        return vocation_ranks_template_overview
     }
 
 
@@ -117,7 +118,7 @@ export function SoldierFundamentalsPage({ unit, section_name, available_vocation
 
     // Call this function again every time the page reloads to get the most up to date list of vocation-ranks without templates
     // The page reloads whenever any setState function belonging to the page or its parent is called. 
-    var previously_saved_vocation_ranks_without_templates = getVocationRanksWithMissingTemplates(available_vocation_ranks, soldier_fundamentals_list)
+    var vocation_ranks_template_overview = getVocationRanksTemplateOverview(available_vocation_ranks, soldier_fundamentals_list)
     const available_vocation_ranks_strings = [].concat(...Object.keys(available_vocation_ranks).map((vocation) => {
         return available_vocation_ranks[vocation].map(rank => `${vocation} ${rank}`)
     }))
@@ -169,27 +170,33 @@ export function SoldierFundamentalsPage({ unit, section_name, available_vocation
                                 </div>
                             </div>
                         }
-                        {(Object.entries(previously_saved_vocation_ranks_without_templates).length !== 0 && load_status == 'loaded') &&
-                            <div className="missing-vocation-ranks-warning">
-                                <div className="missing-vocation-ranks-warning-text">
-                                    <div style={{ fontWeight: 'bold', color: 'red', fontSize: "25px" }}>Alert!</div>
-                                    <div style={{ fontWeight: 'bold', color: 'black', fontSize: "15px" }}>Although optional, the below mentioned vocation-rank combinations have not been assigned any {section_name} templates</div>
+                        {(Object.entries(vocation_ranks_template_overview).length !== 0 && load_status == 'loaded') &&
+                            <div className="vocation-ranks-overview">
+                                <div className="vocation-ranks-overview-text">
+                                    <div style={{ fontWeight: 'bold', color: 'black', fontSize: "25px" }}>Overview</div>
                                 </div>
-                                <div className="missing-vocation-ranks-group">
-                                    {Object.keys(previously_saved_vocation_ranks_without_templates).map((vocation, i_outer) => {
+                                <div className="vocation-ranks-group">
+                                    {Object.keys(vocation_ranks_template_overview).map((vocation, i_outer) => {
                                         return (
-                                            <div key={i_outer} className="each-missing-rank-group">
-                                                <div>{vocation}</div>
-                                                <ul>
-                                                    {previously_saved_vocation_ranks_without_templates[vocation].map((rank, i_inner) => <li key={i_inner} >{rank}</li>)}
-                                                </ul>
+                                            <div key={i_outer} className="each-vocation-rank-group">
+                                                {Object.keys(vocation_ranks_template_overview[vocation]).map((rank, i_inner) => (
+                                                    <div key={(i_inner)}>
+                                                        <div style={{fontWeight: "bold", color: 'black', fontSize: "16px" }}>{vocation} {rank}</div>
+                                                        {vocation_ranks_template_overview[vocation][rank].length > 0 ?
+                                                            <ol>
+                                                                {vocation_ranks_template_overview[vocation][rank].map((title, i_inner2) => <li key={i_inner2} >{title}</li>)}
+                                                            </ol>
+                                                            :
+                                                            <ul>
+                                                                <li style={{ color: "red" }}>None Provided</li>
+                                                            </ul>
+                                                        }
+                                                    </div>
+                                                ))}
+
                                             </div>
                                         )
                                     })}
-                                </div>
-                                <div className="missing-vocation-ranks-warning-text">
-                                    <div style={{ fontWeight: 'bold', color: 'black', fontSize: "15px" }}>You can either create new {section_name} templates for them or assign existing {section_name} templates to them!</div>
-                                    <div style={{ fontWeight: 'bold', color: 'black', fontSize: "15px" }}>(Remember to click Save!)</div>
                                 </div>
                             </div>
                         }

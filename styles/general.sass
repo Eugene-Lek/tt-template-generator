@@ -456,6 +456,38 @@ footer
             >ul
                 margin: 0px
 
+.vocation-ranks-overview
+    display: flex
+    flex-direction: column
+    padding: 25px 30px
+    gap: 30px
+    .vocation-ranks-overview-text
+        display: flex
+        flex-direction: column
+        gap: 10px
+    .vocation-ranks-group
+        display: flex
+        flex-direction: row
+        flex-wrap: wrap
+        column-gap: 40px
+        row-gap: 40px
+        justify-content: space-evenly
+        .each-vocation-rank-group
+            display: flex
+            flex-direction: column
+            gap: 10px
+            border: solid 2px #404b8f
+            border-radius: 10px
+            padding: 15px 20px
+            background: #d1f3ff
+            width: 230px
+            >div
+                >ol    
+                    padding-left: 15px    
+                >ul           
+                    list-style-type: none
+                    padding-left: 0px
+
 .search-templates
     display: flex
     flex-direction: row
@@ -501,7 +533,7 @@ footer
         background-color: #f0eeee
         .template-group
             >p
-                font-size: 16px
+                font-size: 20px
                 font-weight: bold
 
             .title-input
@@ -551,7 +583,7 @@ footer
 
         .applies-to-vrc
             >p
-                font-size: 16px
+                font-size: 20px
                 font-weight: bold
             .applies-to-no-vocation-ranks
                 display: flex
@@ -570,8 +602,8 @@ footer
                         display: flex
                         flex-direction: row
                     >ul
-                        margin: 5px
-                        padding-left: 10px
+                        padding-left: 0px
+                        margin: 2px 0px
                         .vocation-rank-li
                             display: flex
                             flex-direction: row
