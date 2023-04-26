@@ -95,7 +95,7 @@ export default async function handler(req, res) {
                         display: "block"
                     }]
                 } else {
-                    var init_list = unit_conclusions.map((conclusion) => {
+                    var init_conclusions_list  = unit_conclusions.map((conclusion) => {
                         const applies_to_vocation_ranks_entries = conclusion.appliesto.map(obj => [obj.vocation, obj.rank])
                         const related_vocation_ranks = Object.fromEntries(applies_to_vocation_ranks_entries)
                         Object.keys(related_vocation_ranks).forEach(vocation => {
