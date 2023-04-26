@@ -19,9 +19,11 @@ const genPassword = (passwordLength) => {
 
 export default async function handler(req, res) {
 
+    if (req.method != "GET"){
+        var { id, unit, field_to_patch, selected_copy_unit } = req.body          
+    }
 
-    if (req.method == "POST" || req.method == "PUT") {
-        var { id, unit, field_to_patch, selected_copy_unit } = req.body        
+    if (req.method == "POST" || req.method == "PATCH") {      
         // Parameter Validation
         if (unit == super_admin_page_name) {
             return res.status(400).json({ message: "super-admin is an invalid unit name." })
@@ -119,7 +121,8 @@ export default async function handler(req, res) {
                                 include: {
                                     appliesto: {
                                         select: {
-                                            id: true
+                                            vocation: true,
+                                            rank: true
                                         }
                                     }
                                 }
@@ -128,7 +131,8 @@ export default async function handler(req, res) {
                                 include: {
                                     appliesto: {
                                         select: {
-                                            id: true
+                                            vocation: true,
+                                            rank: true
                                         }
                                     }
                                 }
@@ -138,7 +142,8 @@ export default async function handler(req, res) {
                                     achievements: true,
                                     appliesto: {
                                         select: {
-                                            id: true
+                                            vocation: true,
+                                            rank: true
                                         }
                                     }
                                 }
@@ -147,7 +152,8 @@ export default async function handler(req, res) {
                                 include: {
                                     appliesto: {
                                         select: {
-                                            id: true
+                                            vocation: true,
+                                            rank: true
                                         }
                                     }
                                 }                            
@@ -156,7 +162,8 @@ export default async function handler(req, res) {
                                 include: {
                                     appliesto: {
                                         select: {
-                                            id: true
+                                            vocation: true,
+                                            rank: true
                                         }
                                     }
                                 }                            
@@ -165,7 +172,8 @@ export default async function handler(req, res) {
                                 include: {
                                     appliesto: {
                                         select: {
-                                            id: true
+                                            vocation: true,
+                                            rank: true
                                         }
                                     }
                                 }                            
@@ -174,7 +182,8 @@ export default async function handler(req, res) {
                                 include: {
                                     appliesto: {
                                         select: {
-                                            id: true
+                                            vocation: true,
+                                            rank: true
                                         }
                                     }
                                 }
@@ -183,15 +192,14 @@ export default async function handler(req, res) {
                                 include: {
                                     appliesto: {
                                         select: {
-                                            id: true
+                                            vocation: true,
+                                            rank: true
                                         }
                                     }
                                 }
                             }                                                        
                         }
                     })   
-                    console.log(copy_unit_data)
-                    console.log(typeof copy_unit_data)
                     await prisma.Unit.create({
                         data: {
                             id: id,
@@ -200,44 +208,53 @@ export default async function handler(req, res) {
                             isRandomlyGeneratedPassword: true,
                             Vocations: {
                                 create: copy_unit_data.Vocations.map(obj=>{
-                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.id = undefined // This way prisma will automatically assign a new id to the object
                                     obj.unitName = undefined // Get rid of foreign key
                                     return obj
                                 })
                             },
                             VocationRankCombinations: {
                                 create: copy_unit_data.VocationRankCombinations.map(obj=>{
-                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.id = undefined // This way prisma will automatically assign a new id to the object
                                     obj.unitName = undefined // Get rid of foreign key
                                     return obj
                                 })
                             }, 
                             PreUnitAchievements: {
                                 create: copy_unit_data.PreUnitAchievements.map(obj=>{
-                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.id = undefined // This way prisma will automatically assign a new id to the object
                                     obj.unitName = undefined // Get rid of foreign key
                                     obj.appliesto = {
-                                        connect: obj.appliesto
+                                        connect: obj.appliesto.map(inner_obj=>{      
+                                            inner_obj.unitName = unit                                 
+                                            return {vocation_rank_unitName: inner_obj}
+                                        })
                                     }
                                     return obj
                                 })
                             },
                             Introductions: {
                                 create: copy_unit_data.Introductions.map(obj=>{
-                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.id = undefined // This way prisma will automatically assign a new id to the object
                                     obj.unitName = undefined // Get rid of foreign key
                                     obj.appliesto = {
-                                        connect: obj.appliesto
+                                        connect: obj.appliesto.map(inner_obj=>{      
+                                            inner_obj.unitName = unit                                 
+                                            return {vocation_rank_unitName: inner_obj}
+                                        })
                                     }
                                     return obj
                                 })
                             },
                             PrimaryAppointments: {
                                 create: copy_unit_data.PrimaryAppointments.map(obj=>{
-                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.id = undefined // This way prisma will automatically assign a new id to the object
                                     obj.unitName = undefined // Get rid of foreign key
                                     obj.appliesto = {
-                                        connect: obj.appliesto
+                                        connect: obj.appliesto.map(inner_obj=>{      
+                                            inner_obj.unitName = unit                                 
+                                            return {vocation_rank_unitName: inner_obj}
+                                        })
                                     }
                                     obj.achievements = {
                                         create: obj.achievements.map(inner_obj=>{
@@ -255,50 +272,65 @@ export default async function handler(req, res) {
                             },
                             SecondaryAppointments: {
                                 create: copy_unit_data.SecondaryAppointments.map(obj=>{
-                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.id = undefined // This way prisma will automatically assign a new id to the object
                                     obj.unitName = undefined // Get rid of foreign key
                                     obj.appliesto = {
-                                        connect: obj.appliesto
+                                        connect: obj.appliesto.map(inner_obj=>{      
+                                            inner_obj.unitName = unit                                 
+                                            return {vocation_rank_unitName: inner_obj}
+                                        })
                                     }
                                     return obj
                                 })
                             }, 
                             SoldierFundamentals: {
                                 create: copy_unit_data.SoldierFundamentals.map(obj=>{
-                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.id = undefined // This way prisma will automatically assign a new id to the object
                                     obj.unitName = undefined // Get rid of foreign key
                                     obj.appliesto = {
-                                        connect: obj.appliesto
+                                        connect: obj.appliesto.map(inner_obj=>{      
+                                            inner_obj.unitName = unit                                 
+                                            return {vocation_rank_unitName: inner_obj}
+                                        })
                                     }
                                     return obj
                                 })
                             },
                             OtherContributions: {
                                 create: copy_unit_data.OtherContributions.map(obj=>{
-                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.id = undefined // This way prisma will automatically assign a new id to the object
                                     obj.unitName = undefined // Get rid of foreign key
                                     obj.appliesto = {
-                                        connect: obj.appliesto
+                                        connect: obj.appliesto.map(inner_obj=>{      
+                                            inner_obj.unitName = unit                                 
+                                            return {vocation_rank_unitName: inner_obj}
+                                        })
                                     }
                                     return obj
                                 })
                             },
                             OtherIndividualAchievements: {
                                 create: copy_unit_data.OtherIndividualAchievements.map(obj=>{
-                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.id = undefined // This way prisma will automatically assign a new id to the object
                                     obj.unitName = undefined // Get rid of foreign key
                                     obj.appliesto = {
-                                        connect: obj.appliesto
+                                        connect: obj.appliesto.map(inner_obj=>{      
+                                            inner_obj.unitName = unit                                 
+                                            return {vocation_rank_unitName: inner_obj}
+                                        })
                                     }
                                     return obj
                                 })
                             },
                             Conclusions: {
                                 create: copy_unit_data.Conclusions.map(obj=>{
-                                    obj.id = undefined // This way prisma will automatically a new id to the object
+                                    obj.id = undefined // This way prisma will automatically assign a new id to the object
                                     obj.unitName = undefined // Get rid of foreign key
                                     obj.appliesto = {
-                                        connect: obj.appliesto
+                                        connect: obj.appliesto.map(inner_obj=>{      
+                                            inner_obj.unitName = unit                                 
+                                            return {vocation_rank_unitName: inner_obj}
+                                        })
                                     }
                                     return obj
                                 })

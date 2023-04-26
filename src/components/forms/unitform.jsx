@@ -159,6 +159,11 @@ export const UnitForm = ({
         event.preventDefault()
         //console.log(temp_units_data)
         const unit_cleaned = unit.toUpperCase().replace(/\s+/g, ' ').trim()
+        // Parameter Validation
+        if (units_data.map(obj=>obj.previously_saved_unit).includes(unit_cleaned)){
+            displayErrorMessage(`${unit_cleaned} already exists. Please pick another name.`)
+            return 
+        }
         //Check if the previously saved text is an empty string
         // If so, it is an update so a 'PATCH' method should be used.
         // Otherwise, create a new unit object with 'POST'
@@ -225,7 +230,6 @@ export const UnitForm = ({
         selected_copy_unit,                
         action
     }) => {
-        console.log("reached")
         // Close the dialog no matter what
         set_create_unit_dialog_settings({
             "unit": '',
@@ -238,6 +242,11 @@ export const UnitForm = ({
             return
         }
         // Otherwise execute the reset password operation
+        if (!units_data.map(unit_data=>unit_data.previously_saved_unit).includes(selected_copy_unit)){
+            // If the selected_copy_unit is not a previously saved unit, i.e. it is "Do not Initialise",
+            // set the selected_copy_unit to '' so the api will automatically create an empty unit account
+            selected_copy_unit = ''
+        }
         createOrEditUnit({
             id,
             unit,

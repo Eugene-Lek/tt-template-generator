@@ -47,7 +47,6 @@ export default function SuperAdmin({ units_init_data }) {
             })
             const units_response_data = await units_response.json()
             set_units_data(units_response_data.units_init_data)
-            console.log("fetched")
         }
         fetchSectionData()
 
@@ -151,8 +150,8 @@ export default function SuperAdmin({ units_init_data }) {
         const unit_data = temp_units_data.filter(obj => obj.unit == selected_unit || obj.previously_saved_unit == selected_unit)[0]
         set_unit_to_delete_data(unit_data)
     }
-    let available_unit_names = [].concat(...units_data.map(unit_data => [unit_data.unit, unit_data.previously_saved_unit]))
-    available_unit_names = [... new Set(available_unit_names)].filter(name=>name) // remove empty strings
+    // Only display previously saved options to be safe
+    let available_unit_names = units_data.map(unit_data => unit_data.previously_saved_unit).filter(element=>element) 
     available_unit_names.sort()
     const available_unit_options = available_unit_names.map((unit) => ({ label: unit, value: unit }))
 
@@ -293,7 +292,7 @@ export default function SuperAdmin({ units_init_data }) {
                 <section className="big-section">
                     <h2 className="big-section-title">Delete Unit Admin Accounts</h2>
                     <div className="big-section-description-group">
-                        <p className="big-section-description"> Deletions are irreversible. Only delete Unit Admin accounts if you are absolutely sure!</p>
+                        <p className="big-section-description"> Deletions are irreversible. Only delete Unit admin accounts if you are absolutely sure!</p>
                     </div>
                     <div style={{ marginLeft: "auto", marginRight: "auto" }}>
                         <div className="search-templates">
