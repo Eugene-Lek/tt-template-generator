@@ -175,7 +175,7 @@ export function SecondaryAppointmentsPage({ unit, section_name, available_vocati
                         {(Object.entries(vocation_ranks_template_overview).length !== 0 && load_status == 'loaded') &&
                             <div className="vocation-ranks-overview">
                                 <div className="vocation-ranks-overview-text">
-                                    <div style={{ fontWeight: 'bold', color: 'black', fontSize: "25px" }}>Overview</div>
+                                    <div style={{ fontWeight: 'bold', color: 'black', fontSize: "30px" }}>Overview</div>
                                 </div>
                                 <div className="vocation-ranks-group">
                                     {Object.keys(vocation_ranks_template_overview).map((vocation, i_outer) => {
