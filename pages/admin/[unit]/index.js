@@ -32,7 +32,7 @@ export default function UnitAdminHome({ unit , id, init_companies, init_vocation
         const ranks_list = [form.previously_saved_ranks.have_officer ? 'Officer' : '',
         form.previously_saved_ranks.have_specialist ? 'Specialist' : '',
         form.previously_saved_ranks.have_enlistee ? 'Enlistee' : ''].filter(rank => rank) // Remove empty strings
-        return [form.previously_saved_vocation, ranks_list]})
+        return [form.previously_saved_vocation, ranks_list]}).filter(pair=>pair[0]) // Remove pairs with empty vocations
     const available_vocation_ranks = Object.fromEntries(available_vocation_ranks_raw)
     console.log(available_vocation_ranks)
     const [sections, set_sections] = useState(init_sections)
