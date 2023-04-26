@@ -404,7 +404,7 @@ export const IntroductionForm = ({
                             return (
                                 <div key={i_outer} className="each-vocation-group">
                                     <div className="vocation-rank-option-group">
-                                        <label>{vocation}</label>
+                                        <label style={{fontWeight: "bold"}}>{vocation}</label>
                                     </div>
                                     <ul>
                                         {available_vocation_ranks[vocation].map((rank, i_inner) => {
@@ -415,7 +415,8 @@ export const IntroductionForm = ({
                                             return (
                                                 <li key={i_inner} className="vocation-rank-li">
                                                     <input
-                                                        onChange={(event) => { onChangeCheckbox(event, intro_index) }}
+                                                        onChange={(event) => { onChangeCheckbox(event, form_index) }}
+                                                        style={{transform: "scale(1.3)", marginRight: "10px"}}
                                                         type="checkbox"
                                                         name={`${vocation}||${rank}`}
                                                         checked={available_related_vocation_ranks[vocation].includes(rank)}
