@@ -103,7 +103,7 @@ model PrimaryAppointment {
 
 model PrimaryAppointmentAchievement {
   id       String @id @default(uuid())
-  title    String @unique
+  title    String
   template String
 
   PrimaryAppointment   PrimaryAppointment @relation(fields: [primaryappointmentId], references: [id])
@@ -111,6 +111,8 @@ model PrimaryAppointmentAchievement {
 
   unit     Unit   @relation(fields: [unitName], references: [name])
   unitName String
+
+  @@unique([title, primaryappointmentId])
 }
 
 model SecondaryAppointment {
