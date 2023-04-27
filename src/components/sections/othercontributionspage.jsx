@@ -44,6 +44,7 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
             Object.keys(section_related_vocation_ranks).forEach(vocation => {
                 section_related_vocation_ranks[vocation].forEach(rank => {
                     vocation_ranks_template_overview[vocation]?.[rank].push(section.previously_saved_contribution)
+                    vocation_ranks_template_overview[vocation]?.[rank].sort() // Sort by alphabetical order                    
                 })
             })
         })

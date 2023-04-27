@@ -44,6 +44,7 @@ export function OtherIndividualAchievementsPage({ unit, section_name, available_
             Object.keys(section_related_vocation_ranks).forEach(vocation => {
                 section_related_vocation_ranks[vocation].forEach(rank => {
                     vocation_ranks_template_overview[vocation]?.[rank].push(section.previously_saved_achievement)
+                    vocation_ranks_template_overview[vocation]?.[rank].sort() // Sort by alphabetical order                    
                 })
             })
         })
