@@ -7,13 +7,13 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL") //"postgresql://postgres:T3@m1234@localhost:5432/ttgeneratordatabase?schema=public"
+  url      = "postgresql://postgres:T3@m1234@localhost:5432/ttgeneratordatabase?schema=public"
 }
 
 model Unit {
-  id       String @id @default(uuid())
-  name     String @unique
-  password String
+  id                          String  @id @default(uuid())
+  name                        String  @unique
+  password                    String
   isRandomlyGeneratedPassword Boolean
 
   Companies                      String[]
@@ -48,7 +48,7 @@ model VocationRankCombination {
   Unit     Unit   @relation(fields: [unitName], references: [name])
   unitName String
 
-  PreUnitAchievements   PreUnitAchievement[]
+  PreUnitAchievements PreUnitAchievement[]
 
   Introduction   Introduction? @relation(fields: [introductionId], references: [id])
   introductionId String?
@@ -63,9 +63,8 @@ model VocationRankCombination {
 
   OtherIndividualAchievements OtherIndividualAchievement[]
 
-  Conclusion           Conclusion?         @relation(fields: [conclusionId], references: [id])
-  conclusionId         String?
-
+  Conclusion   Conclusion? @relation(fields: [conclusionId], references: [id])
+  conclusionId String?
 
   @@unique([vocation, rank, unitName])
 }
