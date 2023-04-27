@@ -72,7 +72,7 @@ model VocationRankCombination {
 
 model PreUnitAchievement {
   id        String                    @id @default(uuid())
-  title     String
+  title     String                    @unique
   template  String
   appliesto VocationRankCombination[]
 
@@ -104,7 +104,7 @@ model PrimaryAppointment {
 
 model PrimaryAppointmentAchievement {
   id       String @id @default(uuid())
-  title    String
+  title    String @unique
   template String
 
   PrimaryAppointment   PrimaryAppointment @relation(fields: [primaryappointmentId], references: [id])
