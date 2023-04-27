@@ -45,6 +45,15 @@ export default async function handler(req, res) {
         if (!achievement_wording) {
             return res.status(400).json({ message: 'The wording is missing' })
         }
+        // Uniqueness validation
+        const existing_achievement_titles = await prisma.PreUnitAchievement.findMany({
+            select: {
+                title: true
+            }
+        })
+        if(existing_achievement_titles.map(obj=>obj.title.toLowerCase()).includes(achievement_title)){
+            return res.status(400).json({ message: `'${achievement_title}' already exists.` })
+        }
         // Placeholder Validation
         const valid_placholders = personal_particulars.map(str => str.toLowerCase())
         const inserted_placeholders_wording = [...achievement_wording.matchAll(/\{[^}]+\}/g)] // global search
