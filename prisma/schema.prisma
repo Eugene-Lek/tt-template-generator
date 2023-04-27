@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:T3@m1234@localhost:5432/ttgeneratordatabase?schema=public"
+  url      = env("DATABASE_URL") //"postgresql://postgres:T3@m1234@localhost:5432/ttgeneratordatabase?schema=public"
 }
 
 model Unit {

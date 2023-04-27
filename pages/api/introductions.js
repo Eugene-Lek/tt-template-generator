@@ -1,7 +1,7 @@
 import prisma from "lib/prisma"
 import { v4 as uuidv4 } from "uuid"
 
-const personal_particulars = ["Rank", "Full Name", "Surname", "Enlistment Date", "Coy", "Primary Appointment"]
+const personal_particulars = ["rank", "full Name", "surname", "enlistment Date", "coy", "primary appointment"].map(e=>e.toLowerCase())
 
 export default async function handler(req, res) {
     if (req.method != "GET") {
@@ -47,11 +47,10 @@ export default async function handler(req, res) {
                 )
             }
         }
-        const inserted_placeholders_testimonial = [...template.matchAll(/\{[^}]+\}/g)] // global search
+        const inserted_placeholders_testimonial = [...template.matchAll(/\{[^}]+\}/g)].map(obj=> obj[0].slice(1,-1).toLowerCase()) //slice to remove the braces
         for (let i=0; i<inserted_placeholders_testimonial.length; i++){
-            const candidate_placeholder_data = inserted_placeholders_testimonial[i]
-            const candidate_placeholder = candidate_placeholder_data[0].slice(1,-1) // index 0 corresponds to the actual match detected. The rest is metadata
-            if (!valid_placholders.includes(candidate_placeholder.toLowerCase())){
+            const candidate_placeholder = inserted_placeholders_testimonial[i]
+            if (!valid_placholders.includes(candidate_placeholder)){
                 return res.status(400).json({ message: `{${candidate_placeholder}} was found in the Testimonial template, but '${candidate_placeholder}' is not a Personal Particular.
                                                         
                                                         *Personal Particulars (case-insensitive):*
@@ -78,6 +77,45 @@ export default async function handler(req, res) {
                 id: true
             }
         })
+        // Find the Pre-Unit Achievements associated with the transcript/testimonial so they can be connected to the same VRC objects
+        const inserted_pre_unit_achievements = inserted_placeholders_testimonial
+                                                .filter(placeholder=>!personal_particulars.includes(placeholder))   
+        console.log(inserted_pre_unit_achievements)
+        const all_pre_unit_achievements = await prisma.PreUnitAchievement.findMany({
+            select: {
+                id: true,
+                title: true
+            }
+        })        
+        await Promise.all(all_pre_unit_achievements.map(obj=>{
+            if (inserted_pre_unit_achievements.includes(obj.title.toLowerCase())){
+                // If inside, connect
+                return prisma.PreUnitAchievement.update({
+                    where:{
+                        id: obj.id
+                    },
+                    data: {
+                        appliesto: {
+                            connect: related_vocation_ranks_ids
+                        }
+                    }
+                })                  
+            } else {
+                // If not inside, disconnect. This works because each VRC can only be assigned to 1 introduction, so 
+                // there will never be a situation where a Pre-Unit Achievement is linked to a VRC via 2 sources and 
+                // disconnected from the VRC just because it is removed from 1 source. 
+                return prisma.PreUnitAchievement.update({
+                    where:{
+                        id: obj.id
+                    },
+                    data: {
+                        appliesto: {
+                            disconnect: related_vocation_ranks_ids
+                        }
+                    }
+                })                  
+            }
+        }))
     }
 
     try {
