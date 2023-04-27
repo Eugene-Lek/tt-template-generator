@@ -101,11 +101,12 @@ export default async function handler(req, res) {
                     }]
                 } else {
                     var init_list = unit_secondary_appointments.map((secondary_appointment) => {
-                        const applies_to_vocation_ranks_entries = secondary_appointment.appliesto.map(obj => [obj.vocation, obj.rank])
-                        const related_vocation_ranks = Object.fromEntries(applies_to_vocation_ranks_entries)
-                        Object.keys(related_vocation_ranks).forEach(vocation => {
-                            if (typeof related_vocation_ranks[vocation] !== Array) {
-                                related_vocation_ranks[vocation] = [related_vocation_ranks[vocation]]
+                        let related_vocation_ranks = {}
+                        secondary_appointment.appliesto.forEach(obj => {
+                            if (related_vocation_ranks.hasOwnProperty(obj.vocation)){
+                                related_vocation_ranks[obj.vocation].push(obj.rank)
+                            } else {
+                                related_vocation_ranks[obj.vocation] = [obj.rank]
                             }
                         })
                         return {

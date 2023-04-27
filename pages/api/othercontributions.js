@@ -101,11 +101,12 @@ export default async function handler(req, res) {
                     }]
                 } else {
                     var init_list = unit_other_contributions.map((other_contribution) => {
-                        const applies_to_vocation_ranks_entries = other_contribution.appliesto.map(obj => [obj.vocation, obj.rank])
-                        const related_vocation_ranks = Object.fromEntries(applies_to_vocation_ranks_entries)
-                        Object.keys(related_vocation_ranks).forEach(vocation => {
-                            if (typeof related_vocation_ranks[vocation] !== Array) {
-                                related_vocation_ranks[vocation] = [related_vocation_ranks[vocation]]
+                        let related_vocation_ranks = {}
+                        other_contribution.appliesto.forEach(obj => {
+                            if (related_vocation_ranks.hasOwnProperty(obj.vocation)){
+                                related_vocation_ranks[obj.vocation].push(obj.rank)
+                            } else {
+                                related_vocation_ranks[obj.vocation] = [obj.rank]
                             }
                         })
                         return {
@@ -152,6 +153,7 @@ export default async function handler(req, res) {
 
             case 'PUT':
                 // Update the old OtherContribution object
+                console.log(related_vocation_ranks_ids)
                 await prisma.OtherContribution.update({
                     where: {
                         id: id

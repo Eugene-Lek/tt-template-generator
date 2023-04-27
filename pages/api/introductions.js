@@ -110,11 +110,12 @@ export default async function handler(req, res) {
                     }]
                 } else {
                     var init_introductions_list = unit_introductions.map((introduction) => {
-                        const applies_to_vocation_ranks_entries = introduction.appliesto.map(obj=> [obj.vocation, obj.rank])
-                        const related_vocation_ranks = Object.fromEntries(applies_to_vocation_ranks_entries)
-                        Object.keys(related_vocation_ranks).forEach(vocation=>{
-                            if (typeof related_vocation_ranks[vocation] !== Array){
-                                related_vocation_ranks[vocation] = [related_vocation_ranks[vocation]]
+                        let related_vocation_ranks = {}
+                        introduction.appliesto.forEach(obj => {
+                            if (related_vocation_ranks.hasOwnProperty(obj.vocation)){
+                                related_vocation_ranks[obj.vocation].push(obj.rank)
+                            } else {
+                                related_vocation_ranks[obj.vocation] = [obj.rank]
                             }
                         })
 
