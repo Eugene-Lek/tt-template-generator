@@ -40,7 +40,12 @@ const generateOptionParagraph = (template, placeholder_data) => {
     // This ensures that placeholder data is separated from the main body even if the admin forgot to do so.
     // Extra spaces will be removed later. 
     let hydrated_template = template.replace(/\{[^}]+\}/g, (matched_placeholder) => {
-        return ` ${placeholder_data[matched_placeholder.slice(1, -1).toLowerCase()]} `
+        const matched_placeholder_no_braces = matched_placeholder.slice(1, -1)
+        if (placeholder_data.hasOwnProperty(matched_placeholder_no_braces)) {
+            return ` ${placeholder_data[matched_placeholder.slice(1, -1).toLowerCase()]} `
+        } else {
+            return ' ' // If the placeholder was not selected and thus doesnt exist in the data dict, replace it with a whitespace.
+        }
     })
     hydrated_template = hydrated_template.replace(/[ \t\r\f\v]+/g, ' ').trim() // remove extra spaces
     console.log(hydrated_template)
@@ -67,7 +72,14 @@ const generateOptionTextRuns = (template, placeholder_data) => {
     // AAdditionally, add whitespace on both sides of the placeholder data insertion.
     // This ensures that placeholder data is separated from the main body even if the admin forgot to do so.
     // Extra spaces will be removed later. 
-    let hydrated_template = template.replace(/\{[^}]+\}/g, (matched_placeholder) => ` ${placeholder_data[matched_placeholder.slice(1, -1).toLowerCase()]} `)
+    let hydrated_template = template.replace(/\{[^}]+\}/g, (matched_placeholder) => {
+        const matched_placeholder_no_braces = matched_placeholder.slice(1, -1)
+        if (placeholder_data.hasOwnProperty(matched_placeholder_no_braces)) {
+            return ` ${placeholder_data[matched_placeholder.slice(1, -1).toLowerCase()]} `
+        } else {
+            return ' ' // If the placeholder was not selected and thus doesnt exist in the data dict, replace it with a whitespace.
+        }
+    })
     hydrated_template = hydrated_template.replace(/[ \t\r\f\v]+/g, ' ').trim() // remove extra spaces
     const textruns = hydrated_template.split(/(?=\<[^\>]+\>)|(?<=\<[^\>]+\>)/g) // generates a list of text which either match or do not match the placeholder pattern
     const textrun_objects = textruns.map(textrun_template => {
