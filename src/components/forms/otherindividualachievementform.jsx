@@ -438,11 +438,11 @@ export const OtherIndividualAchievementForm = ({
                 </div>                 
                 <div className="template-group">
                     <p>Transcript Template:</p>
-                    <textarea onChange={(event) => { onChangeText(event, form_index) }} className="transcript-template-input" name="transcript_template" placeholder="e.g. To be added when I get back to office." value={transcript_template} disabled={edit_disabled}></textarea>
+                    <textarea onChange={(event) => { onChangeText(event, form_index) }} className="transcript-template-input" name="transcript_template" placeholder="e.g. In recognition for his outstanding performance, {rank} {surname} was awarded the Best Soldier of the Month - an award given to the top soldier in the Battalion for a particular month." value={transcript_template} disabled={edit_disabled}></textarea>
                 </div>                                            
                 <div className="template-group">
                     <p>Testimonial Template:</p>
-                    <textarea onChange={(event) => { onChangeText(event, form_index) }} className="template-input" name='template' placeholder="e.g. To be added when I get back to office." value={template} disabled={edit_disabled}></textarea>
+                    <textarea onChange={(event) => { onChangeText(event, form_index) }} className="template-input" name='template' placeholder="e.g. In recognition for his outstanding performance, {rank} {surname} was awarded the Best Soldier of the Month - an award given to the top soldier in the Battalion for a particular month." value={template} disabled={edit_disabled}></textarea>
                 </div>
                 <div className="save-edit-delete-group">
                     <button type="submit" className={save_button_class}>Save</button>
