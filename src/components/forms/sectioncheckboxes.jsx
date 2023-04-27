@@ -96,7 +96,7 @@ export function SectionCheckBoxes({
             )}  
             {(selected_vocation_and_rank && selected_valid_vocation_rank && relevant_section_options.length==0) && (
                 <>
-                    <p className="select-vocation-rank-warning">{form_data["Vocation"]} {form_data["Rank Category"]}s do not have any corresponding {section_name}.</p>
+                    <p className="select-vocation-rank-warning"><span style={{fontWeight: "bold"}}>{form_data["Vocation"]} {form_data["Rank Category"]}s</span> do not have any corresponding {section_name}.</p>
                     {section_name == "Primary Appointments" && (
                         <>
                             <p className="select-vocation-rank-warning">This is an error as all vocation rank combinations should have at least 1 Primary Appointment.</p>                

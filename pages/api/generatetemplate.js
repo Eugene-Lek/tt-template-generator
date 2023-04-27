@@ -1,6 +1,20 @@
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import prisma from "@/lib/prisma";
 
+const month_dict = {
+    "1": "January",
+    "2": "February",
+    "3": "March",
+    "4": "April",
+    "5": "May",
+    "6": "June",
+    "7": "July",
+    "8": "August",
+    "9": "September",
+    "10": "October",
+    "11": "November",
+    "12": "December"
+}
 
 var format = function (str, col) {
     col = typeof col === 'object' ? col : Array.prototype.slice.call(arguments, 1)
@@ -66,22 +80,17 @@ const generateOptionTextRuns = (template, placeholder_data) => {
     return textrun_objects
 }
 
-var Globalize = require("globalize");
-
-// Feed Globalize on CLDR data
-Globalize.load(require("cldr-data").entireSupplemental());
-Globalize.load(require("cldr-data").entireMainFor("en"))
-var formatter = Globalize.dateFormatter({ date: "long" }); // Create a formatter object
-
 export default async function handler(req, res) {
     const { form_data, selected_unit, complusory_fields } = req.body
     // Data Cleaning
     form_data["Rank"] = form_data["Rank"].replace(/\s+/g, ' ').trim().toUpperCase()
     form_data["Full Name"] = form_data["Full Name"].replace(/\s+/g, ' ').trim().toUpperCase()
     form_data["Surname"] = form_data["Surname"].replace(/\s+/g, ' ').trim().toUpperCase()
+    let [year, month, day] = form_data['Enlistment Date'].split('-')
+    month = month_dict[Number(month)]
+    form_data['Enlistment Date'] = `${Number(day)} ${month} ${year}`
 
-    const temp = Globalize.parseDate(form_data['Enlistment Date'], "yyyy-MM-dd")
-    form_data['Enlistment Date'] = formatter(temp)
+    console.log(form_data['Enlistment Date'])
 
     // Server-side parameter validation
     const missing_data = Object.keys(form_data).map(field => {
