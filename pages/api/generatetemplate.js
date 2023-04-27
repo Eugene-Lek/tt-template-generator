@@ -1,6 +1,7 @@
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import prisma from "@/lib/prisma";
 
+
 var format = function (str, col) {
     col = typeof col === 'object' ? col : Array.prototype.slice.call(arguments, 1)
 
@@ -25,7 +26,7 @@ const generateOptionParagraph = (template, placeholder_data) => {
     // This ensures that placeholder data is separated from the main body even if the admin forgot to do so.
     // Extra spaces will be removed later. 
     let hydrated_template = template.replace(/\{[^}]+\}/g, (matched_placeholder) => {
-        return ` ${placeholder_data[matched_placeholder.slice(1,-1).toLowerCase()]} `
+        return ` ${placeholder_data[matched_placeholder.slice(1, -1).toLowerCase()]} `
     })
     hydrated_template = hydrated_template.replace(/[ \t\r\f\v]+/g, ' ').trim() // remove extra spaces
     console.log(hydrated_template)
@@ -38,11 +39,11 @@ const generateOptionParagraph = (template, placeholder_data) => {
             if (textrun_template.startsWith("<") && textrun_template.endsWith(">")) {
                 return new TextRun({ text: textrun_template + ' ', color: "f04e1f", size: 22, font: "Cambria (Body)" })
             } else {
-                return new TextRun({text: textrun_template  + ' ', size: 22, font: "Cambria (Body)"})
+                return new TextRun({ text: textrun_template + ' ', size: 22, font: "Cambria (Body)" })
             }
         })
         console.log(textrun_objects)
-        return new Paragraph({ children: textrun_objects, spacing: {after: 200, line: 276} })
+        return new Paragraph({ children: textrun_objects, spacing: { after: 200, line: 276 } })
     })
     return paragraph_objects
 }
@@ -52,21 +53,35 @@ const generateOptionTextRuns = (template, placeholder_data) => {
     // AAdditionally, add whitespace on both sides of the placeholder data insertion.
     // This ensures that placeholder data is separated from the main body even if the admin forgot to do so.
     // Extra spaces will be removed later. 
-    let hydrated_template = template.replace(/\{[^}]+\}/g, (matched_placeholder) => ` ${placeholder_data[matched_placeholder.slice(1,-1).toLowerCase()]} `)
+    let hydrated_template = template.replace(/\{[^}]+\}/g, (matched_placeholder) => ` ${placeholder_data[matched_placeholder.slice(1, -1).toLowerCase()]} `)
     hydrated_template = hydrated_template.replace(/[ \t\r\f\v]+/g, ' ').trim() // remove extra spaces
     const textruns = hydrated_template.split(/(?=\<[^\>]+\>)|(?<=\<[^\>]+\>)/g) // generates a list of text which either match or do not match the placeholder pattern
     const textrun_objects = textruns.map(textrun_template => {
         if (textrun_template.startsWith("<") && textrun_template.endsWith(">")) {
-            return new TextRun({ text: textrun_template  + ' ', color: "f04e1f", size: 22, font: "Cambria (Body)" })
+            return new TextRun({ text: textrun_template + ' ', color: "f04e1f", size: 22, font: "Cambria (Body)" })
         } else {
-            return new TextRun({text: textrun_template  + ' ', size: 22, font: "Cambria (Body)"})
+            return new TextRun({ text: textrun_template + ' ', size: 22, font: "Cambria (Body)" })
         }
     })
     return textrun_objects
 }
 
+var Globalize = require("globalize");
+
+// Feed Globalize on CLDR data
+Globalize.load(require("cldr-data").entireSupplemental());
+Globalize.load(require("cldr-data").entireMainFor("en"))
+var formatter = Globalize.dateFormatter({ date: "long" }); // Create a formatter object
+
 export default async function handler(req, res) {
     const { form_data, selected_unit, complusory_fields } = req.body
+    // Data Cleaning
+    form_data["Rank"] = form_data["Rank"].replace(/\s+/g, ' ').trim().toUpperCase()
+    form_data["Full Name"] = form_data["Full Name"].replace(/\s+/g, ' ').trim().toUpperCase()
+    form_data["Surname"] = form_data["Surname"].replace(/\s+/g, ' ').trim().toUpperCase()
+
+    const temp = Globalize.parseDate(form_data['Enlistment Date'], "yyyy-MM-dd")
+    form_data['Enlistment Date'] = formatter(temp)
 
     // Server-side parameter validation
     const missing_data = Object.keys(form_data).map(field => {
@@ -149,14 +164,16 @@ export default async function handler(req, res) {
                 }
             })
             // Validate the Introduction and Conclusion
-            if (!relevant_templates.Introduction){
-                return res.status(400).json({ message: `Your S1 department has not keyed-in an Introduction for ${form_data["Vocation"]} ${form_data["Rank Category"]} yet. 
+            if (!relevant_templates.Introduction) {
+                return res.status(400).json({
+                    message: `Your S1 department has not keyed-in an Introduction for ${form_data["Vocation"]} ${form_data["Rank Category"]} yet. 
                                                 Please contact them about it :(`})
             }
-            if (!relevant_templates.Conclusion){
-                return res.status(400).json({ message: `Your S1 department has not keyed-in an Conclusion for ${form_data["Vocation"]} ${form_data["Rank Category"]} yet. 
+            if (!relevant_templates.Conclusion) {
+                return res.status(400).json({
+                    message: `Your S1 department has not keyed-in an Conclusion for ${form_data["Vocation"]} ${form_data["Rank Category"]} yet. 
                                                 Please contact them about it :(`})
-            }            
+            }
             // Create placholder-data dictionaries (KEYS MUST BE LOWERCASED)
             const standard_placeholders = {
                 "rank": form_data["Rank"],
@@ -191,56 +208,56 @@ export default async function handler(req, res) {
                     // Lowercase all placeholders in placeholder_data to enable case-insensitive formatting
                     primary_appointment_achievements.map(obj => [obj.title.toLowerCase(), obj.template])
                 )
-                if (form_data["Primary Appointments"][appt_obj.title]){
+                if (form_data["Primary Appointments"][appt_obj.title]) {
                     return [
                         generateOptionTextRuns(appt_obj.transcripttemplate, { ...standard_placeholders, ...primary_appointment_placeholder_data }),
                         generateOptionParagraph(appt_obj.template, { ...standard_placeholders, ...primary_appointment_placeholder_data })
-                    ]                
+                    ]
                 }
-            }).filter(element=>element) // Remove undefined values
-            if (primary_appointment_paras == undefined || primary_appointment_paras.length == 0){
+            }).filter(element => element) // Remove undefined values
+            if (primary_appointment_paras == undefined || primary_appointment_paras.length == 0) {
                 // Set the default
                 primary_appointment_paras = [[null, null]]
             }
             let secondary_appointment_paras = relevant_templates.SecondaryAppointments?.map(obj => {
-                if (form_data["Secondary Appointments"][obj.title]){
+                if (form_data["Secondary Appointments"][obj.title]) {
                     // If the above expression is truthy (i.e. true or an object), the option was selected, so return its corresponding templates
                     return [
                         generateOptionTextRuns(obj.transcripttemplate, standard_placeholders),
                         generateOptionParagraph(obj.template, standard_placeholders),
                     ]
                 }
-            }).filter(element=>element) // Remove undefined values
-            if (secondary_appointment_paras == undefined || secondary_appointment_paras.length == 0){
+            }).filter(element => element) // Remove undefined values
+            if (secondary_appointment_paras == undefined || secondary_appointment_paras.length == 0) {
                 // Set the default
                 secondary_appointment_paras = [[null, null]]
-            }            
+            }
             let other_contribution_paras = relevant_templates.OtherContributions?.map(obj => {
-                if (form_data["Other Contributions"][obj.title]){
+                if (form_data["Other Contributions"][obj.title]) {
                     // If the above expression is truthy (i.e. true or an object), the option was selected, so return its corresponding templates
                     return [
                         generateOptionTextRuns(obj.transcripttemplate, standard_placeholders),
                         generateOptionParagraph(obj.template, standard_placeholders),
                     ]
                 }
-            }).filter(element=>element) // Remove undefined values
-            if (other_contribution_paras == undefined || other_contribution_paras.length == 0){
+            }).filter(element => element) // Remove undefined values
+            if (other_contribution_paras == undefined || other_contribution_paras.length == 0) {
                 // Set the default
                 other_contribution_paras = [[null, null]]
-            }            
+            }
             let other_individual_achievement_paras = relevant_templates.OtherIndividualAchievement?.map(obj => {
-                if (form_data["Other Individual Achievements"][obj.title]){
+                if (form_data["Other Individual Achievements"][obj.title]) {
                     // If the above expression is truthy (i.e. true or an object), the option was selected, so return its corresponding templates
                     return [
                         generateOptionTextRuns(obj.transcripttemplate, standard_placeholders),
                         generateOptionParagraph(obj.template, standard_placeholders),
                     ]
                 }
-            }).filter(element=>element) // Remove undefined values
-            if (other_individual_achievement_paras == undefined || other_individual_achievement_paras.length == 0){
+            }).filter(element => element) // Remove undefined values
+            if (other_individual_achievement_paras == undefined || other_individual_achievement_paras.length == 0) {
                 // Set the default
                 other_individual_achievement_paras = [[null, null]]
-            }            
+            }
             const conclusion_paras = [
                 generateOptionTextRuns(relevant_templates.Conclusion.transcripttemplate, standard_placeholders),
                 generateOptionParagraph(relevant_templates.Conclusion.template, standard_placeholders),
@@ -261,12 +278,16 @@ export default async function handler(req, res) {
                 return soldier_fundamentals_awards.map(award => [award, obj.title])
             }))
             // Set the default for soldier fundamentals
-            if (soldier_fundamental_award_pairs.length > 0){
-                const achievement_string = soldier_fundamental_award_pairs.slice(0, -1).map(pair => {
-                    return `the ${pair[0]} for his ${pair[1]}`
-                }).join(", ") + `, and the ${soldier_fundamental_award_pairs.slice(-1)[0][0]} for his ${soldier_fundamental_award_pairs.slice(-1)[0][1]}`
-                const soldier_fundamentals_transcript = `In the area of soldier fundamentals, {rank} {surname} has also performed well — he attained ${achievement_string}`
-                const soldier_fundamentals_testimonial = `In the area of soldier fundamentals, {rank} {surname} has also performed well — he attained ${achievement_string}`
+            if (soldier_fundamental_award_pairs.length > 0) {
+                if (soldier_fundamental_award_pairs.length > 1) {
+                    var achievement_string = soldier_fundamental_award_pairs.slice(0, -1).map(pair => {
+                        return `the ${pair[0]} for his ${pair[1]}`
+                    }).join(", ") + `, and the ${soldier_fundamental_award_pairs.slice(-1)[0][0]} for his ${soldier_fundamental_award_pairs.slice(-1)[0][1]}`
+                } else {
+                    var achievement_string = `the ${pair[0]} for his ${pair[1]}`
+                }
+                const soldier_fundamentals_transcript = `In the area of soldier fundamentals, {rank} {surname} has also performed well — he attained ${achievement_string}.`
+                const soldier_fundamentals_testimonial = `In the area of soldier fundamentals, {rank} {surname} has also performed well — he attained ${achievement_string}.`
                 var soldier_fundamental_paras = [
                     generateOptionTextRuns(soldier_fundamentals_transcript, standard_placeholders),
                     generateOptionParagraph(soldier_fundamentals_testimonial, standard_placeholders),
@@ -277,22 +298,22 @@ export default async function handler(req, res) {
             console.log(soldier_fundamental_paras)
             const transcript_textruns = [].concat(...[
                 introduction_paras[0],
-                ...primary_appointment_paras.map(arr=>arr[0]),
-                ...secondary_appointment_paras.map(arr=>arr[0]),
+                ...primary_appointment_paras.map(arr => arr[0]),
+                ...secondary_appointment_paras.map(arr => arr[0]),
                 soldier_fundamental_paras[0],
-                ...other_contribution_paras.map(arr=>arr[0]),
-                ...other_individual_achievement_paras.map(arr=>arr[0]),
+                ...other_contribution_paras.map(arr => arr[0]),
+                ...other_individual_achievement_paras.map(arr => arr[0]),
                 conclusion_paras[0]
-            ]).filter(element=>element) // remove null values
+            ]).filter(element => element) // remove null values
             const testimonial_paragraphs = [].concat(...[
                 introduction_paras[1],
-                ...primary_appointment_paras.map(arr=>arr[1]),
-                ...secondary_appointment_paras.map(arr=>arr[1]),
+                ...primary_appointment_paras.map(arr => arr[1]),
+                ...secondary_appointment_paras.map(arr => arr[1]),
                 soldier_fundamental_paras[1],
-                ...other_contribution_paras.map(arr=>arr[1]),
-                ...other_individual_achievement_paras.map(arr=>arr[1]),
+                ...other_contribution_paras.map(arr => arr[1]),
+                ...other_individual_achievement_paras.map(arr => arr[1]),
                 conclusion_paras[1]
-            ]).filter(element=>element) // remove null values
+            ]).filter(element => element) // remove null values
             // Build the goddamn word doc (losing my sanity rn)
             console.log(transcript_textruns)
             const doc = new Document({
@@ -301,22 +322,22 @@ export default async function handler(req, res) {
                         properties: {},
                         children: [
                             new Paragraph({
-                                children: [new TextRun({ text: "TRANSCRIPT", bold: true, size: 22, font: "Cambria (Body)" })], 
-                                spacing: {after: 200, line: 276}                                
+                                children: [new TextRun({ text: "TRANSCRIPT", bold: true, size: 22, font: "Cambria (Body)" })],
+                                spacing: { after: 200, line: 276 }
                             }),
                             new Paragraph({
                                 children: transcript_textruns,
-                                spacing: {after: 200, line: 276}
+                                spacing: { after: 200, line: 276 }
                             }),
                             new Paragraph({
                                 children: [new TextRun({ text: "TESTIMONIAL", bold: true, size: 22, font: "Cambria (Body)" })],
-                                spacing: {after: 200, line: 276}
+                                spacing: { after: 200, line: 276 }
                             }),
                             ...testimonial_paragraphs
                         ]
                     }
                 ]
-            })            
+            })
             const b64string = await Packer.toBase64String(doc);
             res.setHeader('Content-Disposition', `attachment; filename=(T&T Template) ${form_data["Rank"]} ${form_data["Full Name"]}.docx`);
             res.send(Buffer.from(b64string, 'base64'));
@@ -324,5 +345,5 @@ export default async function handler(req, res) {
             console.log(error)
             res.status(400).json({ message: error.message })
         }
-   }
+    }
 }
