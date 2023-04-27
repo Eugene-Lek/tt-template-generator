@@ -43,7 +43,7 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
             const section_related_vocation_ranks = section.previously_saved_related_vocation_ranks
             Object.keys(section_related_vocation_ranks).forEach(vocation => {
                 section_related_vocation_ranks[vocation].forEach(rank => {
-                    vocation_ranks_template_overview[vocation]?.[rank].push(section.previously_saved_appointment)
+                    vocation_ranks_template_overview[vocation]?.[rank].push(section.previously_saved_contribution)
                 })
             })
         })
