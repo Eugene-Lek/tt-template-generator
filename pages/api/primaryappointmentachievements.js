@@ -48,6 +48,20 @@ export default async function handler(req, res) {
         // Placeholder Validation
         const valid_placholders = personal_particulars.map(str => str.toLowerCase())
         const inserted_placeholders_wording = [...achievement_wording.matchAll(/\{[^}]+\}/g)] // global search
+        // Check if there are any unpaired { or }
+        const num_open_curly_wording = [...achievement_wording.matchAll(/\{/g)].length
+        const num_close_curly_wording = [...achievement_wording.matchAll(/\}/g)].length
+        if (num_open_curly_wording < num_close_curly_wording){
+            return res.status(400).json({ message: `At least 1 unpaired '}' was detected 
+                                                    Either pair it with a '{' or remove the unpaired '}'` })
+        } else if (num_open_curly_wording > num_close_curly_wording) {
+            return res.status(400).json({ message: `At least 1 unpaired '{' was detected 
+                                                    Either pair it with a '}' or remove the unpaired '{'` })
+        } else if (inserted_placeholders_wording.length !== num_open_curly_wording){
+            return res.status(400).json({ message: `At least 1 unpaired '{' was detected 
+                                                    Either pair it with a '}' or remove the unpaired '{'` })            
+        }        
+        // Check if the placholders are valid        
         for (let i=0; i<inserted_placeholders_wording.length; i++){
             const candidate_data = inserted_placeholders_wording[i]
             const candidate = candidate_data[0].slice(1,-1) // index 0 corresponds to the actual match detected. The rest is metadata
@@ -60,6 +74,20 @@ export default async function handler(req, res) {
                 )
             }
         }                
+        // Check if there are any unpaired < or > 
+        const num_red_coloured_insertions_wording =  [...achievement_wording.matchAll(/\<[^\>]+\>/g)]
+        const num_less_than_wording = [...achievement_wording.matchAll(/\</g)].length
+        const num_greater_than_wording = [...achievement_wording.matchAll(/\>/g)].length
+        if (num_less_than_wording < num_greater_than_wording){
+            return res.status(400).json({ message: `At least 1 unpaired '>' was detected 
+                                                    Either pair it with a '<' or remove the unpaired '>'` })
+        } else if (num_less_than_wording > num_greater_than_wording) {
+            return res.status(400).json({ message: `At least 1 unpaired '<' was detected 
+                                                    Either pair it with a '>' or remove the unpaired '<'` })
+        } else if (num_red_coloured_insertions_wording.length !== num_less_than_wording){
+            return res.status(400).json({ message: `At least 1 unpaired '<' was detected 
+                                                    Either pair it with a '>' or remove the unpaired '<'` })       
+        }     
     }
 
     try{
