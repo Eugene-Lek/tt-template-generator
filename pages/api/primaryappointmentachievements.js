@@ -5,7 +5,7 @@ const personal_particulars = ["Rank", "Full Name", "Surname", "Enlistment Date",
 export default async function handler(req, res) {
     if (req.method != "GET"){
         // 'GET' requests have no 'body'
-        var { unit, id, achievement_title, achievement_wording, parent_id} = req.body
+        var { unit, id, achievement_title, previously_saved_achievement_title, achievement_wording, parent_id} = req.body
     }
     if (req.method == 'DELETE'){
         // Block the deletion if the pre-unit achievement has been inserted into an Introduction template
@@ -39,12 +39,26 @@ export default async function handler(req, res) {
         
     }
     if(req.method == 'POST' || req.method =='PUT'){
+        // General parameter validation
         if (!achievement_title){
             return res.status(400).json({ message: 'The title is missing' })
         }
         if (!achievement_wording){
             return res.status(400).json({ message: 'The wording is missing' })
         }     
+        // Uniqueness validation
+        const existing_achievement_titles = await prisma.PrimaryAppointmentAchievement.findMany({
+            where: {
+                NOT: {id: id},
+                primaryappointmentId: parent_id
+            },
+            select: {
+                title: true
+            }
+        })
+        if (existing_achievement_titles.map(obj => obj.title.toLowerCase()).includes(achievement_title.toLowerCase())) {
+            return res.status(400).json({ message: `'${achievement_title}' already exists.` })
+        }        
         // Placeholder Validation
         const valid_placholders = personal_particulars.map(str => str.toLowerCase())
         const inserted_placeholders_wording = [...achievement_wording.matchAll(/\{[^}]+\}/g)] // global search
@@ -109,6 +123,8 @@ export default async function handler(req, res) {
                 if (unit_primary_appointment_achievements.length < 1) {
                     var init_list = []
                     /*
+                    Commented out because I decided that by default no primary appt achievement form should be displayed unless
+                    the data already exists. 
                     var init_list = [{
                         id: uuidv4(),
                         parent_id: req.query.parent_id,
@@ -169,6 +185,43 @@ export default async function handler(req, res) {
                         template: achievement_wording
                     }
                 })
+                previously_saved_achievement_title = previously_saved_achievement_title.toLowerCase()
+                achievement_title = achievement_title.toLowerCase()
+                if (previously_saved_achievement_title !== achievement_title) {
+                    // If the title has been edited, update it in all related primary_appointments too
+                    const parent_primary_appointment = await prisma.PrimaryAppointment.findUnique({
+                        where: {
+                            id: parent_id
+                        }
+                    })
+                    const updated_primary_appointments_data = [parent_primary_appointment].map(obj=>{
+                        const inserted_placeholders_transcript = [...obj.transcripttemplate.matchAll(/\{[^}]+\}/g)].map(obj=> obj[0].slice(1,-1).toLowerCase()) // global search
+                        if (inserted_placeholders_transcript.includes(previously_saved_achievement_title)) {
+                            var regex = new RegExp(`{${previously_saved_achievement_title}}`, 'gi') // Case insensitive replacement
+                            obj.transcripttemplate = obj.transcripttemplate.replace(regex, `{${achievement_title}}`)
+                        }
+                        const inserted_placeholders_testimonial = [...obj.template.matchAll(/\{[^}]+\}/g)].map(obj=> obj[0].slice(1,-1).toLowerCase()) // global search                          
+                        if (inserted_placeholders_testimonial.includes(previously_saved_achievement_title)) {
+                            var regex = new RegExp(`{${previously_saved_achievement_title}}`, 'gi') // Case insensitive replacement                           
+                            obj.template = obj.template.replace(regex, `{${achievement_title}}`)
+                        }  
+                        if (inserted_placeholders_transcript.includes(previously_saved_achievement_title) ||
+                            inserted_placeholders_testimonial.includes(previously_saved_achievement_title)) {
+                                return obj
+                            } 
+                    }).filter(data=>data) // Remove undefined elements
+                    if (updated_primary_appointments_data.length > 0){
+                        // Update the database with the primary_appointments containing the updated placeholder.
+                        await Promise.all(updated_primary_appointments_data.map(data=>{
+                            return prisma.PrimaryAppointment.update({
+                                where: {
+                                    id: data.id
+                                },
+                                data: data
+                            })
+                        }))
+                    } 
+                }               
                 res.status(200).json({ message: 'Save Successful' })
                 break
     

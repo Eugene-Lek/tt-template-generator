@@ -8,6 +8,7 @@ export const PrimaryAppointmentAchievementForm = ({
     achievement_wording,
     previously_saved_achievement_wording,
     parent_id,
+    parent_appointment,
     related_achievements_list,
     set_related_achievements_list,
     primary_appointments_list,
@@ -161,6 +162,7 @@ export const PrimaryAppointmentAchievementForm = ({
         createOrEditPrimaryAppointmentAchievement({
             id,
             achievement_title: achievement_title_cleaned,
+            previously_saved_achievement_title,             
             achievement_wording: achievement_wording_cleaned,
             parent_id,
             related_achievements_list,
@@ -261,6 +263,7 @@ export const PrimaryAppointmentAchievementForm = ({
     const createOrEditPrimaryAppointmentAchievement = async ({
         id,
         achievement_title,
+        previously_saved_achievement_title,         
         achievement_wording,
         parent_id,
         related_achievements_list,
@@ -279,6 +282,7 @@ export const PrimaryAppointmentAchievementForm = ({
                     unit,
                     id,
                     achievement_title,
+                    previously_saved_achievement_title,                     
                     achievement_wording,
                     parent_id
                 })
@@ -300,7 +304,25 @@ export const PrimaryAppointmentAchievementForm = ({
                 const temp_primary_appointments_list = cloneDeep(primary_appointments_list)
                 temp_primary_appointments_list[primary_index]['previously_saved_related_achievements'][form_index] = achievement_title
                 set_primary_appointments_list(temp_primary_appointments_list)
-                console.log(temp_related_achievements_list)
+                console.log(temp_primary_appointments_list)
+                // Remind the user to add the Related Achievement to the Primary Appointment                
+                if (http_method == "POST") {
+                    set_dialog_settings({
+                        "message":
+                            `*Save Successful*
+                            Don't forget to insert *{${achievement_title}}* into your ${parent_appointment} template!`,
+                        "buttons": [
+                            { text: "Close", action: "exit", background: "#01a4d9", color: "#FFFFFF" }
+                        ],
+                        "line_props": [
+                            { color: "green", font_size: "25px", text_align: "center", margin_right: "auto", margin_left: "auto" },
+                            {color: "#000000", font_size: "16px", text_align: "center", margin_right: "auto", margin_left: "auto"}                            
+                        ],
+                        "displayed": true,
+                        "onClickDialog": closeDialogueBox,
+                        "onClickDialogProps": { set_dialog_settings }
+                    })                    
+                }
             } else if (!response.ok) {
                 // Display the error message in a dialogue box
                 const response_data = await response.json()

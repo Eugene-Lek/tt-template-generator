@@ -29,7 +29,10 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
         }
         fetchSectionData()
 
-    }, [unit])
+    }, [unit, [].concat(...primary_appointments_list.map(obj=>obj.previously_saved_related_achievements.sort())).join()])
+    // ^Only reload the primary appointments data when any of the primary_appointment_achievement titles have been changed and saved
+    // Note: This works by setting the dependency with a string of all the previously_saved_related_achievements combined
+    // This way, the string and thus the dependency will change whenever a change is made and saved to any of the related achievement titles.
 
 
     const getVocationRanksTemplateOverview = (available_vocation_ranks, section_list) => {
@@ -192,8 +195,8 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
                                                             <ol>
                                                                 {vocation_ranks_template_overview[vocation][rank].map((obj, i_inner2) => {
                                                                     return (
-                                                                        <>
-                                                                            <li key={i_inner2} >{obj.title}</li>
+                                                                        <div key={i_inner2}>
+                                                                            <li >{obj.title}</li>
                                                                             {obj.achievements.length > 0 ?
                                                                                 <ul style={{listStyleType: "circle"}}>
                                                                                     {obj.achievements.map((achievement, i_inner3) => <li key={i_inner3} >{achievement}</li>)}
@@ -201,7 +204,7 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
                                                                                 :
                                                                                 null
                                                                             }
-                                                                        </>
+                                                                        </div>
                                                                     )
                                                                 })}
                                                             </ol>

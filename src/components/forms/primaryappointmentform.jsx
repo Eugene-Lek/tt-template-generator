@@ -495,6 +495,7 @@ export const PrimaryAppointmentForm = ({
                                 achievement_wording={achievement.achievement_wording}
                                 previously_saved_achievement_wording={achievement.previously_saved_achievement_wording}
                                 parent_id={achievement.parent_id}
+                                parent_appointment={appointment}
                                 related_achievements_list={related_achievements_list}
                                 set_related_achievements_list={set_related_achievements_list}
                                 primary_appointments_list={primary_appointments_list}
