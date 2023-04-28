@@ -320,11 +320,13 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                                                                         <div key={i_inner2} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                                                                             <li style={{ color: "green" }}>{obj.title}</li>
                                                                             <div>
-                                                                                <li>Includes:</li>
                                                                                 {obj.achievements.length > 0 ?
-                                                                                    <ol>
-                                                                                        {obj.achievements.map((achievement, i_inner3) => <li key={i_inner3} >{achievement}</li>)}
-                                                                                    </ol>
+                                                                                    <>
+                                                                                        <li>Includes:</li>
+                                                                                        <ol>
+                                                                                            {obj.achievements.map((achievement, i_inner3) => <li key={i_inner3} >{achievement}</li>)}
+                                                                                        </ol>
+                                                                                    </>
                                                                                     :
                                                                                     null
                                                                                 }
