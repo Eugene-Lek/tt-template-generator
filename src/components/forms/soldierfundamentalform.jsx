@@ -78,7 +78,7 @@ export const SoldierFundamentalForm = ({
         const error_num_lines = error_message.split('\n').length
 
         // If the error message consists of more than 1 line, align the text to the left instead
-        if (error_num_lines == 0) {
+        if (error_num_lines == 1) {
             var error_lines_props = Array(error_num_lines).fill({
                 color: "#000000", font_size: "16px", text_align: "center", margin_right: "auto", margin_left: "auto"
             })

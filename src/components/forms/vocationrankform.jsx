@@ -58,9 +58,18 @@ export const VocationRankForm = ({
 
         // This is necessary as the number of lines error messages consist of varies
         const error_num_lines = error_message.split('\n').length
-        const error_lines_props = Array(error_num_lines).fill({
-            color: "#000000", font_size: "16px", text_align: "center", margin_right: "auto", margin_left: "auto"
-        })
+        
+        // If the error message consists of more than 1 line, align the text to the left instead
+        if (error_num_lines == 1) {
+            var error_lines_props = Array(error_num_lines).fill({
+                color: "#000000", font_size: "16px", text_align: "center", margin_right: "auto", margin_left: "auto"
+            })
+        } else {
+            var error_lines_props = Array(error_num_lines).fill({
+                color: "#000000", font_size: "16px", text_align: "left", margin_right: "auto", margin_left: "0"
+            })
+        }
+
         set_dialog_settings({
             "message":
                 `*Error*
