@@ -214,16 +214,19 @@ export default async function handler(req, res) {
                     const all_introductions = await prisma.Introduction.findMany()
                     const updated_introductions_data = all_introductions.map(obj=>{
                         const inserted_placeholders_transcript = [...obj.transcripttemplate.matchAll(/\{[^}]+\}/g)].map(obj=> obj[0].slice(1,-1).toLowerCase()) // global search
-                        const inserted_placeholders_testimonial = [...obj.template.matchAll(/\{[^}]+\}/g)].map(obj=> obj[0].slice(1,-1).toLowerCase()) // global search  
                         if (inserted_placeholders_transcript.includes(previously_saved_achievement_title)) {
                             var regex = new RegExp(`{${previously_saved_achievement_title}}`, 'gi') // Case insensitive replacement
                             obj.transcripttemplate = obj.transcripttemplate.replace(regex, `{${achievement_title}}`)
-                            return obj
-                        } else if (inserted_placeholders_testimonial.includes(previously_saved_achievement_title)) {
+                        }
+                        const inserted_placeholders_testimonial = [...obj.template.matchAll(/\{[^}]+\}/g)].map(obj=> obj[0].slice(1,-1).toLowerCase()) // global search                          
+                        if (inserted_placeholders_testimonial.includes(previously_saved_achievement_title)) {
                             var regex = new RegExp(`{${previously_saved_achievement_title}}`, 'gi') // Case insensitive replacement                           
                             obj.template = obj.template.replace(regex, `{${achievement_title}}`)
-                            return obj
-                        }   
+                        }  
+                        if (inserted_placeholders_transcript.includes(previously_saved_achievement_title) ||
+                            inserted_placeholders_testimonial.includes(previously_saved_achievement_title)) {
+                                return obj
+                            }
                     }).filter(data=>data) // Remove undefined elements
                     if (updated_introductions_data.length > 0){
                         // Update the database with the Introductions containing the updated placeholder.
