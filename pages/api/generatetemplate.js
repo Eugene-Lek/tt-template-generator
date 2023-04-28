@@ -42,7 +42,7 @@ const generateOptionParagraph = (template, placeholder_data) => {
     let hydrated_template = template.replace(/\{[^}]+\}/g, (matched_placeholder) => {
         const matched_placeholder_no_braces = matched_placeholder.slice(1, -1).toLowerCase()
         if (placeholder_data.hasOwnProperty(matched_placeholder_no_braces)) {
-            return ` ${placeholder_data[matched_placeholder.slice(1, -1)]} `
+            return ` ${placeholder_data[matched_placeholder_no_braces]} `
         } else {
             return ' ' // If the placeholder was not selected and thus doesnt exist in the data dict, replace it with a whitespace.
         }
@@ -74,7 +74,7 @@ const generateOptionTextRuns = (template, placeholder_data) => {
     let hydrated_template = template.replace(/\{[^}]+\}/g, (matched_placeholder) => {
         const matched_placeholder_no_braces = matched_placeholder.slice(1, -1).toLowerCase()
         if (placeholder_data.hasOwnProperty(matched_placeholder_no_braces)) {
-            return ` ${placeholder_data[matched_placeholder.slice(1, -1)]} `
+            return ` ${placeholder_data[matched_placeholder_no_braces]} `
         } else {
             return ' ' // If the placeholder was not selected and thus doesnt exist in the data dict, replace it with a whitespace.
         }
