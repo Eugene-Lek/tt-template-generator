@@ -54,7 +54,7 @@ export default async function handler(req, res) {
                 title: true
             }
         })
-        if (existing_achievement_titles.map(obj => obj.title.toLowerCase()).includes(achievement_title)) {
+        if (existing_achievement_titles.map(obj => obj.title.toLowerCase()).includes(achievement_title.toLowerCase())) {
             return res.status(400).json({ message: `'${achievement_title}' already exists.` })
         }
         // Placeholder Validation
