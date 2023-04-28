@@ -92,11 +92,11 @@ export default function UnitAdminHome({ unit , id, init_companies, init_vocation
     }
     return (
         <>
-            <Head>
+            <head>
                 <title>T&T Generator</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="icon" href="/favicon.ico" />
-            </Head>            
+            </head>            
             <AdminHeader title={title} unit={unit} id={id} set_dialog_settings={set_dialog_settings}/>
             <main className="home-body">
                 <section className="big-section">
