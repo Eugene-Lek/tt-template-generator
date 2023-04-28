@@ -10,7 +10,10 @@ export const PrimaryAppointmentAchievementForm = ({
     parent_id,
     related_achievements_list,
     set_related_achievements_list,
+    primary_appointments_list,
+    set_primary_appointments_list,
     button_state,
+    primary_index,
     form_index,
     unit,
     set_dialog_settings,
@@ -294,6 +297,9 @@ export const PrimaryAppointmentAchievementForm = ({
                 temp_related_achievements_list[form_index]['previously_saved_achievement_wording'] = achievement_wording
                 temp_related_achievements_list[form_index]['achievement_wording'] = achievement_wording
                 set_related_achievements_list(temp_related_achievements_list)
+                const temp_primary_appointments_list = cloneDeep(primary_appointments_list)
+                temp_primary_appointments_list[primary_index]['previously_saved_related_achievements'][form_index] = achievement_title
+                set_primary_appointments_list(temp_primary_appointments_list)
                 console.log(temp_related_achievements_list)
             } else if (!response.ok) {
                 // Display the error message in a dialogue box
@@ -330,6 +336,9 @@ export const PrimaryAppointmentAchievementForm = ({
                 const temp_related_achievements_list = cloneDeep(related_achievements_list)
                 temp_related_achievements_list.splice(form_index, 1)
                 set_related_achievements_list(temp_related_achievements_list)
+                const temp_primary_appointments_list = cloneDeep(primary_appointments_list)
+                temp_primary_appointments_list[primary_index]['previously_saved_related_achievements'].splice(form_index, 1)
+                set_primary_appointments_list(temp_primary_appointments_list)                
             } else if (!response.ok) {
                 const response_data = await response.json()
                 displayErrorMessage(response_data.message)

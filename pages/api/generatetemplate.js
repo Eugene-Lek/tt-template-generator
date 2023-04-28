@@ -48,7 +48,6 @@ const generateOptionParagraph = (template, placeholder_data) => {
         }
     })
     hydrated_template = hydrated_template.replace(/[ \t\r\f\v]+/g, ' ').trim() // remove extra spaces
-    console.log(hydrated_template)
 
     const paragraphs = hydrated_template.split(/\n+/g)
     const paragraph_objects = paragraphs.map(paragraph => {
@@ -101,8 +100,6 @@ export default async function handler(req, res) {
     let [year, month, day] = form_data['Enlistment Date'].split('-')
     month = month_dict[Number(month)]
     form_data['Enlistment Date'] = `${Number(day)} ${month} ${year}`
-
-    console.log(form_data['Enlistment Date'])
 
     // Server-side parameter validation
     const missing_data = Object.keys(form_data).map(field => {

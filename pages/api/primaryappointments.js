@@ -93,7 +93,8 @@ export default async function handler(req, res) {
                     select: {
                         PrimaryAppointments: {
                             include: {
-                                appliesto: true
+                                appliesto: true,
+                                achievements: true
                             }
                         }
                     }
@@ -111,6 +112,7 @@ export default async function handler(req, res) {
                         previously_saved_transcript_template: "",                        
                         related_vocation_ranks: {},
                         previously_saved_related_vocation_ranks: {},
+                        previously_saved_related_achievements: [],
                         button_state: "save",
                         display: 'block'
                     }]
@@ -134,6 +136,7 @@ export default async function handler(req, res) {
                             previously_saved_transcript_template: primary_appointment.transcripttemplate,                            
                             related_vocation_ranks: related_vocation_ranks,
                             previously_saved_related_vocation_ranks: related_vocation_ranks,
+                            previously_saved_related_achievements: primary_appointment.achievements.map(obj=>obj.title),                            
                             button_state: "edit",
                             display: 'block'
                         }

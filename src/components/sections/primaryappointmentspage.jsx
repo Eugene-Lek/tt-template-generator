@@ -42,8 +42,12 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
             const section_related_vocation_ranks = section.previously_saved_related_vocation_ranks
             Object.keys(section_related_vocation_ranks).forEach(vocation => {
                 section_related_vocation_ranks[vocation].forEach(rank => {
-                    vocation_ranks_template_overview[vocation]?.[rank].push(section.previously_saved_appointment)
-                    vocation_ranks_template_overview[vocation]?.[rank].sort() // Sort by alphabetical order
+                    vocation_ranks_template_overview[vocation]?.[rank].push({ title: section.previously_saved_appointment, achievements: section.previously_saved_related_achievements })
+                    vocation_ranks_template_overview[vocation]?.[rank].sort(function (a, b) {
+                        var x = a.title
+                        var y = b.title
+                        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+                    }) // Sort by alphabetical order of appt
                 })
             })
         })
@@ -62,6 +66,7 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
             previously_saved_transcript_template: "",
             related_vocation_ranks: {},
             previously_saved_related_vocation_ranks: {},
+            previously_saved_related_achievements: [],
             button_state: "save"
         }, ...cloneDeep(primary_appointments_list)])
     }
@@ -182,10 +187,23 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
                                             <div key={i_outer} className="each-vocation-rank-group">
                                                 {Object.keys(vocation_ranks_template_overview[vocation]).map((rank, i_inner) => (
                                                     <div key={(i_inner)}>
-                                                        <div style={{fontWeight: "bold", color: 'black', fontSize: "16px" }}>{vocation} {rank}</div>
+                                                        <div style={{ fontWeight: "bold", color: 'black', fontSize: "16px" }}>{vocation} {rank}</div>
                                                         {vocation_ranks_template_overview[vocation][rank].length > 0 ?
                                                             <ol>
-                                                                {vocation_ranks_template_overview[vocation][rank].map((title, i_inner2) => <li key={i_inner2} >{title}</li>)}
+                                                                {vocation_ranks_template_overview[vocation][rank].map((obj, i_inner2) => {
+                                                                    return (
+                                                                        <>
+                                                                            <li key={i_inner2} >{obj.title}</li>
+                                                                            {obj.achievements.length > 0 ?
+                                                                                <ul style={{listStyleType: "circle"}}>
+                                                                                    {obj.achievements.map((achievement, i_inner3) => <li key={i_inner3} >{achievement}</li>)}
+                                                                                </ul>
+                                                                                :
+                                                                                null
+                                                                            }
+                                                                        </>
+                                                                    )
+                                                                })}
                                                             </ol>
                                                             :
                                                             <ul>

@@ -486,7 +486,7 @@ export const PrimaryAppointmentForm = ({
                 <div className="template-group">
                     <p>Related Achievements (Optional):</p>
                     <div className="achievements-group">
-                        {related_achievements_list.map((achievement, form_index) => {
+                        {related_achievements_list.map((achievement, achievement_form_index) => {
                             return (<PrimaryAppointmentAchievementForm
                                 key={achievement.id}
                                 id={achievement.id}
@@ -497,8 +497,11 @@ export const PrimaryAppointmentForm = ({
                                 parent_id={achievement.parent_id}
                                 related_achievements_list={related_achievements_list}
                                 set_related_achievements_list={set_related_achievements_list}
+                                primary_appointments_list={primary_appointments_list}
+                                set_primary_appointments_list={set_primary_appointments_list}
                                 button_state={achievement.button_state}
-                                form_index={form_index}
+                                primary_index={form_index}
+                                form_index={achievement_form_index}
                                 unit={unit}
                                 set_dialog_settings={set_dialog_settings}
                                 permanently_disable_edit={false}
