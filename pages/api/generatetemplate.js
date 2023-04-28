@@ -203,14 +203,23 @@ export default async function handler(req, res) {
             }
             const pre_unit_achievement_placeholder_data = Object.fromEntries(
                 // Lowercase all placeholders in placeholder_data to enable case-insensitive formatting
-                relevant_templates.PreUnitAchievements.map(obj => [obj.title.toLowerCase(), obj.template])
+                relevant_templates.PreUnitAchievements.map(obj => {
+                    const hydrated_template = obj.template.replace(/\{[^}]+\}/g, (matched_placeholder) => {
+                        const matched_placeholder_no_braces = matched_placeholder.slice(1, -1).toLowerCase()
+                        if (standard_placeholders.hasOwnProperty(matched_placeholder_no_braces)) {
+                            return ` ${standard_placeholders[matched_placeholder_no_braces]} `
+                        } else {
+                            return ' ' // If the placeholder was not selected and thus doesnt exist in the data dict, replace it with a whitespace.
+                        }
+                    })
+                    return [obj.title.toLowerCase(), hydrated_template]
+                })
             )
             // Create Transcript and Testimonial paragraph objects
             const introduction_paras = [
                 generateOptionTextRuns(relevant_templates.Introduction.transcripttemplate, { ...standard_placeholders, ...pre_unit_achievement_placeholder_data }),
                 generateOptionParagraph(relevant_templates.Introduction.template, { ...standard_placeholders, ...pre_unit_achievement_placeholder_data }),
             ]
-            console.log(introduction_paras)
             let primary_appointment_paras = relevant_templates.PrimaryAppointments?.map(appt_obj => {
                 const primary_appointment_achievements = appt_obj.achievements.filter(achievement_obj => {
                     if (typeof form_data["Primary Appointments"][appt_obj.title] === 'object') {
@@ -224,7 +233,17 @@ export default async function handler(req, res) {
                 })
                 const primary_appointment_placeholder_data = Object.fromEntries(
                     // Lowercase all placeholders in placeholder_data to enable case-insensitive formatting
-                    primary_appointment_achievements.map(obj => [obj.title.toLowerCase(), obj.template])
+                    primary_appointment_achievements.map(obj => {
+                        const hydrated_template = obj.template.replace(/\{[^}]+\}/g, (matched_placeholder) => {
+                            const matched_placeholder_no_braces = matched_placeholder.slice(1, -1).toLowerCase()
+                            if (standard_placeholders.hasOwnProperty(matched_placeholder_no_braces)) {
+                                return ` ${standard_placeholders[matched_placeholder_no_braces]} `
+                            } else {
+                                return ' ' // If the placeholder was not selected and thus doesnt exist in the data dict, replace it with a whitespace.
+                            }
+                        })
+                        return [obj.title.toLowerCase(), hydrated_template]
+                    })
                 )
                 if (form_data["Primary Appointments"][appt_obj.title]) {
                     return [
