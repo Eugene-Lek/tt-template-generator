@@ -42,7 +42,7 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
             const section_related_vocation_ranks = section.previously_saved_related_vocation_ranks
             Object.keys(section_related_vocation_ranks).forEach(vocation => {
                 section_related_vocation_ranks[vocation].forEach(rank => {
-                    vocation_ranks_template_overview[vocation]?.[rank].push({ title: section.previously_saved_appointment, achievements: section.previously_saved_related_achievements })
+                    vocation_ranks_template_overview[vocation]?.[rank].push({ title: section.previously_saved_appointment, achievements: section.previously_saved_related_achievements.sort() })
                     vocation_ranks_template_overview[vocation]?.[rank].sort(function (a, b) {
                         var x = a.title
                         var y = b.title
