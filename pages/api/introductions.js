@@ -31,11 +31,10 @@ export default async function handler(req, res) {
         pre_unit_achievements = pre_unit_achievements.PreUnitAchievements.map(obj=>obj.title)
         const valid_placholders = [...personal_particulars, ...pre_unit_achievements].map(str => str.toLowerCase())
 
-        const inserted_placeholders_transcript = [...transcript_template.matchAll(/\{[^}]+\}/g)] // global search
+        const inserted_placeholders_transcript = [...transcript_template.matchAll(/\{[^}]+\}/g)].map(obj=> obj[0].slice(1,-1).toLowerCase()) //slice to remove the braces
         for (let i=0; i<inserted_placeholders_transcript.length; i++){
-            const candidate_data = inserted_placeholders_transcript[i]
-            const candidate = candidate_data[0].slice(1,-1) // index 0 corresponds to the actual match detected. The rest is metadata
-            if (!valid_placholders.includes(candidate.toLowerCase())){
+            const candidate_placeholder = inserted_placeholders_transcript[i]
+            if (!valid_placholders.includes(candidate_placeholder)){
                 return res.status(400).json({ message: `{${candidate}} was found in the Transcript template, but '${candidate}' is neither a Personal Particular nor Pre-Unit Achievement.
                                                         
                                                         *Personal Particulars (case-insensitive):*
@@ -78,7 +77,7 @@ export default async function handler(req, res) {
             }
         })
         // Find the Pre-Unit Achievements associated with the transcript/testimonial so they can be connected to the same VRC objects
-        const inserted_pre_unit_achievements = inserted_placeholders_testimonial
+        const inserted_pre_unit_achievements = [... new Set([...inserted_placeholders_transcript, ...inserted_placeholders_testimonial])]
                                                 .filter(placeholder=>!personal_particulars.includes(placeholder))   
         console.log(inserted_pre_unit_achievements)
         const all_pre_unit_achievements = await prisma.PreUnitAchievement.findMany({
@@ -143,6 +142,7 @@ export default async function handler(req, res) {
                         previously_saved_transcript_template: "",
                         related_vocation_ranks: {},
                         previously_saved_related_vocation_ranks: {},
+                        previously_saved_pre_unit_achievements: [],
                         button_state: "save",
                         display: "block"
                     }]
@@ -156,7 +156,10 @@ export default async function handler(req, res) {
                                 related_vocation_ranks[obj.vocation] = [obj.rank]
                             }
                         })
-
+                        const inserted_placeholders_transcript = [...introduction.transcripttemplate.matchAll(/\{[^}]+\}/g)].map(obj=> obj[0].slice(1,-1).toLowerCase()) //slice to remove the braces
+                        const inserted_placeholders_testimonial = [...introduction.template.matchAll(/\{[^}]+\}/g)].map(obj=> obj[0].slice(1,-1).toLowerCase()) //slice to remove the braces
+                        const inserted_pre_unit_achievements = [... new Set([...inserted_placeholders_transcript, ...inserted_placeholders_testimonial])]
+                                                                .filter(placeholder=>!personal_particulars.includes(placeholder)) 
                         return {
                             id: introduction.id,
                             template: introduction.template,
@@ -165,6 +168,7 @@ export default async function handler(req, res) {
                             previously_saved_transcript_template: introduction.transcripttemplate,
                             related_vocation_ranks: related_vocation_ranks,
                             previously_saved_related_vocation_ranks: related_vocation_ranks,
+                            previously_saved_pre_unit_achievements: inserted_pre_unit_achievements,                            
                             button_state: "edit",
                             display: "block"
                         }

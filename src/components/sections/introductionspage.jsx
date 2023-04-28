@@ -50,12 +50,11 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
             const rank_template_entries = vocation_ranks_template_overview[vocation].map(rank => [rank, []])
             vocation_ranks_template_overview[vocation] = Object.fromEntries(rank_template_entries)
         })
-        console.log(section_list)
         section_list.forEach(section => {
             const section_related_vocation_ranks = section.previously_saved_related_vocation_ranks
             Object.keys(section_related_vocation_ranks).forEach(vocation => {
                 section_related_vocation_ranks[vocation].forEach(rank => {
-                    vocation_ranks_template_overview[vocation]?.[rank].push("Template Written") // Related vocation may no longer be available
+                    vocation_ranks_template_overview[vocation]?.[rank].push({ title: "Template Written", achievements: section.previously_saved_pre_unit_achievements.sort() }) // Related vocation may no longer be available
                 })
             })
         })
@@ -143,6 +142,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
             previously_saved_transcript_template: "",
             related_vocation_ranks: {},
             previously_saved_related_vocation_ranks: {},
+            previously_saved_pre_unit_achievements: [],
             button_state: "save"
         }, ...cloneDeep(introductions_list)])
     }
@@ -171,7 +171,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
     available_vocation_ranks_strings.sort()
     const available_vocation_ranks_options = available_vocation_ranks_strings.map(vocation_rank => ({ label: vocation_rank, value: vocation_rank }))
     let available_pre_unit_achievement_titles = [].concat(...pre_unit_achievements_list.map(achievement => [achievement.achievement_title, achievement.previously_saved_achievement_title]))
-    available_pre_unit_achievement_titles = [... new Set(available_pre_unit_achievement_titles)].filter(option=>option) // remove empty strings
+    available_pre_unit_achievement_titles = [... new Set(available_pre_unit_achievement_titles)].filter(option => option) // remove empty strings
     available_pre_unit_achievement_titles.sort()
     const available_pre_unit_achievement_options = available_pre_unit_achievement_titles.map((achievement) => ({ label: achievement, value: achievement }))
     return (
@@ -312,10 +312,26 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                                             <div key={i_outer} className="each-vocation-rank-group">
                                                 {Object.keys(vocation_ranks_template_overview[vocation]).map((rank, i_inner) => (
                                                     <div key={(i_inner)}>
-                                                        <div style={{fontWeight: "bold", color: 'black', fontSize: "16px" }}>{vocation} {rank}</div>
+                                                        <div style={{ fontWeight: "bold", color: 'black', fontSize: "16px" }}>{vocation} {rank}</div>
                                                         {vocation_ranks_template_overview[vocation][rank].length > 0 ?
                                                             <ul>
-                                                                {vocation_ranks_template_overview[vocation][rank].map((title, i_inner2) => <li style={{color: "green"}} key={i_inner2} >{title}</li>)}
+                                                                {vocation_ranks_template_overview[vocation][rank].map((obj, i_inner2) => {
+                                                                    return (
+                                                                        <div key={i_inner2} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                                                                            <li style={{ color: "green" }}>{obj.title}</li>
+                                                                            <div>
+                                                                                <li>Includes:</li>
+                                                                                {obj.achievements.length > 0 ?
+                                                                                    <ol>
+                                                                                        {obj.achievements.map((achievement, i_inner3) => <li key={i_inner3} >{achievement}</li>)}
+                                                                                    </ol>
+                                                                                    :
+                                                                                    null
+                                                                                }
+                                                                            </div>
+                                                                        </div>
+                                                                    )
+                                                                })}
                                                             </ul>
                                                             :
                                                             <ul>

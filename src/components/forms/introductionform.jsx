@@ -1,6 +1,8 @@
 import { useState } from "react"
 import cloneDeep from 'lodash/cloneDeep';
 
+const personal_particulars = ["rank", "full Name", "surname", "enlistment Date", "coy", "primary appointment"].map(e=>e.toLowerCase())
+
 export const IntroductionForm = ({
     id,
     template,
@@ -342,6 +344,11 @@ export const IntroductionForm = ({
                 temp_introductions_list[intro_index]['previously_saved_transcript_template'] = transcript_template
                 temp_introductions_list[intro_index]['transcript_template'] = transcript_template // Display the cleaned transcript_template                
                 temp_introductions_list[intro_index]['previously_saved_related_vocation_ranks'] = cloneDeep(related_vocation_ranks)
+                const inserted_placeholders_transcript = [...transcript_template.matchAll(/\{[^}]+\}/g)].map(obj=> obj[0].slice(1,-1).toLowerCase()) //slice to remove the braces
+                const inserted_placeholders_testimonial = [...template.matchAll(/\{[^}]+\}/g)].map(obj=> obj[0].slice(1,-1).toLowerCase()) //slice to remove the braces
+                const inserted_pre_unit_achievements = [... new Set([...inserted_placeholders_transcript, ...inserted_placeholders_testimonial])]
+                                                        .filter(placeholder=>!personal_particulars.includes(placeholder))                 
+                temp_introductions_list[intro_index]['previously_saved_pre_unit_achievements'] = inserted_pre_unit_achievements
                 set_introductions_list(temp_introductions_list)
                 console.log(temp_introductions_list)
             } else if (!response.ok) {
