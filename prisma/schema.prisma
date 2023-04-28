@@ -71,7 +71,7 @@ model VocationRankCombination {
 
 model PreUnitAchievement {
   id        String                    @id @default(uuid())
-  title     String                    @unique
+  title     String                    
   template  String
   appliesto VocationRankCombination[]
 
@@ -111,8 +111,6 @@ model PrimaryAppointmentAchievement {
 
   unit     Unit   @relation(fields: [unitName], references: [name])
   unitName String
-
-  @@unique([title, primaryappointmentId])
 }
 
 model SecondaryAppointment {
