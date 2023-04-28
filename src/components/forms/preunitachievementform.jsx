@@ -56,7 +56,7 @@ export const PreUnitAchievementForm = ({
         const error_num_lines = error_message.split('\n').length
 
         // If the error message consists of more than 1 line, align the text to the left instead
-        if (error_num_lines == 0) {
+        if (error_num_lines == 1) {
             var error_lines_props = Array(error_num_lines).fill({
                 color: "#000000", font_size: "16px", text_align: "center", margin_right: "auto", margin_left: "auto"
             })
@@ -126,7 +126,6 @@ export const PreUnitAchievementForm = ({
     /*FUNCTIONS THAT UPDATE pre_unit_achievements_list WHENEVER ANY (UNSAVED) CHANGES ARE MADE*/
 
     const onChangeText = (event, form_index) => {
-        console.log(pre_unit_achievements_list)
         if (permanently_disable_edit) {
             return
         }
@@ -151,7 +150,9 @@ export const PreUnitAchievementForm = ({
         let achievement_wording_cleaned = achievement_wording.replace(/[ \t\r\f\v]+/g, ' ').trim() // Removes all extra spaces except \n
         achievement_wording_cleaned = achievement_wording_cleaned.replace(/([^.])$/, '$1.') // Add full stop if it has been omitted
         // Uniqueness validation
-        const existing_achievement_names = pre_unit_achievements_list.map(obj=>obj.previously_saved_achievement_title.toLowerCase())
+        const existing_achievement_names = pre_unit_achievements_list
+                                            .filter(obj=>obj.id !== id) // Remove the pre unit achievement obj that corresponds to the current one
+                                            .map(obj=>obj.previously_saved_achievement_title.toLowerCase())
         if (existing_achievement_names.includes(achievement_title_cleaned.toLowerCase())){
             return displayErrorMessage(`'${achievement_title_cleaned}' already exists.`)
         }        
@@ -162,6 +163,7 @@ export const PreUnitAchievementForm = ({
         const http_method = is_update ? "PUT" : "POST"
         createOrEditPreUnitAchievement({
             id,
+            previously_saved_achievement_title,                    
             achievement_title: achievement_title_cleaned,
             achievement_wording: achievement_wording_cleaned,
             pre_unit_achievements_list,
@@ -262,6 +264,7 @@ export const PreUnitAchievementForm = ({
     const createOrEditPreUnitAchievement = async ({
         id,
         achievement_title,
+        previously_saved_achievement_title,        
         achievement_wording,
         pre_unit_achievements_list,
         set_pre_unit_achievements_list,
@@ -279,6 +282,7 @@ export const PreUnitAchievementForm = ({
                     unit,
                     id,
                     achievement_title,
+                    previously_saved_achievement_title,                            
                     achievement_wording
                 })
             })
@@ -296,7 +300,24 @@ export const PreUnitAchievementForm = ({
                 temp_pre_unit_achievements_list[form_index]['previously_saved_achievement_wording'] = achievement_wording
                 temp_pre_unit_achievements_list[form_index]['achievement_wording'] = achievement_wording
                 set_pre_unit_achievements_list(temp_pre_unit_achievements_list)
-                console.log(temp_pre_unit_achievements_list)
+                // Remind the user to add the Pre-Unit Achievement to an Introduction
+                if (http_method == "POST") {
+                    set_dialog_settings({
+                        "message":
+                            `*Save Successful*
+                            Don't forget to insert *{${achievement_title}}* into your Introduction template(s)!`,
+                        "buttons": [
+                            { text: "Close", action: "exit", background: "#01a4d9", color: "#FFFFFF" }
+                        ],
+                        "line_props": [
+                            { color: "green", font_size: "25px", text_align: "center", margin_right: "auto", margin_left: "auto" },
+                            {color: "#000000", font_size: "16px", text_align: "center", margin_right: "auto", margin_left: "auto"}                            
+                        ],
+                        "displayed": true,
+                        "onClickDialog": closeDialogueBox,
+                        "onClickDialogProps": { set_dialog_settings }
+                    })                    
+                }
             } else if (!response.ok) {
                 // Display the error message in a dialogue box
                 const response_data = await response.json()

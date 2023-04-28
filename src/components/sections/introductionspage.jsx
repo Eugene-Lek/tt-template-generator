@@ -9,7 +9,8 @@ const valid_ranks = ["Officer", "Specialist", "Enlistee"]
 
 export function IntroductionsPage({ unit, section_name, available_vocation_ranks, set_dialog_settings }) {
 
-    const [load_status, set_load_status] = useState('loading')
+    const [load_status_introduction, set_load_status_introduction] = useState('loading')
+    const [load_status_pre_unit_achievement, set_load_status_pre_unit_achievement] = useState('loading')    
     const [introductions_list, set_introductions_list] = useState([])
     const [pre_unit_achievements_list, set_pre_unit_achievements_list] = useState([])
     const [selected_introduction_vocation_rank, set_selected_introduction_vocation_rank] = useState('')
@@ -26,7 +27,21 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                 }
             })
             const introductions_response_data = await introductions_response.json()
-            console.log(introductions_response_data.init_introductions_list)
+            set_introductions_list(introductions_response_data.init_introductions_list)
+            set_load_status_introduction('loaded')
+        }
+        fetchSectionData()
+
+    }, [unit, pre_unit_achievements_list.filter(obj=>obj.achievement_title == obj.previously_saved_achievement_title).length]) 
+    // ^Only reload the introduction data when any of the pre_unit_achievement titles have been changed and saved
+    // Note: The 2nd dependency will change in value whenever the title is first edited or whenever it is saved/cancelled, 
+    // although we only need it to change whenever the pre_unit_achievement is saved after a change.
+
+
+    // Make an API call to obtain the pre-unit achievement information.
+
+    useEffect(() => {
+        const fetchSectionData = async () => {
             const pre_unit_achievements_response = await fetch(`/api/pre-unit-achievements?unit=${unit}`, {
                 method: "GET",
                 headers: {
@@ -34,10 +49,8 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                 }
             })
             const pre_unit_achievements_response_data = await pre_unit_achievements_response.json()
-            console.log(pre_unit_achievements_response_data)
-            set_introductions_list(introductions_response_data.init_introductions_list)
             set_pre_unit_achievements_list(pre_unit_achievements_response_data.init_list)
-            set_load_status('loaded')
+            set_load_status_pre_unit_achievement('loaded')
         }
         fetchSectionData()
 
@@ -301,7 +314,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                                 </div>
                             </div>
                         }
-                        {(Object.entries(vocation_ranks_template_overview).length !== 0 && load_status == 'loaded') &&
+                        {(Object.entries(vocation_ranks_template_overview).length !== 0 && load_status_introduction == 'loaded') &&
                             <div className="vocation-ranks-overview">
                                 <div className="vocation-ranks-overview-text">
                                     <div style={{ fontWeight: 'bold', color: 'black', fontSize: "30px" }}>Overview</div>
@@ -348,7 +361,8 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                                     })}
                                 </div>
                             </div>
-                        }                        {load_status == 'loaded' && (
+                        }
+                        {load_status_introduction == 'loaded' && (
                             <div className="search-templates">
                                 <Select
                                     className="search-by-vocation-rank"
@@ -361,7 +375,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                                 <button onClick={onAddIntroductionForm} className="add-form-button-right">Add Introduction</button>
                             </div>
                         )}
-                        {load_status == 'loading' && (
+                        {load_status_introduction == 'loading' && (
                             <p className="loading-text-form-data">Loading...</p>
                         )}
                         {introductions_list.map((introduction, intro_index) => {
@@ -392,7 +406,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                 <details>
                     <summary className="section-summary">Pre-Unit Achievements (Optional)</summary>
                     <div className="section-group">
-                        {load_status == 'loaded' && (
+                        {load_status_pre_unit_achievement == 'loaded' && (
                             <div className="search-templates">
                                 <Select
                                     className="search-by-title"
@@ -405,7 +419,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                                 <button onClick={onAddPreUnitAchievementForm} className="add-form-button-right">Add Pre-Unit Achievement</button>
                             </div>
                         )}
-                        {load_status == 'loading' && (
+                        {load_status_pre_unit_achievement == 'loading' && (
                             <p className="loading-text-form-data">Loading...</p>
                         )}
                         {pre_unit_achievements_list.map((pre_unit_achievement, form_index) => {

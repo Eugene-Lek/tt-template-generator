@@ -4,9 +4,9 @@ import { v4 as uuidv4 } from "uuid"
 const personal_particulars = ["Rank", "Full Name", "Surname", "Enlistment Date", "Coy", "Primary Appointment"]
 
 export default async function handler(req, res) {
-    if (req.method != "GET") {
+    if (req.method !== "GET") {
         // 'GET' requests have no 'body'
-        var { unit, id, previously_saved_achievement_title, achievement_title, achievement_wording } = req.body
+        var { unit, id, achievement_title, previously_saved_achievement_title, achievement_wording } = req.body
 
         let introductions_raw = await prisma.Unit.findUnique({
             where: {
@@ -47,11 +47,14 @@ export default async function handler(req, res) {
         }
         // Uniqueness validation
         const existing_achievement_titles = await prisma.PreUnitAchievement.findMany({
+            where: {
+                NOT: {id: id}
+            },
             select: {
                 title: true
             }
         })
-        if(existing_achievement_titles.map(obj=>obj.title.toLowerCase()).includes(achievement_title)){
+        if (existing_achievement_titles.map(obj => obj.title.toLowerCase()).includes(achievement_title)) {
             return res.status(400).json({ message: `'${achievement_title}' already exists.` })
         }
         // Placeholder Validation
@@ -60,16 +63,19 @@ export default async function handler(req, res) {
         // Check if there are any unpaired { or }
         const num_open_curly_wording = [...achievement_wording.matchAll(/\{/g)].length
         const num_close_curly_wording = [...achievement_wording.matchAll(/\}/g)].length
-        if (num_open_curly_wording < num_close_curly_wording){
-            return res.status(400).json({ message: `At least 1 unpaired '}' was detected 
+        if (num_open_curly_wording < num_close_curly_wording) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '}' was detected 
                                                     Either pair it with a '{' or remove the unpaired '}'` })
         } else if (num_open_curly_wording > num_close_curly_wording) {
-            return res.status(400).json({ message: `At least 1 unpaired '{' was detected 
+            return res.status(400).json({
+                message: `At least 1 unpaired '{' was detected 
                                                     Either pair it with a '}' or remove the unpaired '{'` })
-        } else if (inserted_placeholders_wording.length !== num_open_curly_wording){
-            return res.status(400).json({ message: `At least 1 unpaired '{' was detected 
-                                                    Either pair it with a '}' or remove the unpaired '{'` })            
-        }  
+        } else if (inserted_placeholders_wording.length !== num_open_curly_wording) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '{' was detected 
+                                                    Either pair it with a '}' or remove the unpaired '{'` })
+        }
         // Check if the placholders are valid                   
         for (let i = 0; i < inserted_placeholders_wording.length; i++) {
             const candidate_data = inserted_placeholders_wording[i]
@@ -85,19 +91,22 @@ export default async function handler(req, res) {
             }
         }
         // Check if there are any unpaired < or > 
-        const num_red_coloured_insertions_wording =  [...achievement_wording.matchAll(/\<[^\>]+\>/g)]
+        const num_red_coloured_insertions_wording = [...achievement_wording.matchAll(/\<[^\>]+\>/g)]
         const num_less_than_wording = [...achievement_wording.matchAll(/\</g)].length
         const num_greater_than_wording = [...achievement_wording.matchAll(/\>/g)].length
-        if (num_less_than_wording < num_greater_than_wording){
-            return res.status(400).json({ message: `At least 1 unpaired '>' was detected 
+        if (num_less_than_wording < num_greater_than_wording) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '>' was detected 
                                                     Either pair it with a '<' or remove the unpaired '>'` })
         } else if (num_less_than_wording > num_greater_than_wording) {
-            return res.status(400).json({ message: `At least 1 unpaired '<' was detected 
+            return res.status(400).json({
+                message: `At least 1 unpaired '<' was detected 
                                                     Either pair it with a '>' or remove the unpaired '<'` })
-        } else if (num_red_coloured_insertions_wording.length !== num_less_than_wording){
-            return res.status(400).json({ message: `At least 1 unpaired '<' was detected 
-                                                    Either pair it with a '>' or remove the unpaired '<'` })       
-        }         
+        } else if (num_red_coloured_insertions_wording.length !== num_less_than_wording) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '<' was detected 
+                                                    Either pair it with a '>' or remove the unpaired '<'` })
+        }
         // Get the related vocation ranks of the Introductions which contain this pre-unit achievement 
         const related_introductions_ids = introductions.map(introduction => {
             const inserted_placeholders_wording = [...introduction['template'].matchAll(/\{[^}]+\}/g)] // global search 
@@ -198,6 +207,36 @@ export default async function handler(req, res) {
                         }
                     }
                 })
+                previously_saved_achievement_title = previously_saved_achievement_title.toLowerCase()
+                achievement_title = achievement_title.toLowerCase()
+                if (previously_saved_achievement_title !== achievement_title) {
+                    // If the title has been edited, update it in all related introductions too
+                    const all_introductions = await prisma.Introduction.findMany()
+                    const updated_introductions_data = all_introductions.map(obj=>{
+                        const inserted_placeholders_transcript = [...obj.transcripttemplate.matchAll(/\{[^}]+\}/g)].map(obj=> obj[0].slice(1,-1).toLowerCase()) // global search
+                        const inserted_placeholders_testimonial = [...obj.template.matchAll(/\{[^}]+\}/g)].map(obj=> obj[0].slice(1,-1).toLowerCase()) // global search  
+                        if (inserted_placeholders_transcript.includes(previously_saved_achievement_title)) {
+                            var regex = new RegExp(`{${previously_saved_achievement_title}}`, 'gi') // Case insensitive replacement
+                            obj.transcripttemplate = obj.transcripttemplate.replace(regex, `{${achievement_title}}`)
+                            return obj
+                        } else if (inserted_placeholders_testimonial.includes(previously_saved_achievement_title)) {
+                            var regex = new RegExp(`{${previously_saved_achievement_title}}`, 'gi') // Case insensitive replacement                           
+                            obj.template = obj.template.replace(regex, `{${achievement_title}}`)
+                            return obj
+                        }   
+                    }).filter(data=>data) // Remove undefined elements
+                    if (updated_introductions_data.length > 0){
+                        // Update the database with the Introductions containing the updated placeholder.
+                        await Promise.all(updated_introductions_data.map(data=>{
+                            return prisma.Introduction.update({
+                                where: {
+                                    id: data.id
+                                },
+                                data: data
+                            })
+                        }))
+                    }
+                }
                 res.status(200).json({ message: 'Save Successful' })
                 break
 
