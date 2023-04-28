@@ -43,11 +43,11 @@ export default function Home({units}) {
 
   return (
     <>
-      <head>
+      <Head>
         <title>T&T Generator</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
-      </head>
+      </Head>
       <main>
         <Header title={"T&T Template Generator"} subtitle={"Write Well-Written, Well-Organised, and Personalised T&Ts"} /> 
         <section className="big-section">

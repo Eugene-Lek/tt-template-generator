@@ -35,11 +35,11 @@ export default function AdminLogin({ units }) {
 
     return (
         <>
-            <head>
+            <Head>
                 <title>T&T Generator</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="icon" href="/favicon.ico" />
-            </head>
+            </Head>
             <main>
                 <Header title={"Admin Login"} subtitle={"Sign in to manage your unit's T&T template generator!"} />
                 <section className="big-section">
