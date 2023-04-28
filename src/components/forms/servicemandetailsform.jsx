@@ -194,7 +194,7 @@ export default function ServicemanDetailsForm({selected_unit, unit_data, set_dia
                         )}
                         {unit_data.Companies.map((company, index)=>{
                             return (
-                                <div key={index}>
+                                <div style={{display: "flex", flexDirection: "row"}} key={index}>
                                     <input type="radio" name="Coy" value={company} onClick={onChangeString}/>
                                     <label className="form-text">{company}</label>
                                 </div>  
@@ -210,7 +210,7 @@ export default function ServicemanDetailsForm({selected_unit, unit_data, set_dia
                         )}
                         {unit_vocations.map((vocation, index)=>{
                             return (
-                                <div key={index}>
+                                <div style={{display: "flex", flexDirection: "row"}} key={index}>
                                     <input type="radio" name="Vocation" value={vocation} onClick={onChangeString}/>
                                     <label className="form-text">{vocation}</label>
                                 </div>  
@@ -221,15 +221,15 @@ export default function ServicemanDetailsForm({selected_unit, unit_data, set_dia
                         <h3 className="form-section-sub-header">
                             Rank Category
                         </h3>
-                        <div>
+                        <div style={{display: "flex", flexDirection: "row"}}>
                             <input type="radio" name="Rank Category" value="Officer" onClick={onChangeString}/>
                             <label className="form-text">Officer</label>
                         </div>
-                        <div>
+                        <div style={{display: "flex", flexDirection: "row"}}>
                             <input type="radio" name="Rank Category" value="Specialist" onClick={onChangeString}/>
                             <label className="form-text">Specialist</label>
                         </div>
-                        <div>
+                        <div style={{display: "flex", flexDirection: "row"}}>
                             <input type="radio" name="Rank Category" value="Enlistee" onClick={onChangeString}/>
                             <label className="form-text">Enlistee</label>
                         </div> 
