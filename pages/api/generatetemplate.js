@@ -47,7 +47,7 @@ const generateOptionParagraph = (template, placeholder_data) => {
             return ' ' // If the placeholder was not selected and thus doesnt exist in the data dict, replace it with a whitespace.
         }
     })
-    hydrated_template = hydrated_template.replace(/[ \t\r\f\v]+/g, ' ').trim() // remove extra spaces
+    hydrated_template = hydrated_template.replace(/[ \t\r\f\v]+/g, ' ').trim().replace(/[ \.]+\./g, '.') // remove extra spaces and full stops
 
     const paragraphs = hydrated_template.split(/\n+/g)
     const paragraph_objects = paragraphs.map(paragraph => {
@@ -79,7 +79,7 @@ const generateOptionTextRuns = (template, placeholder_data) => {
             return ' ' // If the placeholder was not selected and thus doesnt exist in the data dict, replace it with a whitespace.
         }
     })
-    hydrated_template = hydrated_template.replace(/[ \t\r\f\v]+/g, ' ').trim() // remove extra spaces
+    hydrated_template = hydrated_template.replace(/[ \t\r\f\v]+/g, ' ').trim().replace(/[ \.]+\./g, '.') // remove extra spaces and full stops
     const textruns = hydrated_template.split(/(?=\<[^\>]+\>)|(?<=\<[^\>]+\>)/g) // generates a list of text which either match or do not match the placeholder pattern
     const textrun_objects = textruns.map(textrun_template => {
         if (textrun_template.startsWith("<") && textrun_template.endsWith(">")) {
