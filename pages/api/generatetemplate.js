@@ -93,13 +93,6 @@ const generateOptionTextRuns = (template, placeholder_data) => {
 
 export default async function handler(req, res) {
     const { form_data, selected_unit, complusory_fields } = req.body
-    // Data Cleaning
-    form_data["Rank"] = form_data["Rank"].replace(/\s+/g, ' ').trim().toUpperCase()
-    form_data["Full Name"] = form_data["Full Name"].replace(/\s+/g, ' ').trim().toUpperCase()
-    form_data["Surname"] = form_data["Surname"].replace(/\s+/g, ' ').trim().toUpperCase()
-    let [year, month, day] = form_data['Enlistment Date'].split('-')
-    month = month_dict[Number(month)]
-    form_data['Enlistment Date'] = `${Number(day)} ${month} ${year}`
 
     // Server-side parameter validation
     const missing_data = Object.keys(form_data).map(field => {
@@ -124,6 +117,13 @@ export default async function handler(req, res) {
         })
     }
 
+    // Data Cleaning
+    form_data["Rank"] = form_data["Rank"].replace(/\s+/g, ' ').trim().toUpperCase()
+    form_data["Full Name"] = form_data["Full Name"].replace(/\s+/g, ' ').trim().toUpperCase()
+    form_data["Surname"] = form_data["Surname"].replace(/\s+/g, ' ').trim().toUpperCase()
+    let [year, month, day] = form_data['Enlistment Date'].split('-')
+    month = month_dict[Number(month)]
+    form_data['Enlistment Date'] = `${Number(day)} ${month} ${year}`
 
     if (req.method == "POST") {
         try {
