@@ -46,7 +46,7 @@ export default function AdminLogin({ units }) {
                     <div className='login-group'>
                         <Select
                             instanceId="43b2b7e7-914f-4760-92b9-b1472920ef8e"
-                            className="select-unit"
+                            className="select-unit-admin"
                             onChange={option => set_selected_unit(option.value)}
                             options={units_options}
                             placeholder={"Your Unit"} />

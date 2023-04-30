@@ -54,7 +54,7 @@ export default function Home({units}) {
           <h2 className="big-section-title">Select Your Unit</h2>
           <Select 
             instanceId="43b2b7e7-914f-4760-92b9-b1472920ef8e"
-            className="select-unit" 
+            className="select-unit-main" 
             onChange={option=>set_selected_unit(option.value)} 
             options={units_options} 
             placeholder={"Your Unit"}/>
