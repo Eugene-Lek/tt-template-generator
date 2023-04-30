@@ -10,8 +10,7 @@ const complusory_fields = [
     'Enlistment Date',
     'Coy',
     'Vocation',
-    'Rank Category',
-    'Primary Appointments'
+    'Rank Category'
 ]
 
 export default function ServicemanDetailsForm({selected_unit, unit_data, set_dialog_settings}){
