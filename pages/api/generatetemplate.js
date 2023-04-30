@@ -254,7 +254,10 @@ export default async function handler(req, res) {
             }).filter(element => element) // Remove undefined values
             if (primary_appointment_paras == undefined || primary_appointment_paras.length == 0) {
                 // Set the default
-                primary_appointment_paras = [[null, null]]
+                primary_appointment_paras = [[
+                    generateOptionTextRuns("<Insert a description of his Primary Appointment>", standard_placeholders),
+                    generateOptionParagraph("<Insert a paragraph about his Primary Appointment>", standard_placeholders)
+                ]]
             }
             let secondary_appointment_paras = relevant_templates.SecondaryAppointments?.map(obj => {
                 if (form_data["Secondary Appointments"][obj.title]) {
@@ -267,7 +270,10 @@ export default async function handler(req, res) {
             }).filter(element => element) // Remove undefined values
             if (secondary_appointment_paras == undefined || secondary_appointment_paras.length == 0) {
                 // Set the default
-                secondary_appointment_paras = [[null, null]]
+                secondary_appointment_paras = [[
+                    generateOptionTextRuns("<Insert a description of his Secondary Appointment (if any)>", standard_placeholders),
+                    generateOptionParagraph("<Insert a paragraph about his Secondary Appointment (if any)>", standard_placeholders)
+                ]]
             }
             let other_contribution_paras = relevant_templates.OtherContributions?.map(obj => {
                 if (form_data["Other Contributions"][obj.title]) {
@@ -280,7 +286,10 @@ export default async function handler(req, res) {
             }).filter(element => element) // Remove undefined values
             if (other_contribution_paras == undefined || other_contribution_paras.length == 0) {
                 // Set the default
-                other_contribution_paras = [[null, null]]
+                other_contribution_paras = [[
+                    generateOptionTextRuns("<Insert a description of his Other Contributions (if any)>", standard_placeholders),
+                    generateOptionParagraph("<Insert a paragraph about his Other Contributions (if any)>", standard_placeholders)
+                ]]
             }
             let other_individual_achievement_paras = relevant_templates.OtherIndividualAchievement?.map(obj => {
                 if (form_data["Other Individual Achievements"][obj.title]) {
@@ -293,7 +302,10 @@ export default async function handler(req, res) {
             }).filter(element => element) // Remove undefined values
             if (other_individual_achievement_paras == undefined || other_individual_achievement_paras.length == 0) {
                 // Set the default
-                other_individual_achievement_paras = [[null, null]]
+                other_individual_achievement_paras = [[
+                    generateOptionTextRuns("<Insert a description of his Other Individual Achievements (if any)>", standard_placeholders),
+                    generateOptionParagraph("<Insert a paragraph about his Other Individual Achievements (if any)>", standard_placeholders)
+                ]]
             }
             const conclusion_paras = [
                 generateOptionTextRuns(relevant_templates.Conclusion.transcripttemplate, standard_placeholders),
@@ -330,7 +342,10 @@ export default async function handler(req, res) {
                     generateOptionParagraph(soldier_fundamentals_testimonial, standard_placeholders),
                 ]
             } else {
-                var soldier_fundamental_paras = [null, null]
+                var soldier_fundamental_paras = [
+                    generateOptionTextRuns("<Insert a description of his Soldier Fundamentals Achievements (if any)>", standard_placeholders),
+                    generateOptionParagraph("<Insert a paragraph about his Soldier Fundamentals Achievements (if any)>", standard_placeholders)
+                ]
             }
             console.log(soldier_fundamental_paras)
             const transcript_textruns = [].concat(...[
