@@ -130,7 +130,6 @@ export const PrimaryAppointmentAchievementForm = ({
     /*FUNCTIONS THAT UPDATE related_achievements_list WHENEVER ANY (UNSAVED) CHANGES ARE MADE*/
 
     const onChangeText = (event, form_index) => {
-        console.log(related_achievements_list)
         if (permanently_disable_edit) {
             return
         }
