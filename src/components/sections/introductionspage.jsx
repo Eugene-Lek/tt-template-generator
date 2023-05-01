@@ -10,7 +10,7 @@ const valid_ranks = ["Officer", "Specialist", "Enlistee"]
 export function IntroductionsPage({ unit, section_name, available_vocation_ranks, set_dialog_settings }) {
 
     const [load_status_introduction, set_load_status_introduction] = useState('loading')
-    const [load_status_pre_unit_achievement, set_load_status_pre_unit_achievement] = useState('loading')    
+    const [load_status_pre_unit_achievement, set_load_status_pre_unit_achievement] = useState('loading')
     const [introductions_list, set_introductions_list] = useState([])
     const [pre_unit_achievements_list, set_pre_unit_achievements_list] = useState([])
     const [selected_introduction_vocation_rank, set_selected_introduction_vocation_rank] = useState('')
@@ -32,7 +32,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
         }
         fetchSectionData()
 
-    }, [unit, pre_unit_achievements_list.filter(obj=>obj.achievement_title == obj.previously_saved_achievement_title).length]) 
+    }, [unit, pre_unit_achievements_list.filter(obj => obj.achievement_title == obj.previously_saved_achievement_title).length])
     // ^Only reload the introduction data when any of the pre_unit_achievement titles have been changed and saved
     // Note: The 2nd dependency will change in value whenever the title is first edited or whenever it is saved/cancelled, 
     // although we only need it to change whenever the pre_unit_achievement is saved after a change.
@@ -197,14 +197,21 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                     <summary className="instructions-summary">Instructions & Examples</summary>
                     <div className="section-group">
                         <div className="example-module">
+                            <div className="example-module-title" style={{ textDecoration: "underline" }}>Contents</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>1. Assigning an Introduction Template to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>2. Inserting Personal Particulars into an Introduction Template (e.g. Rank and Name)</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>3. Indicating Where Users Should Manually Insert Personal Elements</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>4. Inserting Pre-Unit Achievements (Optional)</div>
+                        </div>
+                        <div className="example-module">
                             <div className="example-module-title">1. Assigning an Introduction Template to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
                             <div className="example-module-explanation">Each Vocation-Rank combination (e.g. Signal Specialist, Infantry Officer etc) must have an Introduction Template.</div>
                             <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to write an Introduction template that only applies to Signal Enlistees:</div>
                             <IntroductionForm
                                 transcript_template="... 30th Battalion, Singapore Combat Engineers ... Signal Operator"
                                 template="... Basic Military Training. ... Signals Institute. ... 30th Battalion, Singapore Combat Engineers, ... Signal Operator "
-                                related_vocation_ranks={{ 'Enlistee': ['Signals'] }}
-                                available_vocation_ranks={{ 'Officer': ['Signals', 'Combat Engineers'], 'Specialist': ['Signals', 'Combat Engineers'], 'Enlistee': ['Signals', 'Combat Engineers', 'Admin'] }}
+                                related_vocation_ranks={{ 'Signals': ['Enlistee'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}
                                 permanently_disable_edit={true}
                             />
@@ -225,8 +232,8 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                             <IntroductionForm
                                 transcript_template={'{Rank} {Full Name} served as a {Primary Appointment} in {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE).'}
                                 template="{Rank} {Full Name} enlisted in the Singapore Armed Forces on {Enlistment Date}. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Specialist Cadet Course. Subsequently, {Rank} {Surname} was posted to {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE) where he was assigned the role of {Primary Appointment}."
-                                related_vocation_ranks={{ 'Specialist': ['Signals', 'Combat Engineers'] }}
-                                available_vocation_ranks={{ 'Officer': ['Signals', 'Combat Engineers'], 'Specialist': ['Signals', 'Combat Engineers'], 'Enlistee': ['Signals', 'Combat Engineers', 'Admin'] }}
+                                related_vocation_ranks={{ 'Signals': ['Specialist'], 'Combat Engineers': ['Specialist'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}
                                 permanently_disable_edit={true}
                             />
@@ -241,8 +248,8 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                             <IntroductionForm
                                 transcript_template={'{Rank} {Full Name} served as a {Primary Appointment} in {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE).'}
                                 template="{Rank} {Full Name} enlisted in the Singapore Armed Forces on {Enlistment Date}. Upon completion of his Basic Military Training, he was posted to <Insert Original Company> Company, 30th Battalion, Singapore Combat Engineers (30SCE) to serve as a Field Engineer Pioneer. Unfortunately, {Rank} {Surname} ended up suffering from <Insert Physical Injury> and could no longer participate in outfield training or physical activities. After his medical status had been re-evaluated, {Rank} {Surname} was re-deployed to the <Insert New Coy (e.g. Battalion HQ) Or New Platoon (e.g. 'A' Company HQ)> as a <Insert Clerk Appointment (e.g. Finance Clerk)>."
-                                related_vocation_ranks={{ 'Enlistee': ['Admin'] }}
-                                available_vocation_ranks={{ 'Officer': ['Signals', 'Combat Engineers'], 'Specialist': ['Signals', 'Combat Engineers'], 'Enlistee': ['Signals', 'Combat Engineers', 'Admin'] }}
+                                related_vocation_ranks={{ 'Admin': ['Enlistee'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}
                                 permanently_disable_edit={true}
                             />
@@ -287,8 +294,8 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                             <IntroductionForm
                                 transcript_template={'{Rank} {Full Name} served as a {Primary Appointment} in {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE).'}
                                 template="{Rank} {Full Name} enlisted in the Singapore Armed Forces on {Enlistment Date}. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Officer Cadet School where he underwent training to become a commissioned Army Officer. {Sword of Honour} {Sword of Merit} Upon commissioning, {Rank} {Surname} was posted to {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE) to take on the appointment of {Primary Appointment}."
-                                related_vocation_ranks={{ 'Officer': ['Signals', 'Combat Engineers'] }}
-                                available_vocation_ranks={{ 'Officer': ['Signals', 'Combat Engineers'], 'Specialist': ['Signals', 'Combat Engineers'], 'Enlistee': ['Signals', 'Combat Engineers'] }}
+                                related_vocation_ranks={{ 'Signals': ['Officer'], 'Combat Engineers': ['Officer'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}
                                 permanently_disable_edit={true}
                             />
