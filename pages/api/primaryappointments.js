@@ -37,8 +37,8 @@ export default async function handler(req, res) {
         const inserted_placeholders_transcript = [...transcript_template.matchAll(/\{[^}]+\}/g)] // global search
         const inserted_placeholders_testimonial = [...template.matchAll(/\{[^}]+\}/g)] // global search        
         // Check if there are any unpaired { or }
-        const num_open_curly_transcript = transcript_template.match(/\{/g).length
-        const num_close_curly_transcript = transcript_template.match(/\}/g).length
+        const num_open_curly_transcript = [...transcript_template.matchAll(/\{/g)].length
+        const num_close_curly_transcript = [...transcript_template.matchAll(/\}/g)].length
         if (num_open_curly_transcript < num_close_curly_transcript){
             return res.status(400).json({ message: `At least 1 unpaired '}' was detected in the *transcript* 
                                                     Either pair it with a '{' or remove the unpaired '}'` })
@@ -49,8 +49,8 @@ export default async function handler(req, res) {
             return res.status(400).json({ message: `At least 1 unpaired '{' was detected in the *transcript* 
                                                     Either pair it with a '}' or remove the unpaired '{'` })            
         }        
-        const num_open_curly_testimonial = template.match(/\{/g).length
-        const num_close_curly_testimonial = template.match(/\}/g).length
+        const num_open_curly_testimonial = [...template.matchAll(/\{/g)].length
+        const num_close_curly_testimonial = [...template.matchAll(/\}/g)].length
         if (num_open_curly_testimonial < num_close_curly_testimonial){
             return res.status(400).json({ message: `At least 1 unpaired '}' was detected in the *testimonial* 
                                                     Either pair it with a '{' or remove the unpaired '}'` })
