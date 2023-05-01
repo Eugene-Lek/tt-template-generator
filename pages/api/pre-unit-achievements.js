@@ -48,7 +48,8 @@ export default async function handler(req, res) {
         // Uniqueness validation
         const existing_achievement_titles = await prisma.PreUnitAchievement.findMany({
             where: {
-                NOT: {id: id}
+                NOT: {id: id},
+                unitName: unit
             },
             select: {
                 title: true
