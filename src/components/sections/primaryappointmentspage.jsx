@@ -24,7 +24,29 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
                 }
             })
             const primary_appointments_response_data = await primary_appointments_response.json()
-            set_primary_appointments_list(primary_appointments_response_data.init_list)
+            const init_primary_appointments_list = primary_appointments_response_data.init_list
+            // Maintain the hidden state of forms. This means newly added but unsaved forms will remain displayed
+            const init_primary_appointments_dict = Object.fromEntries(init_primary_appointments_list.map(obj=> [obj.id, obj]))
+            let temp_primary_appointments_list = cloneDeep(primary_appointments_list)
+            temp_primary_appointments_list = temp_primary_appointments_list.map(obj=>{
+                const live_display_state = obj.display
+                if (init_primary_appointments_dict.hasOwnProperty(obj.id)){
+                    obj = init_primary_appointments_dict[obj.id]
+                    obj.display = live_display_state // Keep the display up to date. a.k.a. do not let it return to the default 'block'
+                }
+                return obj
+            })
+            // Add primary_appointments that were added to the database but not the primary_appointments list (client-side)
+            // (a.k.a. added via another device after the page of this device was loaded)
+            const forms_filtered = init_primary_appointments_list.some(obj=>obj.display=="none")
+            const existing_client_forms_ids = temp_primary_appointments_list.map(obj=> obj.id)
+            init_primary_appointments_list.forEach(obj=>{
+                if(!existing_client_forms_ids.includes(obj.id)){
+                    obj.display = forms_filtered ? 'none' : 'block' // Hide if the forms are filtered on the client side
+                    temp_primary_appointments_list.push(obj)
+                }
+            })
+            set_primary_appointments_list(temp_primary_appointments_list)
             set_load_status('loaded')
         }
         fetchSectionData()
@@ -147,13 +169,13 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
                     <summary className="instructions-summary">Instructions & Examples</summary>
                     <div className="section-group">
                         <div className="example-module">
-                            <div className="example-module-title">1. Assigning an Introduction Template to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
-                            <div className="example-module-explanation">Each Vocation-Rank combination (e.g. Signal Specialist, Infantry Officer etc) must have an Introduction Template.</div>
-                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to write an Introduction template that only applies to Signal Enlistees:</div>
+                            <div className="example-module-title">1. Assigning an primary_appointment Template to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
+                            <div className="example-module-explanation">Each Vocation-Rank combination (e.g. Signal Specialist, Infantry Officer etc) must have an primary_appointment Template.</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to write an primary_appointment template that only applies to Signal Enlistees:</div>
                             <div className="example-module-explanation">All we have to do is click the checkbox that corresponds to Signal Enlistee, fill in the Template box, and click &apos;Save&apos; :)</div>
                         </div>
                         <div className="example-module">
-                            <div className="example-module-title">2. Inserting Personal Particulars into an Introduction Template (e.g. Rank and Name)</div>
+                            <div className="example-module-title">2. Inserting Personal Particulars into an primary_appointment Template (e.g. Rank and Name)</div>
                             <div className="example-module-explanation">The following Personal Particulars will be collected and can be inserted into all templates:</div>
                             <ol>
                                 <li>Rank</li>
@@ -163,7 +185,7 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
                                 <li>Coy</li>
                                 <li>Primary Appointment</li>
                             </ol>
-                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to write an Introduction template that only applies to all Officers and includes these Personal Particulars.</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to write an primary_appointment template that only applies to all Officers and includes these Personal Particulars.</div>
                             <div className="example-module-explanation">To do so, we need to wrap the Personal Particulars in curly brackets {'{ }'} e.g. {'{Rank}'}.</div>
                         </div>
                     </div>

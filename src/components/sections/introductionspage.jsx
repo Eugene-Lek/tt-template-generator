@@ -27,15 +27,37 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                 }
             })
             const introductions_response_data = await introductions_response.json()
-            set_introductions_list(introductions_response_data.init_introductions_list)
+            const init_introductions_list = introductions_response_data.init_introductions_list
+            // Maintain the hidden state of forms. This means newly added but unsaved forms will remain displayed
+            const init_introductions_dict = Object.fromEntries(init_introductions_list.map(obj=> [obj.id, obj]))
+            let temp_introductions_list = cloneDeep(introductions_list)
+            temp_introductions_list = temp_introductions_list.map(obj=>{
+                const live_display_state = obj.display
+                if (init_introductions_dict.hasOwnProperty(obj.id)){
+                    obj = init_introductions_dict[obj.id]
+                    obj.display = live_display_state // Keep the display up to date. a.k.a. do not let it return to the default 'block'
+                }
+                return obj
+            })
+            // Add introductions that were added to the database but not the introductions list (client-side)
+            // (a.k.a. added via another device after the page of this device was loaded)
+            const forms_filtered = init_introductions_list.some(obj=>obj.display=="none")
+            const existing_client_forms_ids = temp_introductions_list.map(obj=> obj.id)
+            init_introductions_list.forEach(obj=>{
+                if(!existing_client_forms_ids.includes(obj.id)){
+                    obj.display = forms_filtered ? 'none' : 'block' // Hide if the forms are filtered on the client side
+                    temp_introductions_list.push(obj)
+                }
+            })
+            set_introductions_list(temp_introductions_list)
             set_load_status_introduction('loaded')
         }
         fetchSectionData()
 
-    }, [unit, pre_unit_achievements_list.filter(obj => obj.achievement_title == obj.previously_saved_achievement_title).length])
-    // ^Only reload the introduction data when any of the pre_unit_achievement titles have been changed and saved
-    // Note: The 2nd dependency will change in value whenever the title is first edited or whenever it is saved/cancelled, 
-    // although we only need it to change whenever the pre_unit_achievement is saved after a change.
+    }, [unit, pre_unit_achievements_list.map(obj=>obj.previously_saved_achievement_title).join()])
+    // ^Only reload the Introductions data when any of the pre_unit_achievement titles have been changed and saved
+    // Note: This works by setting the dependency with a string of all the previously_saved_achievement_titles combined
+    // This way, the string and thus the dependency will change whenever a change is made and saved to any of the pre unit achievement titles.
 
 
     // Make an API call to obtain the pre-unit achievement information.
