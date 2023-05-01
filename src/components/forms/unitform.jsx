@@ -173,6 +173,14 @@ export const UnitForm = ({
             displayErrorMessage(`${unit_cleaned} already exists. Please pick another name.`)
             return 
         }
+        if (!unit_cleaned){
+            displayErrorMessage(`Please provide a unit name`)
+            return 
+        }
+        if (!unit_cleaned.match(/^[0-9A-Z ]+$/)){
+            displayErrorMessage(`The unit name can only include alphabets, numbers, and spaces`)
+            return             
+        }
         //Check if the previously saved text is an empty string
         // If so, it is an update so a 'PATCH' method should be used.
         // Otherwise, create a new unit object with 'POST'

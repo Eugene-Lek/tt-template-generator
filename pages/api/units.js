@@ -29,8 +29,12 @@ export default async function handler(req, res) {
             return res.status(400).json({ message: "super-admin is an invalid unit name." })
         }
         if (unit == '') {
-            return res.status(400).json({ message: "Unit name has not been provided" })
-        }        
+            return res.status(400).json({ message: "Please provide a unit name" })
+        }     
+        if (!unit.match(/^[0-9A-Z ]+$/)){
+            displayErrorMessage(`The unit name can only include alphabets, numbers, and spaces`)
+            return             
+        }           
     }
     try {
         switch (req.method) {
