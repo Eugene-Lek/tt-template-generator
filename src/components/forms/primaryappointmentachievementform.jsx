@@ -153,6 +153,13 @@ export const PrimaryAppointmentAchievementForm = ({
         let achievement_title_cleaned = achievement_title.replace(/\s+/g, ' ').trim() // Removes all extra spaces
         let achievement_wording_cleaned = achievement_wording.replace(/[ \t\r\f\v]+/g, ' ').trim() // Removes all extra spaces except \n
         achievement_wording_cleaned = achievement_wording_cleaned.replace(/([^.])$/, '$1.') // Add full stop if it has been omitted
+        // Uniqueness validation
+        const existing_achievement_names = related_achievements_list
+                                            .filter(obj=>obj.id !== id) // Remove the related achievement obj that corresponds to the current one
+                                            .map(obj=>obj.previously_saved_achievement_title.toLowerCase())
+        if (existing_achievement_names.includes(achievement_title_cleaned.toLowerCase())){
+            return displayErrorMessage(`'${achievement_title_cleaned}' already exists.`)
+        }                
         //Check if the previously saved text is an empty string
         // If so, it is an update so a 'PUT' method should be used.
         // Otherwise, create a new Introduction object with 'POST'
