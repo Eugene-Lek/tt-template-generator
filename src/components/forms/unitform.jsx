@@ -169,7 +169,7 @@ export const UnitForm = ({
         //console.log(temp_units_data)
         const unit_cleaned = unit.toUpperCase().replace(/\s+/g, ' ').trim()
         // Parameter Validation
-        if (units_data.map(obj=>obj.previously_saved_unit).includes(unit_cleaned)){
+        if (units_data.map(obj=>{if(obj.id != id){return obj.previously_saved_unit}}).includes(unit_cleaned)){
             displayErrorMessage(`${unit_cleaned} already exists. Please pick another name.`)
             return 
         }
