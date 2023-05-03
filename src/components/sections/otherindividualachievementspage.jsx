@@ -132,7 +132,7 @@ export function OtherIndividualAchievementsPage({ unit, section_name, available_
     available_vocation_ranks_strings.sort()
     const available_vocation_ranks_options = available_vocation_ranks_strings.map(vocation_rank => ({ label: vocation_rank, value: vocation_rank }))
     let available_other_individual_achievement_titles = [].concat(...other_individual_achievements_list.map(obj => [obj.achievement, obj.previously_saved_achievement]))
-    available_other_individual_achievement_titles = [... new Set(available_other_individual_achievement_titles)].filter(option=>option) // remove empty strings
+    available_other_individual_achievement_titles = [... new Set(available_other_individual_achievement_titles)].filter(option => option) // remove empty strings
     available_other_individual_achievement_titles.sort()
     const available_other_individual_achievement_options = available_other_individual_achievement_titles.map((achievement) => ({ label: achievement, value: achievement }))
 
@@ -164,7 +164,7 @@ export function OtherIndividualAchievementsPage({ unit, section_name, available_
                             </ol>
                             <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to write an Introduction template that only applies to all Officers and includes these Personal Particulars.</div>
                             <div className="example-module-explanation">To do so, we need to wrap the Personal Particulars in curly brackets {'{ }'} e.g. {'{Rank}'}.</div>
-                        </div>                
+                        </div>
                     </div>
                 </details>
                 <details>
@@ -189,7 +189,7 @@ export function OtherIndividualAchievementsPage({ unit, section_name, available_
                                             <div key={i_outer} className="each-vocation-rank-group">
                                                 {Object.keys(vocation_ranks_template_overview[vocation]).map((rank, i_inner) => (
                                                     <div key={(i_inner)}>
-                                                        <div style={{fontWeight: "bold", color: 'black', fontSize: "16px" }}>{vocation} {rank}</div>
+                                                        <div style={{ fontWeight: "bold", color: 'black', fontSize: "16px" }}>{vocation} {rank}</div>
                                                         {vocation_ranks_template_overview[vocation][rank].length > 0 ?
                                                             <ol>
                                                                 {vocation_ranks_template_overview[vocation][rank].map((title, i_inner2) => <li key={i_inner2} >{title}</li>)}
@@ -209,22 +209,24 @@ export function OtherIndividualAchievementsPage({ unit, section_name, available_
                             </div>
                         }
                         {load_status == 'loaded' && (
-                            <div className="search-templates">
-                                <Select
-                                    className="search-by-title"
-                                    onChange={onSelectByTitle}
-                                    options={available_other_individual_achievement_options}
-                                    value={selected_other_individual_achievement_title}
-                                    placeholder={"Search by Achievement"}
-                                />
-                                <Select
-                                    className="search-by-vocation-rank"
-                                    onChange={onSelectByVocationRank}
-                                    options={available_vocation_ranks_options}
-                                    value={selected_other_individual_achievement_vocation_rank}
-                                    placeholder={"Search by Vocation-Rank"}
-                                />
-                                <button onClick={onViewAll} className={"view-all-button"}>View All</button>
+                            <div className="top-bar">
+                                <div className="search-templates">
+                                    <Select
+                                        className="search-by-title"
+                                        onChange={onSelectByTitle}
+                                        options={available_other_individual_achievement_options}
+                                        value={selected_other_individual_achievement_title}
+                                        placeholder={"Search by Achievement"}
+                                    />
+                                    <Select
+                                        className="search-by-vocation-rank"
+                                        onChange={onSelectByVocationRank}
+                                        options={available_vocation_ranks_options}
+                                        value={selected_other_individual_achievement_vocation_rank}
+                                        placeholder={"Search by Vocation-Rank"}
+                                    />
+                                    <button onClick={onViewAll} className={"view-all-button"}>View All</button>
+                                </div>
                                 <button onClick={onAddOtherIndividualAchievementForm} className="add-form-button-right">Add Other Individual Achievement</button>
                             </div>
                         )}

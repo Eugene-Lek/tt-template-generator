@@ -207,6 +207,7 @@ export function SecondaryAppointmentsPage({ unit, section_name, available_vocati
                             </div>
                         }
                         {load_status == 'loaded' && (
+                        <div className="top-bar">                                
                             <div className="search-templates">
                                 <Select
                                     className="search-by-title"
@@ -223,8 +224,9 @@ export function SecondaryAppointmentsPage({ unit, section_name, available_vocati
                                     placeholder={"Search by Vocation-Rank"}
                                 />
                                 <button onClick={onViewAll} className={"view-all-button"}>View All</button>
-                                <button onClick={onAddSecondaryAppointmentForm} className="add-form-button-right">Add Secondary Appointment</button>
                             </div>
+                            <button onClick={onAddSecondaryAppointmentForm} className="add-form-button-right">Add Secondary Appointment</button>                            
+                        </div>
                         )}
                         {load_status == 'loading' && (
                             <p className="loading-text-form-data">Loading...</p>

@@ -132,7 +132,7 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
     available_vocation_ranks_strings.sort()
     const available_vocation_ranks_options = available_vocation_ranks_strings.map(vocation_rank => ({ label: vocation_rank, value: vocation_rank }))
     let available_other_contribution_titles = [].concat(...other_contributions_list.map(obj => [obj.contribution, obj.previously_saved_contribution]))
-    available_other_contribution_titles = [... new Set(available_other_contribution_titles)].filter(option=>option) // remove empty strings
+    available_other_contribution_titles = [... new Set(available_other_contribution_titles)].filter(option => option) // remove empty strings
     available_other_contribution_titles.sort()
     const available_other_contribution_options = available_other_contribution_titles.map((contribution) => ({ label: contribution, value: contribution }))
 
@@ -189,7 +189,7 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
                                             <div key={i_outer} className="each-vocation-rank-group">
                                                 {Object.keys(vocation_ranks_template_overview[vocation]).map((rank, i_inner) => (
                                                     <div key={(i_inner)}>
-                                                        <div style={{fontWeight: "bold", color: 'black', fontSize: "16px" }}>{vocation} {rank}</div>
+                                                        <div style={{ fontWeight: "bold", color: 'black', fontSize: "16px" }}>{vocation} {rank}</div>
                                                         {vocation_ranks_template_overview[vocation][rank].length > 0 ?
                                                             <ol>
                                                                 {vocation_ranks_template_overview[vocation][rank].map((title, i_inner2) => <li key={i_inner2} >{title}</li>)}
@@ -209,22 +209,24 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
                             </div>
                         }
                         {load_status == 'loaded' && (
-                            <div className="search-templates">
-                                <Select
-                                    className="search-by-title"
-                                    onChange={onSelectByTitle}
-                                    options={available_other_contribution_options}
-                                    value={selected_other_contribution_title}
-                                    placeholder={"Search by Contribution"}
-                                />
-                                <Select
-                                    className="search-by-vocation-rank"
-                                    onChange={onSelectByVocationRank}
-                                    options={available_vocation_ranks_options}
-                                    value={selected_other_contribution_vocation_rank}
-                                    placeholder={"Search by Vocation-Rank"}
-                                />
-                                <button onClick={onViewAll} className={"view-all-button"}>View All</button>
+                            <div className="top-bar">
+                                <div className="search-templates">
+                                    <Select
+                                        className="search-by-title"
+                                        onChange={onSelectByTitle}
+                                        options={available_other_contribution_options}
+                                        value={selected_other_contribution_title}
+                                        placeholder={"Search by Contribution"}
+                                    />
+                                    <Select
+                                        className="search-by-vocation-rank"
+                                        onChange={onSelectByVocationRank}
+                                        options={available_vocation_ranks_options}
+                                        value={selected_other_contribution_vocation_rank}
+                                        placeholder={"Search by Vocation-Rank"}
+                                    />
+                                    <button onClick={onViewAll} className={"view-all-button"}>View All</button>
+                                </div>
                                 <button onClick={onAddOtherContributionForm} className="add-form-button-right">Add Other Contribution</button>
                             </div>
                         )}

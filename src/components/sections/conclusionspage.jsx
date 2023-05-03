@@ -249,6 +249,7 @@ export function ConclusionsPage({ unit, section_name, available_vocation_ranks, 
                         }
 
                         {load_status == "loaded" && (
+                        <div className="top-bar">                            
                             <div className="search-templates">
                                 <Select
                                     className="search-by-vocation-rank"
@@ -258,8 +259,9 @@ export function ConclusionsPage({ unit, section_name, available_vocation_ranks, 
                                     placeholder={"Search by Vocation-Rank"}
                                 />
                                 <button onClick={onViewAll} className={"view-all-button"}>View All</button>
-                                <button onClick={onAddConclusionForm} className="add-form-button-right">Add Conclusion</button>
                             </div>
+                            <button onClick={onAddConclusionForm} className="add-form-button-right">Add Conclusion</button>                            
+                        </div>
                         )}
                         {load_status == "loading" && (
                             <p className="loading-text-form-data">Loading...</p>

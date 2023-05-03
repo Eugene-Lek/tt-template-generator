@@ -248,6 +248,7 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
                             </div>
                         }
                         {load_status == 'loaded' && (
+                        <div className="top-bar">                            
                             <div className="search-templates">
                                 <Select
                                     className="search-by-title"
@@ -264,8 +265,9 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
                                     placeholder={"Search by Vocation-Rank"}
                                 />
                                 <button onClick={onViewAll} className={"view-all-button"}>View All</button>
-                                <button onClick={onAddPrimaryAppointmentForm} className="add-form-button-right">Add Primary Appointment</button>
                             </div>
+                            <button onClick={onAddPrimaryAppointmentForm} className="add-form-button-right">Add Primary Appointment</button>                            
+                        </div>
                         )}
                         {load_status == 'loading' && (
                             <p className="loading-text-form-data">Loading...</p>

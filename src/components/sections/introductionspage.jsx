@@ -31,12 +31,12 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
             console.log(introductions_response_data)
             const init_introductions_list = introductions_response_data.init_introductions_list
             // Maintain the hidden state of forms. This means newly added but unsaved forms will remain displayed
-            const init_introductions_dict = Object.fromEntries(init_introductions_list.map(obj=> [obj.id, obj]))
+            const init_introductions_dict = Object.fromEntries(init_introductions_list.map(obj => [obj.id, obj]))
             let temp_introductions_list = cloneDeep(introductions_list)
             console.log(temp_introductions_list)
-            temp_introductions_list = temp_introductions_list.map(obj=>{
+            temp_introductions_list = temp_introductions_list.map(obj => {
                 const live_display_state = obj.display
-                if (init_introductions_dict.hasOwnProperty(obj.id)){
+                if (init_introductions_dict.hasOwnProperty(obj.id)) {
                     obj = init_introductions_dict[obj.id]
                     obj.display = live_display_state // Keep the display up to date. a.k.a. do not let it return to the default 'block'
                 }
@@ -44,10 +44,10 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
             })
             // Add introductions that were added to the database but not the introductions list (client-side)
             // (a.k.a. added via another device after the page of this device was loaded)
-            const forms_filtered = init_introductions_list.some(obj=>obj.display=="none")
-            const existing_client_forms_ids = temp_introductions_list.map(obj=> obj.id)
-            init_introductions_list.forEach(obj=>{
-                if(!existing_client_forms_ids.includes(obj.id)){
+            const forms_filtered = init_introductions_list.some(obj => obj.display == "none")
+            const existing_client_forms_ids = temp_introductions_list.map(obj => obj.id)
+            init_introductions_list.forEach(obj => {
+                if (!existing_client_forms_ids.includes(obj.id)) {
                     obj.display = forms_filtered ? 'none' : 'block' // Hide if the forms are filtered on the client side
                     temp_introductions_list.push(obj)
                 }
@@ -58,7 +58,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
         }
         fetchSectionData()
 
-    }, [unit, pre_unit_achievements_list.map(obj=>obj.previously_saved_achievement_title).join()])
+    }, [unit, pre_unit_achievements_list.map(obj => obj.previously_saved_achievement_title).join()])
     // ^Only reload the Introductions data when any of the pre_unit_achievement titles have been changed and saved
     // Note: This works by setting the dependency with a string of all the previously_saved_achievement_titles combined
     // This way, the string and thus the dependency will change whenever a change is made and saved to any of the pre unit achievement titles.
@@ -399,15 +399,17 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                             </div>
                         }
                         {load_status_introduction == 'loaded' && (
-                            <div className="search-templates">
-                                <Select
-                                    className="search-by-vocation-rank"
-                                    onChange={onSelectIntroductionByVocationRank}
-                                    options={available_vocation_ranks_options}
-                                    value={selected_introduction_vocation_rank}
-                                    placeholder={"Search by Vocation-Rank"}
-                                />
-                                <button onClick={onViewAllIntroduction} className={"view-all-button"}>View All</button>
+                            <div className="top-bar">
+                                <div className="search-templates">
+                                    <Select
+                                        className="search-by-vocation-rank"
+                                        onChange={onSelectIntroductionByVocationRank}
+                                        options={available_vocation_ranks_options}
+                                        value={selected_introduction_vocation_rank}
+                                        placeholder={"Search by Vocation-Rank"}
+                                    />
+                                    <button onClick={onViewAllIntroduction} className={"view-all-button"}>View All</button>
+                                </div>
                                 <button onClick={onAddIntroductionForm} className="add-form-button-right">Add Introduction</button>
                             </div>
                         )}
@@ -443,6 +445,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                     <summary className="section-summary">Pre-Unit Achievements (Optional)</summary>
                     <div className="section-group">
                         {load_status_pre_unit_achievement == 'loaded' && (
+                        <div className="top-bar">
                             <div className="search-templates">
                                 <Select
                                     className="search-by-title"
@@ -452,8 +455,9 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                                     placeholder={"Search by Pre-Unit Achievement"}
                                 />
                                 <button onClick={onViewAllPreUnitAchievement} className={"view-all-button"}>View All</button>
-                                <button onClick={onAddPreUnitAchievementForm} className="add-form-button-right">Add Pre-Unit Achievement</button>
                             </div>
+                            <button onClick={onAddPreUnitAchievementForm} className="add-form-button-right">Add Pre-Unit Achievement</button>                            
+                        </div>
                         )}
                         {load_status_pre_unit_achievement == 'loading' && (
                             <p className="loading-text-form-data">Loading...</p>

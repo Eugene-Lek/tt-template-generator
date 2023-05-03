@@ -50,7 +50,7 @@ export default function SuperAdmin({ units_init_data }) {
         }
         fetchSectionData()
 
-    }, [units_data.filter(obj=>obj.previously_saved_unit).length])
+    }, [units_data.filter(obj => obj.previously_saved_unit).length])
 
 
     /*DEFINING COMMONLY USED DIALOG FUNCTIONS*/
@@ -151,7 +151,7 @@ export default function SuperAdmin({ units_init_data }) {
         set_unit_to_delete_data(unit_data)
     }
     // Only display previously saved options to be safe
-    let available_unit_names = units_data.map(unit_data => unit_data.previously_saved_unit).filter(element=>element) 
+    let available_unit_names = units_data.map(unit_data => unit_data.previously_saved_unit).filter(element => element)
     available_unit_names.sort()
     const available_unit_options = available_unit_names.map((unit) => ({ label: unit, value: unit }))
 
@@ -258,15 +258,17 @@ export default function SuperAdmin({ units_init_data }) {
                         <p className="big-section-description"></p>
                     </div>
                     <div style={{ maxWidth: "970px", width: "100%", marginLeft: "auto", marginRight: "auto" }}>
-                        <div className="search-templates">
-                            <Select
-                                className="search-by-title"
-                                onChange={onSelectByTitle}
-                                options={available_unit_options}
-                                value={selected_unit}
-                                placeholder={"Search by Unit"}
-                            />
-                            <button onClick={onViewAll} className={"view-all-button"}>View All</button>
+                        <div className="top-bar">
+                            <div className="search-templates">
+                                <Select
+                                    className="search-by-title"
+                                    onChange={onSelectByTitle}
+                                    options={available_unit_options}
+                                    value={selected_unit}
+                                    placeholder={"Search by Unit"}
+                                />
+                                <button onClick={onViewAll} className={"view-all-button"}>View All</button>
+                            </div>
                             <button onClick={onAddUnitForm} className="add-form-button-right">Create Unit Admin Account</button>
                         </div>
                     </div>
@@ -340,7 +342,7 @@ export default function SuperAdmin({ units_init_data }) {
                                 </div>
                                 <button onClick={(event) => { onClickDelete(event, unit_to_delete_data.previously_saved_unit) }} className={"delete-button-visible"}>Delete</button>
                             </div>
-                        ) : <div className="overview-text" style={{ color: "red" , marginBottom: "250px"}}>No unit has been selected</div>}
+                        ) : <div className="overview-text" style={{ color: "red", marginBottom: "250px" }}>No unit has been selected</div>}
                     </div>
                 </section>
                 {dialog_settings.displayed && (
@@ -357,11 +359,11 @@ export default function SuperAdmin({ units_init_data }) {
                     <CreateUnitDialog
                         unit={create_unit_dialog_settings.unit}
                         selected_copy_unit={selected_copy_unit}
-                        set_selected_copy_unit={set_selected_copy_unit}  
+                        set_selected_copy_unit={set_selected_copy_unit}
                         available_unit_options={[
-                            {label: do_not_initialise_phrase, value: do_not_initialise_phrase}, 
+                            { label: do_not_initialise_phrase, value: do_not_initialise_phrase },
                             ...available_unit_options
-                        ].filter(obj=> obj.label !== create_unit_dialog_settings.unit)}                                             
+                        ].filter(obj => obj.label !== create_unit_dialog_settings.unit)}
                         onClickDialog={create_unit_dialog_settings.onClickDialog}
                         onClickDialogProps={create_unit_dialog_settings.onClickDialogProps}
                     />
