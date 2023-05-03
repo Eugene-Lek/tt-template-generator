@@ -33,6 +33,9 @@ export function ConclusionsPage({ unit, section_name, available_vocation_ranks, 
 
 
     const getVocationRanksTemplateOverview = (available_vocation_ranks, section_list) => {
+        // Available vocation ranks is based on forms_list (Vocation-Ranks-Combi) & thus updates when forms_list updates.
+        // However, when forms_list is updates, section list (e.g. Introductions_list) is not (designed to persist VRC connections)
+        // Therefore, when a vocation or rank is deleted, it will remain in the section list, so optional querying must be employed. (in the .push)        
         let vocation_ranks_template_overview = cloneDeep(available_vocation_ranks)
         Object.keys(vocation_ranks_template_overview).forEach(vocation => {
             const rank_template_entries = vocation_ranks_template_overview[vocation].map(rank => [rank, []])
@@ -43,7 +46,7 @@ export function ConclusionsPage({ unit, section_name, available_vocation_ranks, 
             const section_related_vocation_ranks = section.previously_saved_related_vocation_ranks
             Object.keys(section_related_vocation_ranks).forEach(vocation => {
                 section_related_vocation_ranks[vocation].forEach(rank => {
-                    vocation_ranks_template_overview[vocation]?.[rank].push("Template Written") // Related vocation may no longer be available
+                    vocation_ranks_template_overview[vocation]?.[rank]?.push("Template Written") // Related vocation may no longer be available
                 })
             })
         })

@@ -42,8 +42,8 @@ export function SoldierFundamentalsPage({ unit, section_name, available_vocation
             const section_related_vocation_ranks = section.previously_saved_related_vocation_ranks
             Object.keys(section_related_vocation_ranks).forEach(vocation => {
                 section_related_vocation_ranks[vocation].forEach(rank => {
-                    vocation_ranks_template_overview[vocation]?.[rank].push(section.previously_saved_official_name)
-                    vocation_ranks_template_overview[vocation]?.[rank].sort() // Sort by alphabetical order                    
+                    vocation_ranks_template_overview[vocation]?.[rank]?.push(section.previously_saved_official_name)
+                    vocation_ranks_template_overview[vocation]?.[rank]?.sort() // Sort by alphabetical order                    
                 })
             })
         })

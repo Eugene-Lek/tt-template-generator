@@ -58,6 +58,9 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
 
 
     const getVocationRanksTemplateOverview = (available_vocation_ranks, section_list) => {
+        // Available vocation ranks is based on forms_list (Vocation-Ranks-Combi) & thus updates when forms_list updates.
+        // However, when forms_list is updates, section list (e.g. Introductions_list) is not (designed to persist VRC connections)
+        // Therefore, when a vocation or rank is deleted, it will remain in the section list, so optional querying must be employed. (in the .push)        
         let vocation_ranks_template_overview = cloneDeep(available_vocation_ranks)
         Object.keys(vocation_ranks_template_overview).forEach(vocation => {
             const rank_template_entries = vocation_ranks_template_overview[vocation].map(rank => [rank, []])
@@ -67,8 +70,8 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
             const section_related_vocation_ranks = section.previously_saved_related_vocation_ranks
             Object.keys(section_related_vocation_ranks).forEach(vocation => {
                 section_related_vocation_ranks[vocation].forEach(rank => {
-                    vocation_ranks_template_overview[vocation]?.[rank].push({ title: section.previously_saved_appointment, achievements: section.previously_saved_related_achievements.sort() })
-                    vocation_ranks_template_overview[vocation]?.[rank].sort(function (a, b) {
+                    vocation_ranks_template_overview[vocation]?.[rank]?.push({ title: section.previously_saved_appointment, achievements: section.previously_saved_related_achievements.sort() })
+                    vocation_ranks_template_overview[vocation]?.[rank]?.sort(function (a, b) {
                         var x = a.title
                         var y = b.title
                         return ((x < y) ? -1 : ((x > y) ? 1 : 0));
