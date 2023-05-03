@@ -26,14 +26,11 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                     'Content-Type': 'application/json'
                 }
             })
-            console.log(introductions_response)
             const introductions_response_data = await introductions_response.json()
-            console.log(introductions_response_data)
             const init_introductions_list = introductions_response_data.init_introductions_list
             // Maintain the hidden state of forms. This means newly added but unsaved forms will remain displayed
             const init_introductions_dict = Object.fromEntries(init_introductions_list.map(obj => [obj.id, obj]))
             let temp_introductions_list = cloneDeep(introductions_list)
-            console.log(temp_introductions_list)
             temp_introductions_list = temp_introductions_list.map(obj => {
                 const live_display_state = obj.display
                 if (init_introductions_dict.hasOwnProperty(obj.id)) {
@@ -53,7 +50,6 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                 }
             })
             set_introductions_list(temp_introductions_list)
-            console.log(temp_introductions_list)
             set_load_status_introduction('loaded')
         }
         fetchSectionData()
