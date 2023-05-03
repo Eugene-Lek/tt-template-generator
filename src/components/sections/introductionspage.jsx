@@ -28,6 +28,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
             })
             console.log(introductions_response)
             const introductions_response_data = await introductions_response.json()
+            console.log(introductions_response_data)
             const init_introductions_list = introductions_response_data.init_introductions_list
             // Maintain the hidden state of forms. This means newly added but unsaved forms will remain displayed
             const init_introductions_dict = Object.fromEntries(init_introductions_list.map(obj=> [obj.id, obj]))
