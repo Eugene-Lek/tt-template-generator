@@ -181,6 +181,7 @@ export default async function handler(req, res) {
                     Conclusion: true
                 }
             })
+            console.log(relevant_templates)
             // Validate the Introduction and Conclusion
             if (!relevant_templates.Introduction) {
                 return res.status(400).json({
