@@ -23,15 +23,15 @@ export default async function handler(req, res) {
             return res.status(400).json({ message: 'The testimonial template is missing' })
         }
         // Placeholder Validation
-        let primary_appointment_achievements = await prisma.Unit.findUnique({
+        let primary_appointment_achievements = await prisma.PrimaryAppointment.findUnique({
             where: {
-                name: unit
+                id: id
             },
             select: {
-                PrimaryAppointmentAchievements: true
+                achievements: true
             }
         })
-        primary_appointment_achievements = primary_appointment_achievements.PrimaryAppointmentAchievements.map(obj=>obj.title)
+        primary_appointment_achievements = primary_appointment_achievements.achievements.map(obj=>obj.title)
         const valid_placholders = [...personal_particulars, ...primary_appointment_achievements].map(str => str.toLowerCase())
 
         const inserted_placeholders_transcript = [...transcript_template.matchAll(/\{[^}]+\}/g)] // global search
