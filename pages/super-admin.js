@@ -297,7 +297,7 @@ export default function SuperAdmin({ units_init_data }) {
                         <p className="big-section-description"> Deletions are irreversible. Only delete Unit admin accounts if you are absolutely sure!</p>
                     </div>
                     <div style={{ marginLeft: "auto", marginRight: "auto" }}>
-                        <div className="search-templates">
+                        <div className="select-unit-main">
                             <Select
                                 className="search-by-title"
                                 onChange={onSelectUnitToDelete}
@@ -309,7 +309,7 @@ export default function SuperAdmin({ units_init_data }) {
                     </div>
                     <div className="unit-group">
                         {Object.keys(unit_to_delete_data).length > 0 ? (
-                            <div style={{ display: "flex", flexDirection: "column" }}>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                                 <div className="unit-module">
                                     <div className="unit-input-button-group">
                                         <input className="unit-input" value={unit_to_delete_data.unit} disabled></input>
