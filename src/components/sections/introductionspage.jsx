@@ -53,6 +53,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                 }
             })
             set_introductions_list(temp_introductions_list)
+            console.log(temp_introductions_list)
             set_load_status_introduction('loaded')
         }
         fetchSectionData()
