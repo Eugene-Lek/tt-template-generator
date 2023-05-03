@@ -31,6 +31,10 @@ export default async function handler(req, res) {
                 achievements: true
             }
         })
+        if (!primary_appointment_achievements){
+            // If the result is null because the primary appointment does not exist yet, assign primary_appointment_achievements to an object with an empty array
+            primary_appointment_achievements = {achievements: []}
+        }
         primary_appointment_achievements = primary_appointment_achievements.achievements.map(obj=>obj.title)
         const valid_placholders = [...personal_particulars, ...primary_appointment_achievements].map(str => str.toLowerCase())
 
