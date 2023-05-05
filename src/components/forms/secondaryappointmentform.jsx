@@ -187,9 +187,11 @@ export const SecondaryAppointmentForm = ({
         }
 
         const appointment_cleaned = appointment.replace(/\s+/g, ' ').trim()
-        let template_cleaned = template.replace(/[ \t\r\f\v]+/g, ' ').trim() // Removes all extra spaces except \n
+        // Removes all extra spaces except \n and removes all fullstops
+        let template_cleaned = template.replace(/[ \t\r\f\v]+/g, ' ').replace(/[ \.]+\./g, '.').trim() 
         template_cleaned = template_cleaned.replace(/([^.])$/, '$1.') // Add full stop if it has been omitted
-        let transcript_template_cleaned = transcript_template.replace(/[ \t\r\f\v]+/g, ' ').trim() // Removes all extra spaces except \n
+        // Removes all extra spaces except \n and removes all fullstops
+        let transcript_template_cleaned = transcript_template.replace(/[ \t\r\f\v]+/g, ' ').replace(/[ \.]+\./g, '.').trim() 
         transcript_template_cleaned = transcript_template_cleaned.replace(/([^.])$/, '$1.') // Add full stop if it has been omitted        
         //Check if the previously saved text is an empty string
         // If so, it is an update so a 'PUT' method should be used.

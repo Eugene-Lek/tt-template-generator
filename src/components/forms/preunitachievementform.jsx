@@ -147,7 +147,8 @@ export const PreUnitAchievementForm = ({
         }
 
         let achievement_title_cleaned = achievement_title.replace(/\s+/g, ' ').trim() // Removes all extra spaces
-        let achievement_wording_cleaned = achievement_wording.replace(/[ \t\r\f\v]+/g, ' ').trim() // Removes all extra spaces except \n
+        // Removes all extra spaces except \n and removes all fullstops
+        let achievement_wording_cleaned = achievement_wording.replace(/[ \t\r\f\v]+/g, ' ').replace(/[ \.]+\./g, '.').trim() 
         achievement_wording_cleaned = achievement_wording_cleaned.replace(/([^.])$/, '$1.') // Add full stop if it has been omitted
         // Uniqueness validation
         const existing_achievement_names = pre_unit_achievements_list
