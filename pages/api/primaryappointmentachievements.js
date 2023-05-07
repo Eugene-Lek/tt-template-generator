@@ -164,7 +164,18 @@ export default async function handler(req, res) {
                                 title: achievement_title,
                                 template: achievement_wording,
                                 PrimaryAppointment: {
-                                    connect: {id: parent_id}
+                                    connectOrCreate: {
+                                        create: {
+                                            id: parent_id,
+                                            title: '',
+                                            template: '',
+                                            transcripttemplate: '',
+                                            unit: {
+                                                connect: {name: unit}
+                                            }                                        
+                                        },
+                                        where: {id: parent_id}
+                                    }
                                 }
                             }
                         }

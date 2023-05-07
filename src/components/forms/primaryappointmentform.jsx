@@ -219,7 +219,7 @@ export const PrimaryAppointmentForm = ({
         //Check if the previously saved text is an empty string
         // If so, it is an update so a 'PUT' method should be used.
         // Otherwise, create a new Introduction object with 'POST'
-        const is_update = previously_saved_template != ''
+        const is_update = previously_saved_template != '' || related_achievements_list.length > 0
         const http_method = is_update ? "PUT" : "POST"
         createOrEditPrimaryAppointment({
             id,
