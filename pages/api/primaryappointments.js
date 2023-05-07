@@ -81,6 +81,7 @@ export default async function handler(req, res) {
                 )
             }
         }        
+        const primary_appointment_achievements_string = primary_appointment_achievements.length > 0 ? primary_appointment_achievements.join(", ") : "None Added"
         for (let i=0; i<inserted_placeholders_testimonial.length; i++){
             const candidate_placeholder_data = inserted_placeholders_testimonial[i]
             const candidate_placeholder = candidate_placeholder_data[0].slice(1,-1) // index 0 corresponds to the actual match detected. The rest is metadata
@@ -91,7 +92,7 @@ export default async function handler(req, res) {
                                                         ${personal_particulars.join(", ")}
                                                         
                                                         *Related Achievements (case-insensitive):*
-                                                        ${primary_appointment_achievements.join(", ")}`
+                                                        ${primary_appointment_achievements_string}`
                     }
                 )
             }
