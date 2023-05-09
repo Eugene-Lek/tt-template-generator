@@ -252,7 +252,7 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
                         </div>
                         <div className="example-module">
                             <div className="example-module-title">4. Inserting Related Achievements (Optional)</div>
-                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to add "REDCON 1" as an achievement to the Signal Operator appointment</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to add &apos;REDCON 1&apos; as an achievement to the Signal Operator appointment</div>
                             <div className="example-module-explanation">To do so, we need to wrap the Related Achievement (REDCON 1) in curly brackets {'{ }'} e.g. {'{REDCON 1}'} (case-insensitive).</div>
                             <PrimaryAppointmentForm
                                 appointment="Signal Operator"
