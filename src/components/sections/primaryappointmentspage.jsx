@@ -26,11 +26,11 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
             const primary_appointments_response_data = await primary_appointments_response.json()
             const init_primary_appointments_list = primary_appointments_response_data.init_list
             // Maintain the hidden state of forms. This means newly added but unsaved forms will remain displayed
-            const init_primary_appointments_dict = Object.fromEntries(init_primary_appointments_list.map(obj=> [obj.id, obj]))
+            const init_primary_appointments_dict = Object.fromEntries(init_primary_appointments_list.map(obj => [obj.id, obj]))
             let temp_primary_appointments_list = cloneDeep(primary_appointments_list)
-            temp_primary_appointments_list = temp_primary_appointments_list.map(obj=>{
+            temp_primary_appointments_list = temp_primary_appointments_list.map(obj => {
                 const live_display_state = obj.display
-                if (init_primary_appointments_dict.hasOwnProperty(obj.id)){
+                if (init_primary_appointments_dict.hasOwnProperty(obj.id)) {
                     obj = init_primary_appointments_dict[obj.id]
                     obj.display = live_display_state // Keep the display up to date. a.k.a. do not let it return to the default 'block'
                 }
@@ -38,10 +38,10 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
             })
             // Add primary_appointments that were added to the database but not the primary_appointments list (client-side)
             // (a.k.a. added via another device after the page of this device was loaded)
-            const forms_filtered = init_primary_appointments_list.some(obj=>obj.display=="none")
-            const existing_client_forms_ids = temp_primary_appointments_list.map(obj=> obj.id)
-            init_primary_appointments_list.forEach(obj=>{
-                if(!existing_client_forms_ids.includes(obj.id)){
+            const forms_filtered = init_primary_appointments_list.some(obj => obj.display == "none")
+            const existing_client_forms_ids = temp_primary_appointments_list.map(obj => obj.id)
+            init_primary_appointments_list.forEach(obj => {
+                if (!existing_client_forms_ids.includes(obj.id)) {
                     obj.display = forms_filtered ? 'none' : 'block' // Hide if the forms are filtered on the client side
                     temp_primary_appointments_list.push(obj)
                 }
@@ -51,8 +51,8 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
         }
         fetchSectionData()
 
-    }, [unit, [].concat(...primary_appointments_list.filter(obj=>obj.button_state == 'edit')
-                                                    .map(obj=>obj.previously_saved_related_achievements.sort())).join()])
+    }, [unit, [].concat(...primary_appointments_list.filter(obj => obj.button_state == 'edit')
+        .map(obj => obj.previously_saved_related_achievements.sort())).join()])
     // ^Only reload the primary appointments data when any of the primary_appointment_achievement titles have been changed and saved
     // Note: This works by setting the dependency with a string of all the previously_saved_related_achievements combined
     // This way, the string and thus the dependency will change whenever a change is made and saved to any of the related achievement titles.
@@ -177,13 +177,29 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
                     <summary className="instructions-summary">Instructions & Examples</summary>
                     <div className="section-group">
                         <div className="example-module">
-                            <div className="example-module-title">1. Assigning an primary_appointment Template to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
-                            <div className="example-module-explanation">Each Vocation-Rank combination (e.g. Signal Specialist, Infantry Officer etc) must have an primary_appointment Template.</div>
-                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to write an primary_appointment template that only applies to Signal Enlistees:</div>
-                            <div className="example-module-explanation">All we have to do is click the checkbox that corresponds to Signal Enlistee, fill in the Template box, and click &apos;Save&apos; :)</div>
+                            <div className="example-module-title" style={{ textDecoration: "underline" }}>Contents</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>1. Assigning a Primary Appointment to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>2. Inserting Personal Particulars into an Primary Appointment Template (e.g. Rank and Name)</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>3. Indicating Where Users Should Manually Insert Character Traits and Examples</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>4. Inserting Related Achievements (Optional)</div>
                         </div>
                         <div className="example-module">
-                            <div className="example-module-title">2. Inserting Personal Particulars into an primary_appointment Template (e.g. Rank and Name)</div>
+                            <div className="example-module-title">1. Assigning a Primary Appointment to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to add a Primary Appointment that only applies to Signal Enlistees:</div>
+                            <PrimaryAppointmentForm
+                                appointment="Signal Operator"
+                                transcript_template="As a Signal Operator, ....."
+                                template="As a Signal Operator, ....."
+                                related_vocation_ranks={{ 'Signals': ['Enlistee'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                button_state={"save"}
+                                permanently_disable_edit={true}
+                                manual_related_achievements={[]}
+                                display="block"
+                            />
+                        </div>
+                        <div className="example-module">
+                            <div className="example-module-title">2. Inserting Personal Particulars into an Primary Appointment Template (e.g. Rank and Name)</div>
                             <div className="example-module-explanation">The following Personal Particulars will be collected and can be inserted into all templates:</div>
                             <ol>
                                 <li>Rank</li>
@@ -193,8 +209,84 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
                                 <li>Coy</li>
                                 <li>Primary Appointment</li>
                             </ol>
-                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to write an primary_appointment template that only applies to all Officers and includes these Personal Particulars.</div>
-                            <div className="example-module-explanation">To do so, we need to wrap the Personal Particulars in curly brackets {'{ }'} e.g. {'{Rank}'}.</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to include these Personal Particulars in our Signal Operator template.</div>
+                            <div className="example-module-explanation">To do so, we need to wrap the Personal Particulars in curly brackets {'{ }'} e.g. {'{Rank}'} (case-insensitive).</div>
+                            <PrimaryAppointmentForm
+                                appointment="Signal Operator"
+                                transcript_template="As a Signal Operator, {rank} {surname} was tasked to establish clear communications for the Company via various radio systems. Such radio systems were vital to enable the day-to-day training and operations for the Company."
+                                template="As a Signal Operator, {rank} {surname} was tasked to establish clear communications for the Company via various radio systems. Such radio systems were vital to enable the day-to-day training and operations for the Company."
+                                related_vocation_ranks={{ 'Signals': ['Enlistee'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                button_state={"save"}
+                                permanently_disable_edit={true}
+                                manual_related_achievements={[]}
+                                display="block"
+                            />
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold', textDecoration: 'underline', fontSize: '20px' }}>Result:</div>
+                            <div className="example-module-explanation">As a Signal Operator, CPL LEK was tasked to establish clear communications for the Company via various radio systems. Such radio systems were vital to enable the day-to-day training and operations for the Company.</div>
+                        </div>
+                        <div className="example-module">
+                            <div className="example-module-title">3. Indicating Where Users Should Manually Insert Character Traits and Examples</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want the Testimonial Template to remind users to add Character Traits and Incident(s) which demonstrate these traits.</div>
+                            <div className="example-module-explanation">To do so, we need to include {"<Insert Character Trait>"} and {"<Insert specific examplet that demonstrates this trait>"}.</div>
+                            <div className="example-module-explanation">Anything wraped in {"<"} and {">"} will be coloured red by the program to catch the user&apos;s attention (Note: It will only be coloured red in the result). </div>
+                            <PrimaryAppointmentForm
+                                appointment="Signal Operator"
+                                transcript_template={'As a Signal Operator, {rank} {surname} was tasked to establish clear communications for the Company via various radio systems. Such radio systems were vital to enable the day-to-day training and operations for the Company.'}
+                                template="As a Signal Operator, {rank} {surname} was tasked to establish clear communications for the Company via various radio systems. Such radio systems were vital to enable the day-to-day training and operations for the Company. In this role, {rank} {surname} was observed to have been <Trait of A Good Signaller (e.g Professional)> . For instance, <A specific incident that demonstrated this trait>."
+                                related_vocation_ranks={{ 'Admin': ['Enlistee'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                button_state={"save"}
+                                permanently_disable_edit={true}
+                                manual_related_achievements={[]}
+                                display="block"
+                            />
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold', textDecoration: 'underline', fontSize: '20px' }}>Result:</div>
+                            <div className="example-module-explanation" >
+                                <span>{"As a Signal Operator, CPL LEK was tasked to establish clear communications for the Company via various radio systems. Such radio systems were vital to enable the day-to-day training and operations for the Company. In this role, {rank} {surname} was observed to have been "}</span>
+                                <span style={{ color: "red" }}>{"<Trait of A Good Signaller (e.g Professional)>"}</span>
+                                <span>{" . For instance, "}</span>
+                                <span style={{ color: "red" }}>{"<A specific incident that demonstrated this trait>"}</span>
+                                <span>.</span>
+                            </div>
+                        </div>
+                        <div className="example-module">
+                            <div className="example-module-title">4. Inserting Related Achievements (Optional)</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to add "REDCON 1" as an achievement to the Signal Operator appointment</div>
+                            <div className="example-module-explanation">To do so, we need to wrap the Related Achievement (REDCON 1) in curly brackets {'{ }'} e.g. {'{REDCON 1}'} (case-insensitive).</div>
+                            <PrimaryAppointmentForm
+                                appointment="Signal Operator"
+                                transcript_template={'As a Signal Operator, {rank} {surname} was tasked to establish clear communications for the Company via various radio systems. Such radio systems were vital to enable the day-to-day training and operations for the Company.'}
+                                template="As a Signal Operator, {rank} {surname} was tasked to establish clear communications for the Company via various radio systems. Such radio systems were vital to enable the day-to-day training and operations for the Company. In this role, {rank} {surname} was observed to have been <Trait of A Good Signaller (e.g Professional)> . For instance, <A specific incident that demonstrated this trait>. {REDCON 1}"
+                                related_vocation_ranks={{ 'Signals': ['Officer'], 'Combat Engineers': ['Officer'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                button_state={"save"}
+                                permanently_disable_edit={true}
+                                manual_related_achievements={[{
+                                    achievement_title: 'REDCON 1',
+                                    achievement_wording: "As a result of his efforts, {rank} {surname} was able to contribute towards his Company's overall REDCON 1 result for their Evaluation Exercises — the highest attainable grade.",
+                                    button_state: "save"
+                                }]}
+                                display="block"
+                            />
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold', textDecoration: 'underline', fontSize: '20px' }}>Important Note:</div>
+                            <div className="example-module-explanation">If a Related Achievement is included in the template but is not selected by the user, it will not be part of the result. (see examples below)</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>REDCON 1 not Selected:</div>
+                            <div className="example-module-explanation">
+                                <span>{"As a Signal Operator, CPL LEK was tasked to establish clear communications for the Company via various radio systems. Such radio systems were vital to enable the day-to-day training and operations for the Company. In this role, {rank} {surname} was observed to have been "}</span>
+                                <span style={{ color: "red" }}>{"<Trait of A Good Signaller (e.g Professional)>"}</span>
+                                <span>{" . For instance, "}</span>
+                                <span style={{ color: "red" }}>{"<A specific incident that demonstrated this trait>"}</span>
+                                <span>.</span>
+                            </div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>REDCON 1 Selected:</div>
+                            <div className="example-module-explanation">
+                                <span>{"As a Signal Operator, CPL LEK was tasked to establish clear communications for the Company via various radio systems. Such radio systems were vital to enable the day-to-day training and operations for the Company. In this role, {rank} {surname} was observed to have been "}</span>
+                                <span style={{ color: "red" }}>{"<Trait of A Good Signaller (e.g Professional)>"}</span>
+                                <span>{" . For instance, "}</span>
+                                <span style={{ color: "red" }}>{"<A specific incident that demonstrated this trait>"}</span>
+                                <span>{". As a result of his efforts, CPL LEK was able to contribute towards his Company's overall REDCON 1 result for their Evaluation Exercises — the highest attainable grade."}</span>
+                            </div>
                         </div>
                     </div>
                 </details>
@@ -228,7 +320,7 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
                                                                         <div key={i_inner2}>
                                                                             <li >{obj.title}</li>
                                                                             {obj.achievements.length > 0 ?
-                                                                                <ul style={{listStyleType: "circle"}}>
+                                                                                <ul style={{ listStyleType: "circle" }}>
                                                                                     {obj.achievements.map((achievement, i_inner3) => <li key={i_inner3} >{achievement}</li>)}
                                                                                 </ul>
                                                                                 :
@@ -253,26 +345,26 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
                             </div>
                         }
                         {load_status == 'loaded' && (
-                        <div className="top-bar">                            
-                            <div className="search-templates">
-                                <Select
-                                    className="search-by-title"
-                                    onChange={onSelectByTitle}
-                                    options={available_primary_appointment_options}
-                                    value={selected_primary_appointment_title}
-                                    placeholder={"Search by Primary Appointment"}
-                                />
-                                <Select
-                                    className="search-by-vocation-rank"
-                                    onChange={onSelectByVocationRank}
-                                    options={available_vocation_ranks_options}
-                                    value={selected_primary_appointment_vocation_rank}
-                                    placeholder={"Search by Vocation-Rank"}
-                                />
-                                <button onClick={onViewAll} className={"view-all-button"}>View All</button>
+                            <div className="top-bar">
+                                <div className="search-templates">
+                                    <Select
+                                        className="search-by-title"
+                                        onChange={onSelectByTitle}
+                                        options={available_primary_appointment_options}
+                                        value={selected_primary_appointment_title}
+                                        placeholder={"Search by Primary Appointment"}
+                                    />
+                                    <Select
+                                        className="search-by-vocation-rank"
+                                        onChange={onSelectByVocationRank}
+                                        options={available_vocation_ranks_options}
+                                        value={selected_primary_appointment_vocation_rank}
+                                        placeholder={"Search by Vocation-Rank"}
+                                    />
+                                    <button onClick={onViewAll} className={"view-all-button"}>View All</button>
+                                </div>
+                                <button onClick={onAddPrimaryAppointmentForm} className="add-form-button-right">Add Primary Appointment</button>
                             </div>
-                            <button onClick={onAddPrimaryAppointmentForm} className="add-form-button-right">Add Primary Appointment</button>                            
-                        </div>
                         )}
                         {load_status == 'loading' && (
                             <p className="loading-text-form-data">Loading...</p>

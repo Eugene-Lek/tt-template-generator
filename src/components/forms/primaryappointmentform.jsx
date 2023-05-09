@@ -21,6 +21,7 @@ export const PrimaryAppointmentForm = ({
     unit,
     set_dialog_settings,
     permanently_disable_edit,
+    manual_related_achievements,
     display
 }) => {
 
@@ -30,6 +31,12 @@ export const PrimaryAppointmentForm = ({
 
     useEffect(() => {
         const fetchSectionData = async () => {
+            // An exception for examples in the Instructions
+            if (manual_related_achievements){
+                set_related_achievements_list(manual_related_achievements)                
+                return
+            }
+            // Normal
             const related_achievements_response = await fetch(`/api/primaryappointmentachievements?unit=${unit}&parent_id=${id}`, {
                 method: "GET",
                 headers: {
@@ -430,7 +437,7 @@ export const PrimaryAppointmentForm = ({
             <form onSubmit={onClickSave} className="section-module">
                 <div className="template-group">
                     <p>Primary Appointment:</p>
-                    <input onChange={(event) => { onChangeText(event, form_index) }} className="title-input" name='appointment' placeholder="e.g. Platoon Commander" value={appointment} disabled={edit_disabled}></input>
+                    <input onChange={(event) => { onChangeText(event, form_index) }} className="title-input" name='appointment' placeholder="e.g. Platoon Commander (Field Engineer)" value={appointment} disabled={edit_disabled}></input>
                 </div>
                 <div className="applies-to-vrc">
                     <p>This appointment applies to:</p>
@@ -507,7 +514,7 @@ export const PrimaryAppointmentForm = ({
                                 form_index={achievement_form_index}
                                 unit={unit}
                                 set_dialog_settings={set_dialog_settings}
-                                permanently_disable_edit={false}
+                                permanently_disable_edit={permanently_disable_edit}
                             />)
                         })}
                     </div>
