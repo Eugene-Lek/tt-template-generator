@@ -239,6 +239,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                                 available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}
                                 permanently_disable_edit={true}
+                                display="block"
                             />
                         </div>
                         <div className="example-module">
@@ -261,6 +262,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                                 available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}
                                 permanently_disable_edit={true}
+                                display="block"
                             />
                             <div className="example-module-explanation" style={{ fontWeight: 'bold', textDecoration: 'underline', fontSize: '20px' }}>Result:</div>
                             <div className="example-module-explanation">3SG ETHAN LOKE enlisted in the Singapore Armed Forces on 21 June 2021. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Specialist Cadet Course. Subsequently, 3SG LOKE was posted to &apos;A&apos; Company, 30th Battalion, Singapore Combat Engineers (30SCE) to take on the appointment of Section Commander.</div>
@@ -277,6 +279,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                                 available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}
                                 permanently_disable_edit={true}
+                                display="block"
                             />
                             <div className="example-module-explanation" style={{ fontWeight: 'bold', textDecoration: 'underline', fontSize: '20px' }}>Result:</div>
                             <div className="example-module-explanation" >
@@ -307,12 +310,14 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                                 achievement_wording={'To this end, {Rank} {Surname} performed the best among his peers and graduated with a Sword of Honour (Top Performer).'}
                                 button_state={"save"}
                                 permanently_disable_edit
+                                display="block"
                             />
                             <PreUnitAchievementForm
                                 achievement_title={'Sword of Merit'}
                                 achievement_wording={'To this end, {rank} {surname} performed well and graduated with a Sword of Merit (Top 10%).'}
                                 button_state={"save"}
                                 permanently_disable_edit
+                                display="block"
                             />
                             <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to write an Introduction template that only applies to all Officers and includes these 2 Pre-Unit Achievements.</div>
                             <div className="example-module-explanation">To do so, we need to wrap the Pre-Unit Achievements in curly brackets {'{ }'} e.g. {'{Sword of Honour}'} (case-insensitive).</div>
