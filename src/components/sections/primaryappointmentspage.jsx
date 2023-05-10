@@ -234,7 +234,7 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
                                 appointment="Signal Operator"
                                 transcript_template={'As a Signal Operator, {rank} {surname} was tasked to establish clear communications for the Company via various radio systems. Such radio systems were vital to enable the day-to-day training and operations for the Company.'}
                                 template="As a Signal Operator, {rank} {surname} was tasked to establish clear communications for the Company via various radio systems. Such radio systems were vital to enable the day-to-day training and operations for the Company. In this role, {rank} {surname} was observed to have been <Trait of A Good Signaller (e.g Professional)> . For instance, <A specific incident that demonstrated this trait>."
-                                related_vocation_ranks={{ 'Admin': ['Enlistee'] }}
+                                related_vocation_ranks={{ 'Signals': ['Enlistee'] }}
                                 available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}
                                 permanently_disable_edit={true}
@@ -258,7 +258,7 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
                                 appointment="Signal Operator"
                                 transcript_template={'As a Signal Operator, {rank} {surname} was tasked to establish clear communications for the Company via various radio systems. Such radio systems were vital to enable the day-to-day training and operations for the Company.'}
                                 template="As a Signal Operator, {rank} {surname} was tasked to establish clear communications for the Company via various radio systems. Such radio systems were vital to enable the day-to-day training and operations for the Company. In this role, {rank} {surname} was observed to have been <Trait of A Good Signaller (e.g Professional)> . For instance, <A specific incident that demonstrated this trait>. {REDCON 1}"
-                                related_vocation_ranks={{ 'Signals': ['Officer'], 'Combat Engineers': ['Officer'] }}
+                                related_vocation_ranks={{ 'Signals': ['Enlistee'] }}
                                 available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}
                                 permanently_disable_edit={true}

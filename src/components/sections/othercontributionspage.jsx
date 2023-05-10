@@ -146,13 +146,27 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
                     <summary className="instructions-summary">Instructions & Examples</summary>
                     <div className="section-group">
                         <div className="example-module">
-                            <div className="example-module-title">1. Assigning an Introduction Template to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
-                            <div className="example-module-explanation">Each Vocation-Rank combination (e.g. Signal Specialist, Infantry Officer etc) must have an Introduction Template.</div>
-                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to write an Introduction template that only applies to Signal Enlistees:</div>
-                            <div className="example-module-explanation">All we have to do is click the checkbox that corresponds to Signal Enlistee, fill in the Template box, and click &apos;Save&apos; :)</div>
+                            <div className="example-module-title" style={{ textDecoration: "underline" }}>Contents</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>1. Assigning a Contribution to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>2. Inserting Personal Particulars into a Contribution Template (e.g. Rank and Name)</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>3. Indicating Where Users Should Manually Insert Character Traits and Examples</div>
                         </div>
                         <div className="example-module">
-                            <div className="example-module-title">2. Inserting Personal Particulars into an Introduction Template (e.g. Rank and Name)</div>
+                            <div className="example-module-title">1. Assigning a Contribution to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to add a Contribution that applies to everyone:</div>
+                            <OtherContributionForm
+                                contribution="NDP"
+                                transcript_template="NDP stuff..."
+                                template="NDP stuff..."
+                                related_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                button_state={"save"}
+                                permanently_disable_edit={true}
+                                display="block"
+                            />
+                        </div>
+                        <div className="example-module">
+                            <div className="example-module-title">2. Inserting Personal Particulars into an Contribution Template (e.g. Rank and Name)</div>
                             <div className="example-module-explanation">The following Personal Particulars will be collected and can be inserted into all templates:</div>
                             <ol>
                                 <li>Rank</li>
@@ -160,10 +174,54 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
                                 <li>Surname</li>
                                 <li>Enlistment Date</li>
                                 <li>Coy</li>
-                                <li>Secondary Appointment</li>
+                                <li>Primary Appointment</li>
                             </ol>
-                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to write an Introduction template that only applies to all Officers and includes these Personal Particulars.</div>
-                            <div className="example-module-explanation">To do so, we need to wrap the Personal Particulars in curly brackets {'{ }'} e.g. {'{Rank}'}.</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to include these Personal Particulars in our NDP template.</div>
+                            <div className="example-module-explanation">To do so, we need to wrap the Personal Particulars in curly brackets {'{ }'} e.g. {'{Rank}'} (case-insensitive).</div>
+                            <OtherContributionForm
+                                contribution="NDP"
+                                transcript_template="{Rank} {Surname} was also involved in the ..."
+                                template="{Rank} {Surname} was also involved in the ..."
+                                related_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                button_state={"save"}
+                                permanently_disable_edit={true}
+                                display="block"
+                            />
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold', textDecoration: 'underline', fontSize: '20px' }}>Result:</div>
+                            <div className="example-module-explanation">CPL LEK  was also involved in the ...</div>
+                        </div>
+                        <div className="example-module">
+                            <div className="example-module-title">3. Indicating Where Users Should Manually Insert Character Traits and Examples</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want the Testimonial Template to remind users to add Character Traits and Incident(s) which demonstrate these traits.</div>
+                            <div className="example-module-explanation">To do so, we need to include {"<Insert Character Trait>"} and {"<Insert specific examplet that demonstrates this trait>"}.</div>
+                            <div className="example-module-explanation">Anything wraped in {"<"} and {">"} will be coloured red by the program to catch the user&apos;s attention (Note: It will only be coloured red in the result). </div>
+                            <OtherContributionForm
+                                contribution="NDP"
+                                transcript_template={'{Rank} {Surname} was also involved in the <Insert NDP segment/operations> for the National Day Parade <Insert Year> . Specifically, he was appointed as <Insert Appointment>, tasked with <role/responsibility>.'}
+                                template="{Rank} {Surname} was also involved in the <Insert NDP segment/operations> for the National Day Parade <Insert Year> . Specifically, he was appointed as <Insert Appointment>, tasked with <role/responsibility>. Throughout this assignment, <Insert a specific example of what he did well> , a testament to his <positive character trait that was demonstrated in the specific example>."
+                                related_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                button_state={"save"}
+                                permanently_disable_edit={true}
+                                display="block"
+                            />
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold', textDecoration: 'underline', fontSize: '20px' }}>Result:</div>
+                            <div className="example-module-explanation" >
+                                <span>{"CPL LEK was also involved in the"}</span>
+                                <span style={{ color: "red" }}>{" <Insert NDP segment/operations>"}</span>                                
+                                <span>{" for the National Day Parade"}</span>                                        
+                                <span style={{ color: "red" }}>{" <Insert Year>"}</span>                                
+                                <span>{" . Specifically, he was appointed as"}</span>                                
+                                <span style={{ color: "red" }}>{" <Insert Appointment>"}</span>
+                                <span>{", tasked with"}</span>                                
+                                <span style={{ color: "red" }}>{" <role/responsibility>"}</span>                                
+                                <span>{". Throughout this assignment,"}</span>                                
+                                <span style={{ color: "red" }}>{" <Insert a specific example of what he did well>"}</span>
+                                <span>{" , a testament to his"}</span>
+                                <span style={{ color: "red" }}>{" <positive character trait that was demonstrated in the specific example>"}</span>
+                                <span>.</span>
+                            </div>
                         </div>
                     </div>
                 </details>

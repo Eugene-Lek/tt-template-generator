@@ -144,13 +144,27 @@ export function SecondaryAppointmentsPage({ unit, section_name, available_vocati
                     <summary className="instructions-summary">Instructions & Examples</summary>
                     <div className="section-group">
                         <div className="example-module">
-                            <div className="example-module-title">1. Assigning an Introduction Template to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
-                            <div className="example-module-explanation">Each Vocation-Rank combination (e.g. Signal Specialist, Infantry Officer etc) must have an Introduction Template.</div>
-                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to write an Introduction template that only applies to Signal Enlistees:</div>
-                            <div className="example-module-explanation">All we have to do is click the checkbox that corresponds to Signal Enlistee, fill in the Template box, and click &apos;Save&apos; :)</div>
+                            <div className="example-module-title" style={{ textDecoration: "underline" }}>Contents</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>1. Assigning a Secondary Appointment to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>2. Inserting Personal Particulars into a Secondary Appointment Template (e.g. Rank and Name)</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>3. Indicating Where Users Should Manually Insert Character Traits and Examples</div>
                         </div>
                         <div className="example-module">
-                            <div className="example-module-title">2. Inserting Personal Particulars into an Introduction Template (e.g. Rank and Name)</div>
+                            <div className="example-module-title">1. Assigning a Secondary Appointment to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to add a Secondary Appointment that only applies to Enlistees and Specialists:</div>
+                            <SecondaryAppointmentForm
+                                appointment="Armskote In-Charge"
+                                transcript_template="As a Armskote In-Charge, ....."
+                                template="As a Armskote In-Charge, ....."
+                                related_vocation_ranks={{ 'Signals': ['Specialist', 'Enlistee'], 'Combat Engineers': ['Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                button_state={"save"}
+                                permanently_disable_edit={true}
+                                display="block"
+                            />
+                        </div>
+                        <div className="example-module">
+                            <div className="example-module-title">2. Inserting Personal Particulars into an Secondary Appointment Template (e.g. Rank and Name)</div>
                             <div className="example-module-explanation">The following Personal Particulars will be collected and can be inserted into all templates:</div>
                             <ol>
                                 <li>Rank</li>
@@ -158,10 +172,46 @@ export function SecondaryAppointmentsPage({ unit, section_name, available_vocati
                                 <li>Surname</li>
                                 <li>Enlistment Date</li>
                                 <li>Coy</li>
-                                <li>Secondary Appointment</li>
+                                <li>Primary Appointment</li>
                             </ol>
-                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to write an Introduction template that only applies to all Officers and includes these Personal Particulars.</div>
-                            <div className="example-module-explanation">To do so, we need to wrap the Personal Particulars in curly brackets {'{ }'} e.g. {'{Rank}'}.</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to include these Personal Particulars in our Armskote In-Charge template.</div>
+                            <div className="example-module-explanation">To do so, we need to wrap the Personal Particulars in curly brackets {'{ }'} e.g. {'{Rank}'} (case-insensitive).</div>
+                            <SecondaryAppointmentForm
+                                appointment="Armskote In-Charge"
+                                transcript_template="As Armskote In-Charge, {Rank} {Surname} was also entrusted to manage the weapons and controlled equipment within his Company."
+                                template="As Armskote In-Charge, {Rank} {Surname} was also entrusted to manage the weapons and controlled equipment within his Company."
+                                related_vocation_ranks={{ 'Signals': ['Specialist', 'Enlistee'], 'Combat Engineers': ['Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                button_state={"save"}
+                                permanently_disable_edit={true}
+                                display="block"
+                            />
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold', textDecoration: 'underline', fontSize: '20px' }}>Result:</div>
+                            <div className="example-module-explanation">As Armskote In-Charge, CPL LEK was also entrusted to manage the weapons and controlled equipment within his Company.</div>
+                        </div>
+                        <div className="example-module">
+                            <div className="example-module-title">3. Indicating Where Users Should Manually Insert Character Traits and Examples</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want the Testimonial Template to remind users to add Character Traits and Incident(s) which demonstrate these traits.</div>
+                            <div className="example-module-explanation">To do so, we need to include {"<Insert Character Trait>"} and {"<Insert specific examplet that demonstrates this trait>"}.</div>
+                            <div className="example-module-explanation">Anything wraped in {"<"} and {">"} will be coloured red by the program to catch the user&apos;s attention (Note: It will only be coloured red in the result). </div>
+                            <SecondaryAppointmentForm
+                                appointment="Armskote In-Charge"
+                                transcript_template={'As Armskote In-Charge, {Rank} {Surname} was also entrusted to manage the weapons and controlled equipment within his Company. '}
+                                template="As Armskote In-Charge, {Rank} {Surname} was also entrusted to manage the weapons and controlled equipment within his Company. In this role, he has proven to be <Insert Trait of a Good ASIC>. For example, <Insert a specific incident that demonstrated this trait>."
+                                related_vocation_ranks={{ 'Signals': ['Specialist', 'Enlistee'], 'Combat Engineers': ['Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                button_state={"save"}
+                                permanently_disable_edit={true}
+                                display="block"
+                            />
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold', textDecoration: 'underline', fontSize: '20px' }}>Result:</div>
+                            <div className="example-module-explanation" >
+                                <span>{"As Armskote In-Charge, CPL LEK was also entrusted to manage the weapons and controlled equipment within his Company. In this role, he has proven to be "}</span>
+                                <span style={{ color: "red" }}>{"<Trait of A Good ASIC>"}</span>
+                                <span>{" . For example, "}</span>
+                                <span style={{ color: "red" }}>{"<A specific incident that demonstrated this trait>"}</span>
+                                <span>.</span>
+                            </div>
                         </div>
                     </div>
                 </details>
