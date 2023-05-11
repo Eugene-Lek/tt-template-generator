@@ -193,7 +193,7 @@ export function OtherIndividualAchievementsPage({ unit, section_name, available_
                         </div>
                         <div className="example-module">
                             <div className="example-module-title">3. Indicating Where Users Should Manually Insert Character Traits</div>
-                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want the Testimonial Template to remind users to add a summary of the serviceman's Character Traits.</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want the Testimonial Template to remind users to add a summary of the serviceman&apos;s Character Traits.</div>
                             <div className="example-module-explanation">To do so, we need to include {"<Insert Character Trait>"} and {"<Insert specific examplet that demonstrates this trait>"}.</div>
                             <div className="example-module-explanation">Anything wraped in {"<"} and {">"} will be coloured red by the program to catch the user&apos;s attention (Note: It will only be coloured red in the result). </div>
                             <OtherIndividualAchievementForm
