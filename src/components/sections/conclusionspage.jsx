@@ -1,5 +1,4 @@
 import { ConclusionForm } from "src/components/forms/conclusionform"
-import { PreUnitAchievementForm } from "src/components/forms/preunitachievementform"
 import { useEffect, useState } from "react"
 import Select from "react-select"
 import { v4 as uuidv4 } from "uuid"
@@ -130,20 +129,26 @@ export function ConclusionsPage({ unit, section_name, available_vocation_ranks, 
                     <summary className="instructions-summary">Instructions & Examples</summary>
                     <div className="section-group">
                         <div className="example-module">
-                            <div className="example-module-title">1. Assigning an Conclusion Template to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
-                            <div className="example-module-explanation">Each Vocation-Rank combination (e.g. Signal Specialist, Infantry Officer etc) must have an Conclusion Template.</div>
-                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>Let&apos;s say we want to write an Conclusion template that only applies to Signal Enlistees:</div>
-                            <ConclusionForm
-                                template="Blah Blah Blah Blah Signals Institute Blah Blah Blah Signal Operator Blah Blah Blah"
-                                related_vocation_ranks={{ "Enlistee": ["Signals"] }}
-                                available_vocation_ranks={{ "Officer": ["Signals", "Combat Engineers"], "Specialist": ["Signals", "Combat Engineers"], "Enlistee": ["Signals", "Combat Engineers"] }}
-                                button_state={"save"}
-                                permanently_disable_edit={true}
-                            />
-                            <div className="example-module-explanation">All we have to do is click the checkbox that corresponds to Signal Enlistee, fill in the Template box, and click &apos;Save&apos; :)</div>
+                            <div className="example-module-title" style={{ textDecoration: "underline" }}>Contents</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>1. Assigning a Conclusion to a Vocation-Rank Combination</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>2. Inserting Personal Particulars into a Conclusion Template (e.g. Rank and Name)</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>3. Indicating Where Users Should Manually Insert Character Traits and Examples</div>
                         </div>
                         <div className="example-module">
-                            <div className="example-module-title">2. Inserting Personal Particulars into an Conclusion Template (e.g. Rank and Name)</div>
+                            <div className="example-module-title">1. Assigning a Conclusion to a Vocation-Rank Combination</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to add a Conclusion that applies to everyone:</div>
+                            <ConclusionForm
+                                transcript_template="Conclusion stuff..."
+                                template="Conclusion stuff..."
+                                related_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                button_state={"save"}
+                                permanently_disable_edit={true}
+                                display="block"
+                            />
+                        </div>
+                        <div className="example-module">
+                            <div className="example-module-title">2. Inserting Personal Particulars into a Conclusion Template (e.g. Rank and Name)</div>
                             <div className="example-module-explanation">The following Personal Particulars will be collected and can be inserted into all templates:</div>
                             <ol>
                                 <li>Rank</li>
@@ -153,56 +158,40 @@ export function ConclusionsPage({ unit, section_name, available_vocation_ranks, 
                                 <li>Coy</li>
                                 <li>Primary Appointment</li>
                             </ol>
-                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>Let&apos;s say we want to write an Conclusion template that only applies to all Officers and includes these Personal Particulars.</div>
-                            <div className="example-module-explanation">To do so, we need to wrap the Personal Particulars in curly brackets {"{ }"} e.g. {"{Rank}"}.</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to include these Personal Particulars in our BSOM template.</div>
+                            <div className="example-module-explanation">To do so, we need to wrap the Personal Particulars in curly brackets {'{ }'} e.g. {'{Rank}'} (case-insensitive).</div>
                             <ConclusionForm
-                                template="{Rank} {Full Name} enlisted in the Singapore Armed Forces on {Enlistment Date}. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Officer Cadet School where he underwent training to become a commissioned Army Officer. Upon commissioning, {Rank} {Surname} was posted to {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE) to take on the appointment of {Primary Appointment}."
-                                related_vocation_ranks={{ "Officer": ["Signals", "Combat Engineers"] }}
-                                available_vocation_ranks={{ "Officer": ["Signals", "Combat Engineers"], "Specialist": ["Signals", "Combat Engineers"], "Enlistee": ["Signals", "Combat Engineers"] }}
+                                transcript_template="In summary, {rank} {surname} was a valued member of the Battalion and we thank him for his contributions."
+                                template="In summary, {rank} {surname} was ... We thank him for his contributions to National Service and wish him the very best for his future endeavours."
+                                related_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}
                                 permanently_disable_edit={true}
+                                display="block"
                             />
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold', textDecoration: 'underline', fontSize: '20px' }}>Result:</div>
+                            <div className="example-module-explanation">In summary, CPL LEK was ... We thank him for his contributions to National Service and wish him the very best for his future endeavours.</div>
                         </div>
                         <div className="example-module">
-                            <div className="example-module-title">3. Inserting Pre-Unit Achievements (Optional)</div>
-                            <div className="example-module-explanation">By default, the following Pre-Unit Achievements can be selected by users if they apply to the servicemen and can be inserted into Conclusion templates:</div>
-                            <ol>
-                                <li>Sword of Honour</li>
-                                <li>Sword of Merit</li>
-                                <li>Golden Bayonet</li>
-                                <li>Silver Bayonet</li>
-                                <li>BMT Best Recruit</li>
-                            </ol>
-                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>For example, these are the default settings for &apos;Sword of Honour&apos; and &apos;Sword of Merit&apos;:</div>
-                            <PreUnitAchievementForm
-                                achievement_title={"Sword of Honour"}
-                                achievement_wording={"To this end, {Rank} {Surname} performed the best among his peers and graduated with a Sword of Honour (Top Performer)."}
-                                button_state={"save"}
-                                permanently_disable_edit
-                            />
-                            <PreUnitAchievementForm
-                                achievement_title={"Sword of Merit"}
-                                achievement_wording={"To this end, {rank} {surname} performed well and graduated with a Sword of Merit (Top 10%)."}
-                                button_state={"save"}
-                                permanently_disable_edit
-                            />
-                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>Let&apos;s say we want to write an Conclusion template that only applies to all Officers and includes these 2 Pre-Unit Achievements (if they are selected by the user).</div>
-                            <div className="example-module-explanation">To do so, we need to wrap the Pre-Unit Achievements in curly brackets {"{ }"} e.g. {"{Sword of Honour}"}.</div>
+                            <div className="example-module-title">3. Indicating Where Users Should Manually Insert Character Traits</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want the Testimonial Template to remind users to add a summary of the serviceman's Character Traits</div>
+                            <div className="example-module-explanation">To do so, we need to include {"<Insert Character Trait>"} and {"<Insert specific examplet that demonstrates this trait>"}.</div>
+                            <div className="example-module-explanation">Anything wraped in {"<"} and {">"} will be coloured red by the program to catch the user&apos;s attention (Note: It will only be coloured red in the result). </div>
                             <ConclusionForm
-                                template="{Rank} {Full Name} enlisted in the Singapore Armed Forces on {Enlistment Date}. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Officer Cadet School where he underwent training to become a commissioned Army Officer. {Sword of Honour} {Sword of Merit} Upon commissioning, {Rank} {Surname} was posted to {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE) to take on the appointment of {Primary Appointment}."
-                                related_vocation_ranks={{ "Officer": ["Signals", "Combat Engineers"] }}
-                                available_vocation_ranks={{ "Officer": ["Signals", "Combat Engineers"], "Specialist": ["Signals", "Combat Engineers"], "Enlistee": ["Signals", "Combat Engineers"] }}
+                                transcript_template={'In summary, {rank} {surname} was a valued member of the Battalion and we thank him for his contributions.'}
+                                template="In summary, {rank} {surname} was <Summarise the character traits you appreciate about him in 2 to 4 sentences>. We thank him for his contributions to National Service and wish him the very best for his future endeavours."
+                                related_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}
                                 permanently_disable_edit={true}
+                                display="block"
                             />
-                            <div className="example-module-explanation" style={{ fontWeight: "bold", textDecoration: "underline" }}>Important Note:</div>
-                            <div className="example-module-explanation">If a Pre-Unit Achievement is included in the template but is not selected by the user, it will not be part of the result. (examples below)</div>
-                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>1. No Pre-Unit Achievements Selected:</div>
-                            <div className="example-module-explanation">LTA ETHAN LOKE enlisted in the Singapore Armed Forces on 21 June 2021. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Officer Cadet School where he underwent training to become a commissioned Army Officer. Upon commissioning, LTA LOKE was posted to &apos;A&apos; Company, 30th Battalion, Singapore Combat Engineers (30SCE) to take on the appointment of Platoon Commander.</div>
-                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>2. &apos;Sword of Honour&apos; Selected:</div>
-                            <div className="example-module-explanation">LTA ETHAN LOKE enlisted in the Singapore Armed Forces on 21 June 2021. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Officer Cadet School where he underwent training to become a commissioned Army Officer. To this end, LTA LOKE performed the best among his peers and graduated with a Sword of Honour (Top Performer). Upon commissioning, LTA LOKE was posted to &apos;A&apos; Company, 30th Battalion, Singapore Combat Engineers (30SCE) to take on the appointment of Platoon Commander.</div>
-                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>3. &apos;Sword of Merit&apos; Selected:</div>
-                            <div className="example-module-explanation">LTA ETHAN LOKE enlisted in the Singapore Armed Forces on 21 June 2021. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Officer Cadet School where he underwent training to become a commissioned Army Officer. To this end, LTA LOKE performed well and graduated with a Sword of Merit (Top 10%). Upon commissioning, LTA LOKE was posted to &apos;A&apos; Company, 30th Battalion, Singapore Combat Engineers (30SCE) to take on the appointment of Platoon Commander.</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold', textDecoration: 'underline', fontSize: '20px' }}>Result:</div>
+                            <div className="example-module-explanation" >
+                                <span>{"In summary, CPL LEK was "}</span>
+                                <span style={{ color: "red" }}>{" <Summarise the character traits you appreciate about him in 2 to 4 sentences>"}</span>                                
+                                <span>. We thank him for his contributions to National Service and wish him the very best for his future endeavours.</span>
+                            </div>
                         </div>
                     </div>
                 </details>

@@ -146,13 +146,27 @@ export function OtherIndividualAchievementsPage({ unit, section_name, available_
                     <summary className="instructions-summary">Instructions & Examples</summary>
                     <div className="section-group">
                         <div className="example-module">
-                            <div className="example-module-title">1. Assigning an Introduction Template to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
-                            <div className="example-module-explanation">Each Vocation-Rank combination (e.g. Signal Specialist, Infantry Officer etc) must have an Introduction Template.</div>
-                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to write an Introduction template that only applies to Signal Enlistees:</div>
-                            <div className="example-module-explanation">All we have to do is click the checkbox that corresponds to Signal Enlistee, fill in the Template box, and click &apos;Save&apos; :)</div>
+                            <div className="example-module-title" style={{ textDecoration: "underline" }}>Contents</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>1. Assigning an Achievement to a Vocation-Rank Combination</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>2. Inserting Personal Particulars into an Achievement Template (e.g. Rank and Name)</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>3. Indicating Where Users Should Manually Insert Character Traits and Examples</div>
                         </div>
                         <div className="example-module">
-                            <div className="example-module-title">2. Inserting Personal Particulars into an Introduction Template (e.g. Rank and Name)</div>
+                            <div className="example-module-title">1. Assigning an Achievement to a Vocation-Rank Combination</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to add an Achievement that applies to everyone:</div>
+                            <OtherIndividualAchievementForm
+                                achievement="BSOM"
+                                transcript_template="BSOM stuff..."
+                                template="BSOM stuff..."
+                                related_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                button_state={"save"}
+                                permanently_disable_edit={true}
+                                display="block"
+                            />
+                        </div>
+                        <div className="example-module">
+                            <div className="example-module-title">2. Inserting Personal Particulars into an Achievement Template (e.g. Rank and Name)</div>
                             <div className="example-module-explanation">The following Personal Particulars will be collected and can be inserted into all templates:</div>
                             <ol>
                                 <li>Rank</li>
@@ -160,10 +174,44 @@ export function OtherIndividualAchievementsPage({ unit, section_name, available_
                                 <li>Surname</li>
                                 <li>Enlistment Date</li>
                                 <li>Coy</li>
-                                <li>Secondary Appointment</li>
+                                <li>Primary Appointment</li>
                             </ol>
-                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to write an Introduction template that only applies to all Officers and includes these Personal Particulars.</div>
-                            <div className="example-module-explanation">To do so, we need to wrap the Personal Particulars in curly brackets {'{ }'} e.g. {'{Rank}'}.</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to include these Personal Particulars in our BSOM template.</div>
+                            <div className="example-module-explanation">To do so, we need to wrap the Personal Particulars in curly brackets {'{ }'} e.g. {'{Rank}'} (case-insensitive).</div>
+                            <OtherIndividualAchievementForm
+                                achievement="BSOM"
+                                transcript_template="In recognition for his outstanding performance, {rank} {surname} was awarded the Best Soldier of the Month - an award given to the top soldier in the Battalion for a particular month."
+                                template="In recognition for his outstanding performance, {rank} {surname} was awarded the Best Soldier of the Month - an award given to the top soldier in the Battalion for a particular month."
+                                related_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                button_state={"save"}
+                                permanently_disable_edit={true}
+                                display="block"
+                            />
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold', textDecoration: 'underline', fontSize: '20px' }}>Result:</div>
+                            <div className="example-module-explanation">In recognition for his outstanding performance, CPL LEK was awarded the Best Soldier of the Month - an award given to the top soldier in the Battalion for a particular month.</div>
+                        </div>
+                        <div className="example-module">
+                            <div className="example-module-title">3. Indicating Where Users Should Manually Insert Character Traits</div>
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want the Testimonial Template to remind users to add a summary of the serviceman's Character Traits.</div>
+                            <div className="example-module-explanation">To do so, we need to include {"<Insert Character Trait>"} and {"<Insert specific examplet that demonstrates this trait>"}.</div>
+                            <div className="example-module-explanation">Anything wraped in {"<"} and {">"} will be coloured red by the program to catch the user&apos;s attention (Note: It will only be coloured red in the result). </div>
+                            <OtherIndividualAchievementForm
+                                achievement="BSOM"
+                                transcript_template={'In recognition of his <Insert Character Traits>, {rank} {surname} was awarded the Best Soldier of the Month - an award given to the top soldier in the Battalion for a particular month.'}
+                                template="In recognition of his <Insert Character Traits>, {rank} {surname} was awarded the Best Soldier of the Month - an award given to the top soldier in the Battalion for a particular month."
+                                related_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
+                                button_state={"save"}
+                                permanently_disable_edit={true}
+                                display="block"
+                            />
+                            <div className="example-module-explanation" style={{ fontWeight: 'bold', textDecoration: 'underline', fontSize: '20px' }}>Result:</div>
+                            <div className="example-module-explanation" >
+                                <span>{"In recognition of his"}</span>
+                                <span style={{ color: "red" }}>{" <Insert Character Traits>"}</span>                                
+                                <span>, CPL LEK was awarded the Best Soldier of the Month - an award given to the top soldier in the Battalion for a particular month.</span>
+                            </div>
                         </div>
                     </div>
                 </details>

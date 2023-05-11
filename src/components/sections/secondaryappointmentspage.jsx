@@ -145,12 +145,12 @@ export function SecondaryAppointmentsPage({ unit, section_name, available_vocati
                     <div className="section-group">
                         <div className="example-module">
                             <div className="example-module-title" style={{ textDecoration: "underline" }}>Contents</div>
-                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>1. Assigning a Secondary Appointment to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>1. Assigning a Secondary Appointment to a Vocation-Rank Combination</div>
                             <div className="example-module-explanation" style={{ fontWeight: "bold" }}>2. Inserting Personal Particulars into a Secondary Appointment Template (e.g. Rank and Name)</div>
                             <div className="example-module-explanation" style={{ fontWeight: "bold" }}>3. Indicating Where Users Should Manually Insert Character Traits and Examples</div>
                         </div>
                         <div className="example-module">
-                            <div className="example-module-title">1. Assigning a Secondary Appointment to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
+                            <div className="example-module-title">1. Assigning a Secondary Appointment to a Vocation-Rank Combination</div>
                             <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to add a Secondary Appointment that only applies to Enlistees and Specialists:</div>
                             <SecondaryAppointmentForm
                                 appointment="Armskote In-Charge"

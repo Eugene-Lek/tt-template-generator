@@ -147,12 +147,12 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
                     <div className="section-group">
                         <div className="example-module">
                             <div className="example-module-title" style={{ textDecoration: "underline" }}>Contents</div>
-                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>1. Assigning a Contribution to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
+                            <div className="example-module-explanation" style={{ fontWeight: "bold" }}>1. Assigning a Contribution to a Vocation-Rank Combination</div>
                             <div className="example-module-explanation" style={{ fontWeight: "bold" }}>2. Inserting Personal Particulars into a Contribution Template (e.g. Rank and Name)</div>
                             <div className="example-module-explanation" style={{ fontWeight: "bold" }}>3. Indicating Where Users Should Manually Insert Character Traits and Examples</div>
                         </div>
                         <div className="example-module">
-                            <div className="example-module-title">1. Assigning a Contribution to a Vocation-Rank Combination (e.g. Signal Enlistee)</div>
+                            <div className="example-module-title">1. Assigning a Contribution to a Vocation-Rank Combination</div>
                             <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to add a Contribution that applies to everyone:</div>
                             <OtherContributionForm
                                 contribution="NDP"
