@@ -54,7 +54,8 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
         }
         fetchSectionData()
 
-    }, [unit, pre_unit_achievements_list.map(obj => obj.previously_saved_achievement_title).join()])
+    }, [unit, [].concat(...introductions_list.filter(obj => obj.button_state == 'edit')
+                                                     .map(obj => obj.previously_saved_achievement_title)).join()])
     // ^Only reload the Introductions data when any of the pre_unit_achievement titles have been changed and saved
     // Note: This works by setting the dependency with a string of all the previously_saved_achievement_titles combined
     // This way, the string and thus the dependency will change whenever a change is made and saved to any of the pre unit achievement titles.
