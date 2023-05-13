@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
 import cloneDeep from 'lodash/cloneDeep';
 
 const personal_particulars = ["rank", "full Name", "surname", "enlistment Date", "coy", "primary appointment"].map(e=>e.toLowerCase())
@@ -51,6 +51,9 @@ export const IntroductionForm = ({
     const [edit_button_class, set_edit_button_class] = useState(init_edit_button_class)
     const [delete_button_class, set_delete_button_class] = useState(init_delete_button_class)
     const [edit_disabled, set_edit_disabled] = useState(init_edit_disabled)
+    const [save_status, set_save_status] = useState()
+    const [delete_status, set_delete_status] = useState()    
+    const cancelling = useRef(false)
 
 
     /*DEFINING COMMONLY USED DIALOG FUNCTIONS*/
@@ -117,25 +120,48 @@ export const IntroductionForm = ({
         set_introductions_list(temp_introductions_list)
     }
 
-    const onCancelChanges = (event) => {
+    const onCancelChanges = async(event) => {
         event.preventDefault()
 
         if (permanently_disable_edit) {
             return
         }
 
-        set_save_button_class("save-changes-button-hidden")
-        set_cancel_button_class("cancel-button-hidden")
-        set_edit_button_class("edit-button-visible")
-        set_delete_button_class("delete-button-visible")
-        set_edit_disabled(true)
-        const temp_introductions_list = cloneDeep(introductions_list)
-        temp_introductions_list[intro_index]['button_state'] = "edit"
-        temp_introductions_list[intro_index]['template'] = previously_saved_template
-        temp_introductions_list[intro_index]['transcript_template'] = previously_saved_transcript_template
-        temp_introductions_list[intro_index]['related_vocation_ranks'] = cloneDeep(previously_saved_related_vocation_ranks)
-        set_introductions_list(temp_introductions_list)
-        //console.log(temp_introductions_list)
+        // If the cancel button is clicked while the form is in the process of being saved, 
+        // overwrite the ongoing save with the original data
+        if (save_status == "pending") {
+            set_save_status("cancelling")
+            cancelling.current = true
+            await createOrEditIntroduction({
+                id,
+                template: previously_saved_template,
+                transcript_template: previously_saved_transcript_template,            
+                related_vocation_ranks: previously_saved_related_vocation_ranks,
+                introductions_list,
+                set_introductions_list,
+                intro_index,
+                unit,
+                http_method: "PUT"
+            })        
+            set_save_status("resolved")       
+            cancelling.current = false 
+            // In this case, do not return to the previously saved state so that the user can make an edit based
+            // on the latest changes.                    
+        } else {
+            // If the cancel button is clicked, return to the previously saved state
+            set_save_button_class("save-changes-button-hidden")
+            set_cancel_button_class("cancel-button-hidden")
+            set_edit_button_class("edit-button-visible")
+            set_delete_button_class("delete-button-visible")
+            set_edit_disabled(true)
+            const temp_introductions_list = cloneDeep(introductions_list)
+            temp_introductions_list[intro_index]['button_state'] = "edit"
+            temp_introductions_list[intro_index]['template'] = previously_saved_template
+            temp_introductions_list[intro_index]['transcript_template'] = previously_saved_transcript_template
+            temp_introductions_list[intro_index]['related_vocation_ranks'] = cloneDeep(previously_saved_related_vocation_ranks)
+            set_introductions_list(temp_introductions_list)
+            //console.log(temp_introductions_list)
+        }
     }
 
 
@@ -196,6 +222,7 @@ export const IntroductionForm = ({
             return
         }
         
+        set_save_status("pending")
         // Removes all extra spaces except \n and removes all fullstops
         let template_cleaned = template.replace(/[ \t\r\f\v]+/g, ' ').replace(/[ \.]+\./g, '.').trim() 
         template_cleaned = template_cleaned.replace(/([^.])$/, '$1.') // Add full stop if it has been omitted
@@ -231,6 +258,7 @@ export const IntroductionForm = ({
         // If the template has not been saved previously, deleting the form will not alter anything in the database.
         // As such, call the delete function right away
         if (previously_saved_template == '') {
+            set_delete_status("pending")
             deleteIntroduction({
                 id,
                 introductions_list,
@@ -296,6 +324,7 @@ export const IntroductionForm = ({
             return
         }
         // Otherwise execute the delete operation
+        set_delete_status("pending")
         deleteIntroduction({
             id,
             introductions_list,
@@ -333,7 +362,7 @@ export const IntroductionForm = ({
                 })
             })
             // Only change the button displays when the data has been successfully saved
-            if (response.status == 200) {
+            if (response.status == 200 && !cancelling.current) {
                 set_save_button_class("save-changes-button-hidden")
                 set_cancel_button_class("cancel-button-hidden")
                 set_edit_button_class("edit-button-visible")
@@ -353,14 +382,22 @@ export const IntroductionForm = ({
                 temp_introductions_list[intro_index]['previously_saved_pre_unit_achievements'] = inserted_pre_unit_achievements
                 set_introductions_list(temp_introductions_list)
                 console.log(temp_introductions_list)
-            } else if (!response.ok) {
+            } else if (!response.ok && !cancelling.current) {
                 // Display the error message in a dialogue box
                 const response_data = await response.json()
                 displayErrorMessage(response_data.message)
             }
         } catch (error) {
-            displayErrorMessage(error.message)
+            if (!cancelling.current){
+                // If the saving process isn't cancelled, display the error message associated with the saving process if any. 
+                if (error.message == "Failed to fetch") {
+                    displayErrorMessage("You are not connected to the internet")
+                } else {
+                    displayErrorMessage(error.message)
+                }
+            }
         }
+        set_save_status("resolved")
     }
 
 
@@ -392,9 +429,13 @@ export const IntroductionForm = ({
             }
 
         } catch (error) {
-            displayErrorMessage(error.message)
+            if (error.message == "Failed to fetch"){
+                displayErrorMessage("You are not connected to the internet")
+            } else {
+                displayErrorMessage(error.message)
+            }
         }
-
+        set_delete_status("resolved")
     }
 
     return (
@@ -453,6 +494,9 @@ export const IntroductionForm = ({
                     <button onClick={onEdit} className={edit_button_class}>Edit</button>
                     <button onClick={onCancelChanges} className={cancel_button_class}>Cancel</button>
                     <button onClick={(event) => { onClickDelete(event, intro_index) }} className={delete_button_class}>Delete</button>
+                    {save_status == "pending" && <div className="saving-text">Saving...</div>}
+                    {save_status == "cancelling" && <div className="cancelling-text">Cancelling...</div>}                                             
+                    {delete_status == "pending" && <div className="deleting-text">Deleting...</div>}                    
                 </div>
             </form>
         </div>

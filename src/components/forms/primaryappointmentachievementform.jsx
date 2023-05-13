@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import cloneDeep from 'lodash/cloneDeep';
 
 export const PrimaryAppointmentAchievementForm = ({
@@ -40,6 +40,9 @@ export const PrimaryAppointmentAchievementForm = ({
     const [edit_button_class, set_edit_button_class] = useState(init_edit_button_class)
     const [delete_button_class, set_delete_button_class] = useState(init_delete_button_class)
     const [edit_disabled, set_edit_disabled] = useState(init_edit_disabled)
+    const [save_status, set_save_status] = useState()
+    const [delete_status, set_delete_status] = useState()
+    const cancelling = useRef(false)
 
 
     /*DEFINING COMMONLY USED DIALOG FUNCTIONS*/
@@ -106,24 +109,48 @@ export const PrimaryAppointmentAchievementForm = ({
         set_related_achievements_list(temp_related_achievements_list)
     }
 
-    const onCancelChanges = (event) => {
+    const onCancelChanges = async(event) => {
         event.preventDefault()
 
         if (permanently_disable_edit) {
             return
         }
 
-        set_save_button_class("save-changes-button-hidden")
-        set_cancel_button_class("cancel-button-hidden")
-        set_edit_button_class("edit-button-visible")
-        set_delete_button_class("delete-button-visible")
-        set_edit_disabled(true)
-        const temp_related_achievements_list = cloneDeep(related_achievements_list)
-        temp_related_achievements_list[form_index]['button_state'] = "edit"
-        temp_related_achievements_list[form_index]['achievement_title'] = previously_saved_achievement_title
-        temp_related_achievements_list[form_index]['achievement_wording'] = previously_saved_achievement_wording
-        set_related_achievements_list(temp_related_achievements_list)
-        //console.log(temp_related_achievements_list)
+        // If the cancel button is clicked while the form is in the process of being saved, 
+        // overwrite the ongoing save with the original data
+        if (save_status == "pending") {
+            set_save_status("cancelling")
+            cancelling.current = true
+            await createOrEditPrimaryAppointmentAchievement({
+                id,
+                achievement_title: previously_saved_achievement_title,
+                previously_saved_achievement_title: previously_saved_achievement_title,
+                achievement_wording: previously_saved_achievement_wording,
+                parent_id,                
+                related_achievements_list,
+                set_related_achievements_list,
+                form_index,
+                unit,
+                http_method: "PUT"
+            })
+            set_save_status("resolved")
+            cancelling.current = false
+            // In this case, do not return to the previously saved state so that the user can make an edit based
+            // on the latest changes.                    
+        } else {
+            // If the cancel button is clicked, return to the previously saved state         
+            set_save_button_class("save-changes-button-hidden")
+            set_cancel_button_class("cancel-button-hidden")
+            set_edit_button_class("edit-button-visible")
+            set_delete_button_class("delete-button-visible")
+            set_edit_disabled(true)
+            const temp_related_achievements_list = cloneDeep(related_achievements_list)
+            temp_related_achievements_list[form_index]['button_state'] = "edit"
+            temp_related_achievements_list[form_index]['achievement_title'] = previously_saved_achievement_title
+            temp_related_achievements_list[form_index]['achievement_wording'] = previously_saved_achievement_wording
+            set_related_achievements_list(temp_related_achievements_list)
+            //console.log(temp_related_achievements_list)
+        }
     }
 
 
@@ -150,17 +177,18 @@ export const PrimaryAppointmentAchievementForm = ({
             return
         }
 
+        set_save_status("pending")   
         let achievement_title_cleaned = achievement_title.replace(/\s+/g, ' ').trim() // Removes all extra spaces
         // Removes all extra spaces except \n and removes all fullstops
-        let achievement_wording_cleaned = achievement_wording.replace(/[ \t\r\f\v]+/g, ' ').replace(/[ \.]+\./g, '.').trim() 
+        let achievement_wording_cleaned = achievement_wording.replace(/[ \t\r\f\v]+/g, ' ').replace(/[ \.]+\./g, '.').trim()
         achievement_wording_cleaned = achievement_wording_cleaned.replace(/([^.])$/, '$1.') // Add full stop if it has been omitted
         // Uniqueness validation
         const existing_achievement_names = related_achievements_list
-                                            .filter(obj=>obj.id !== id) // Remove the related achievement obj that corresponds to the current one
-                                            .map(obj=>obj.previously_saved_achievement_title.toLowerCase())
-        if (existing_achievement_names.includes(achievement_title_cleaned.toLowerCase())){
+            .filter(obj => obj.id !== id) // Remove the related achievement obj that corresponds to the current one
+            .map(obj => obj.previously_saved_achievement_title.toLowerCase())
+        if (existing_achievement_names.includes(achievement_title_cleaned.toLowerCase())) {
             return displayErrorMessage(`'${achievement_title_cleaned}' already exists.`)
-        }                
+        }
         //Check if the previously saved text is an empty string
         // If so, it is an update so a 'PUT' method should be used.
         // Otherwise, create a new Introduction object with 'POST'
@@ -169,7 +197,7 @@ export const PrimaryAppointmentAchievementForm = ({
         createOrEditPrimaryAppointmentAchievement({
             id,
             achievement_title: achievement_title_cleaned,
-            previously_saved_achievement_title,             
+            previously_saved_achievement_title,
             achievement_wording: achievement_wording_cleaned,
             parent_id,
             related_achievements_list,
@@ -191,6 +219,7 @@ export const PrimaryAppointmentAchievementForm = ({
         // If the achievement_title has not been saved previously, deleting the form will not alter anything in the database.
         // As such, call the delete function right away
         if (previously_saved_achievement_title == '') {
+            set_delete_status("pending")                
             deletePrimaryAppointmentAchievement({
                 id,
                 achievement_title: achievement_title_cleaned,
@@ -222,7 +251,7 @@ export const PrimaryAppointmentAchievementForm = ({
             "onClickDialog": handleDeleteConfirmation,
             "onClickDialogProps": {
                 id,
-                achievement_title: achievement_title_cleaned,                
+                achievement_title: achievement_title_cleaned,
                 related_achievements_list,
                 set_related_achievements_list,
                 form_index,
@@ -255,6 +284,7 @@ export const PrimaryAppointmentAchievementForm = ({
             return
         }
         // Otherwise execute the delete operation
+        set_delete_status("pending")             
         deletePrimaryAppointmentAchievement({
             id,
             achievement_title,
@@ -270,7 +300,7 @@ export const PrimaryAppointmentAchievementForm = ({
     const createOrEditPrimaryAppointmentAchievement = async ({
         id,
         achievement_title,
-        previously_saved_achievement_title,         
+        previously_saved_achievement_title,
         achievement_wording,
         parent_id,
         related_achievements_list,
@@ -289,13 +319,13 @@ export const PrimaryAppointmentAchievementForm = ({
                     unit,
                     id,
                     achievement_title,
-                    previously_saved_achievement_title,                     
+                    previously_saved_achievement_title,
                     achievement_wording,
                     parent_id
                 })
             })
             // Only change the button displays when the data has been successfully saved
-            if (response.status == 200) {
+            if (response.status == 200 && !cancelling.current) {
                 set_save_button_class("save-changes-button-hidden")
                 set_cancel_button_class("cancel-button-hidden")
                 set_edit_button_class("edit-button-visible")
@@ -323,21 +353,29 @@ export const PrimaryAppointmentAchievementForm = ({
                         ],
                         "line_props": [
                             { color: "green", font_size: "25px", text_align: "center", margin_right: "auto", margin_left: "auto" },
-                            {color: "#000000", font_size: "16px", text_align: "center", margin_right: "auto", margin_left: "auto"}                            
+                            { color: "#000000", font_size: "16px", text_align: "center", margin_right: "auto", margin_left: "auto" }
                         ],
                         "displayed": true,
                         "onClickDialog": closeDialogueBox,
                         "onClickDialogProps": { set_dialog_settings }
-                    })                    
+                    })
                 }
-            } else if (!response.ok) {
+            } else if (!response.ok && !cancelling.current) {
                 // Display the error message in a dialogue box
                 const response_data = await response.json()
                 displayErrorMessage(response_data.message)
             }
         } catch (error) {
-            displayErrorMessage(error.message)
+            if (!cancelling.current){
+                // If the saving process isn't cancelled, display the error message associated with the saving process if any. 
+                if (error.message == "Failed to fetch") {
+                    displayErrorMessage("You are not connected to the internet")
+                } else {
+                    displayErrorMessage(error.message)
+                }
+            }
         }
+        set_save_status("resolved")
     }
 
 
@@ -367,16 +405,20 @@ export const PrimaryAppointmentAchievementForm = ({
                 set_related_achievements_list(temp_related_achievements_list)
                 const temp_primary_appointments_list = cloneDeep(primary_appointments_list)
                 temp_primary_appointments_list[primary_index]['previously_saved_related_achievements'].splice(form_index, 1)
-                set_primary_appointments_list(temp_primary_appointments_list)                
+                set_primary_appointments_list(temp_primary_appointments_list)
             } else if (!response.ok) {
                 const response_data = await response.json()
                 displayErrorMessage(response_data.message)
             }
 
         } catch (error) {
-            displayErrorMessage(error.message)
+            if (error.message == "Failed to fetch"){
+                displayErrorMessage("You are not connected to the internet")
+            } else {
+                displayErrorMessage(error.message)
+            }
         }
-
+        set_delete_status("resolved")
     }
 
     return (
@@ -395,6 +437,9 @@ export const PrimaryAppointmentAchievementForm = ({
                     <button onClick={onEdit} className={edit_button_class}>Edit</button>
                     <button onClick={onCancelChanges} className={cancel_button_class}>Cancel</button>
                     <button onClick={(event) => { onClickDelete(event, form_index) }} className={delete_button_class}>Delete</button>
+                    {save_status == "pending" && <div className="saving-text">Saving...</div>}
+                    {save_status == "cancelling" && <div className="cancelling-text">Cancelling...</div>}                                             
+                    {delete_status == "pending" && <div className="deleting-text">Deleting...</div>}                      
                 </div>
             </div>
         </>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { PrimaryAppointmentAchievementForm } from "./primaryappointmentachievementform";
 import { v4 as uuidv4 } from "uuid"
 import cloneDeep from 'lodash/cloneDeep';
@@ -10,7 +10,7 @@ export const PrimaryAppointmentForm = ({
     template,
     previously_saved_template,
     transcript_template,
-    previously_saved_transcript_template,    
+    previously_saved_transcript_template,
     related_vocation_ranks,
     previously_saved_related_vocation_ranks,
     available_vocation_ranks,
@@ -32,8 +32,8 @@ export const PrimaryAppointmentForm = ({
     useEffect(() => {
         const fetchSectionData = async () => {
             // An exception for examples in the Instructions
-            if (manual_related_achievements){
-                set_related_achievements_list(manual_related_achievements)                
+            if (manual_related_achievements) {
+                set_related_achievements_list(manual_related_achievements)
                 return
             }
             // Normal
@@ -47,7 +47,7 @@ export const PrimaryAppointmentForm = ({
             set_related_achievements_list(related_achievements_response_data.init_list)
         }
         fetchSectionData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
 
@@ -80,6 +80,9 @@ export const PrimaryAppointmentForm = ({
     const [edit_button_class, set_edit_button_class] = useState(init_edit_button_class)
     const [delete_button_class, set_delete_button_class] = useState(init_delete_button_class)
     const [edit_disabled, set_edit_disabled] = useState(init_edit_disabled)
+    const [save_status, set_save_status] = useState()
+    const [delete_status, set_delete_status] = useState()
+    const cancelling = useRef(false)
 
 
     /*DEFINING COMMONLY USED DIALOG FUNCTIONS*/
@@ -146,26 +149,50 @@ export const PrimaryAppointmentForm = ({
         set_primary_appointments_list(temp_primary_appointments_list)
     }
 
-    const onCancelChanges = (event) => {
+    const onCancelChanges = async(event) => {
         event.preventDefault()
 
         if (permanently_disable_edit) {
             return
         }
 
-        set_save_button_class("save-changes-button-hidden")
-        set_cancel_button_class("cancel-button-hidden")
-        set_edit_button_class("edit-button-visible")
-        set_delete_button_class("delete-button-visible")
-        set_edit_disabled(true)
-        const temp_primary_appointments_list = cloneDeep(primary_appointments_list)
-        temp_primary_appointments_list[form_index]['button_state'] = "edit"
-        temp_primary_appointments_list[form_index]['template'] = previously_saved_template
-        temp_primary_appointments_list[form_index]['transcript_template'] = previously_saved_transcript_template
-        temp_primary_appointments_list[form_index]['appointment'] = previously_saved_appointment
-        temp_primary_appointments_list[form_index]['related_vocation_ranks'] = cloneDeep(previously_saved_related_vocation_ranks)
-        set_primary_appointments_list(temp_primary_appointments_list)
-        //console.log(temp_primary_appointments_list)        
+        // If the cancel button is clicked while the form is in the process of being saved, 
+        // overwrite the ongoing save with the original data
+        if (save_status == "pending") {
+            set_save_status("cancelling")
+            cancelling.current = true
+            await createOrEditPrimaryAppointment({
+                id,
+                appointment: previously_saved_appointment,
+                template: previously_saved_template,
+                transcript_template: previously_saved_transcript_template,
+                related_vocation_ranks: previously_saved_related_vocation_ranks,
+                primary_appointments_list,
+                set_primary_appointments_list,
+                form_index,
+                unit,
+                http_method: "PUT"
+            })
+            set_save_status("resolved")
+            cancelling.current = false
+            // In this case, do not return to the previously saved state so that the user can make an edit based
+            // on the latest changes.                    
+        } else {
+            // If the cancel button is clicked, return to the previously saved state            
+            set_save_button_class("save-changes-button-hidden")
+            set_cancel_button_class("cancel-button-hidden")
+            set_edit_button_class("edit-button-visible")
+            set_delete_button_class("delete-button-visible")
+            set_edit_disabled(true)
+            const temp_primary_appointments_list = cloneDeep(primary_appointments_list)
+            temp_primary_appointments_list[form_index]['button_state'] = "edit"
+            temp_primary_appointments_list[form_index]['template'] = previously_saved_template
+            temp_primary_appointments_list[form_index]['transcript_template'] = previously_saved_transcript_template
+            temp_primary_appointments_list[form_index]['appointment'] = previously_saved_appointment
+            temp_primary_appointments_list[form_index]['related_vocation_ranks'] = cloneDeep(previously_saved_related_vocation_ranks)
+            set_primary_appointments_list(temp_primary_appointments_list)
+            //console.log(temp_primary_appointments_list) 
+        }
     }
 
 
@@ -194,7 +221,7 @@ export const PrimaryAppointmentForm = ({
 
         if (event.target.checked) {
             // Otherwise, update the primary_appointments_list to reflect the change in checkbox
-            if (!temp_primary_appointments_list[form_index]['related_vocation_ranks'][checkbox_vocation]){
+            if (!temp_primary_appointments_list[form_index]['related_vocation_ranks'][checkbox_vocation]) {
                 temp_primary_appointments_list[form_index]['related_vocation_ranks'][checkbox_vocation] = [checkbox_rank]
             } else {
                 temp_primary_appointments_list[form_index]['related_vocation_ranks'][checkbox_vocation].push(checkbox_rank)
@@ -216,12 +243,13 @@ export const PrimaryAppointmentForm = ({
             return
         }
 
+        set_save_status("pending")
         const appointment_cleaned = appointment.replace(/\s+/g, ' ').trim()
         // Removes all extra spaces except \n and removes all fullstops
-        let template_cleaned = template.replace(/[ \t\r\f\v]+/g, ' ').replace(/[ \.]+\./g, '.').trim() 
+        let template_cleaned = template.replace(/[ \t\r\f\v]+/g, ' ').replace(/[ \.]+\./g, '.').trim()
         template_cleaned = template_cleaned.replace(/([^.])$/, '$1.') // Add full stop if it has been omitted
         // Removes all extra spaces except \n and removes all fullstops
-        let transcript_template_cleaned = transcript_template.replace(/[ \t\r\f\v]+/g, ' ').replace(/[ \.]+\./g, '.').trim() 
+        let transcript_template_cleaned = transcript_template.replace(/[ \t\r\f\v]+/g, ' ').replace(/[ \.]+\./g, '.').trim()
         transcript_template_cleaned = transcript_template_cleaned.replace(/([^.])$/, '$1.') // Add full stop if it has been omitted        
         //Check if the previously saved text is an empty string
         // If so, it is an update so a 'PUT' method should be used.
@@ -253,6 +281,7 @@ export const PrimaryAppointmentForm = ({
         // If the template has not been saved previously, deleting the form will not alter anything in the database.
         // As such, call the delete function right away
         if (previously_saved_template == '') {
+            set_delete_status("pending")             
             deletePrimaryAppointment({
                 id,
                 primary_appointments_list,
@@ -281,7 +310,7 @@ export const PrimaryAppointmentForm = ({
             ],
             "line_props": [
                 { color: "#000000", font_size: "25px", text_align: "center", margin_right: "auto", margin_left: "auto" },
-                { color: "#000000", font_size: "16px", text_align: "left", margin_left: "0", margin_right: "auto" },                
+                { color: "#000000", font_size: "16px", text_align: "left", margin_left: "0", margin_right: "auto" },
             ],
             "displayed": true,
             "onClickDialog": handleDeleteConfirmation,
@@ -318,6 +347,7 @@ export const PrimaryAppointmentForm = ({
             return
         }
         // Otherwise execute the delete operation
+        set_delete_status("pending")         
         deletePrimaryAppointment({
             id,
             primary_appointments_list,
@@ -333,7 +363,7 @@ export const PrimaryAppointmentForm = ({
         id,
         appointment,
         template,
-        transcript_template,        
+        transcript_template,
         related_vocation_ranks,
         primary_appointments_list,
         set_primary_appointments_list,
@@ -352,12 +382,12 @@ export const PrimaryAppointmentForm = ({
                     id,
                     appointment,
                     template,
-                    transcript_template,                    
+                    transcript_template,
                     related_vocation_ranks
                 })
             })
             // Only change the button displays when the data has been successfully saved
-            if (response.status == 200) {
+            if (response.status == 200 && !cancelling.current) {
                 set_save_button_class("save-changes-button-hidden")
                 set_cancel_button_class("cancel-button-hidden")
                 set_edit_button_class("edit-button-visible")
@@ -374,14 +404,22 @@ export const PrimaryAppointmentForm = ({
                 temp_primary_appointments_list[form_index]['previously_saved_related_vocation_ranks'] = cloneDeep(related_vocation_ranks)
                 set_primary_appointments_list(temp_primary_appointments_list)
                 //console.log(temp_primary_appointments_list)               
-            } else if (!response.ok) {
+            } else if (!response.ok && !cancelling.current) {
                 // Display the error message in a dialogue box
                 const response_data = await response.json()
                 displayErrorMessage(response_data.message)
             }
         } catch (error) {
-            displayErrorMessage(error.message)
+            if (!cancelling.current){
+                // If the saving process isn't cancelled, display the error message associated with the saving process if any. 
+                if (error.message == "Failed to fetch") {
+                    displayErrorMessage("You are not connected to the internet")
+                } else {
+                    displayErrorMessage(error.message)
+                }
+            }
         }
+        set_save_status("resolved")
     }
 
 
@@ -413,8 +451,13 @@ export const PrimaryAppointmentForm = ({
             }
 
         } catch (error) {
-            displayErrorMessage(error.message)
+            if (error.message == "Failed to fetch"){
+                displayErrorMessage("You are not connected to the internet")
+            } else {
+                displayErrorMessage(error.message)
+            }
         }
+        set_delete_status("resolved")
 
     }
 
@@ -433,7 +476,7 @@ export const PrimaryAppointmentForm = ({
 
 
     return (
-        <div style={{display: display}}>
+        <div style={{ display: display }}>
             <form onSubmit={onClickSave} className="section-module">
                 <div className="template-group">
                     <p>Primary Appointment:</p>
@@ -451,7 +494,7 @@ export const PrimaryAppointmentForm = ({
                             return (
                                 <div key={i_outer} className="each-vocation-group">
                                     <div className="vocation-rank-option-group">
-                                        <label style={{fontWeight: "bold"}}>{vocation}</label>
+                                        <label style={{ fontWeight: "bold" }}>{vocation}</label>
                                     </div>
                                     <ul>
                                         {available_vocation_ranks[vocation].map((rank, i_inner) => {
@@ -463,7 +506,7 @@ export const PrimaryAppointmentForm = ({
                                                 <li key={i_inner} className="vocation-rank-li">
                                                     <input
                                                         onChange={(event) => { onChangeCheckbox(event, form_index) }}
-                                                        style={{transform: "scale(1.3)", marginRight: "10px"}}
+                                                        style={{ transform: "scale(1.3)", marginRight: "10px" }}
                                                         type="checkbox"
                                                         name={`${vocation}||${rank}`}
                                                         checked={available_related_vocation_ranks[vocation].includes(rank)}
@@ -481,7 +524,7 @@ export const PrimaryAppointmentForm = ({
                 <div className="template-group">
                     <p>Transcript Template:</p>
                     <textarea onChange={(event) => { onChangeText(event, form_index) }} className="transcript-template-input" name="transcript_template" placeholder="e.g. In his primary role, {Rank} {Surname} was responsible for his platoon's training, morale and discipline. In this role, {Rank} {Surname} demonstrated strong leadership and performed well." value={transcript_template} disabled={edit_disabled}></textarea>
-                </div>                      
+                </div>
                 <div className="template-group">
                     <p>Testimonial Template:</p>
                     <textarea onChange={(event) => { onChangeText(event, form_index) }} className="template-input" name='template' placeholder="e.g. In his primary role, {Rank} {Surname} was responsible for his platoon's training, morale and discipline. In this role, {Rank} {Surname} demonstrated strong leadership and performed well. Notably, <Insert a Trait of a Good Leader> . For instance, <Insert a specific incident that demonstrated this trait>" value={template} disabled={edit_disabled}></textarea>
@@ -491,6 +534,9 @@ export const PrimaryAppointmentForm = ({
                     <button onClick={onEdit} className={edit_button_class}>Edit</button>
                     <button onClick={onCancelChanges} className={cancel_button_class}>Cancel</button>
                     <button onClick={(event) => { onClickDelete(event, form_index) }} className={delete_button_class}>Delete</button>
+                    {save_status == "pending" && <div className="saving-text">Saving...</div>}
+                    {save_status == "cancelling" && <div className="cancelling-text">Cancelling...</div>}                                             
+                    {delete_status == "pending" && <div className="deleting-text">Deleting...</div>}                       
                 </div>
                 <div className="template-group">
                     <p>Related Achievements (Optional):</p>

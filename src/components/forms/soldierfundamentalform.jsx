@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { v4 as uuidv4 } from "uuid"
 import cloneDeep from 'lodash/cloneDeep';
 
@@ -48,7 +48,7 @@ export const SoldierFundamentalForm = ({
         var init_edit_button_class = "edit-button-hidden"
         var init_delete_button_class = "delete-button-hidden"
         var init_small_delete_button_class = "delete-button-hidden"
-        var init_add_small_form_button_class = "add-small-form-button-visible"        
+        var init_add_small_form_button_class = "add-small-form-button-visible"
         var init_edit_disabled = false
     }
     const [save_button_class, set_save_button_class] = useState(init_save_button_class)
@@ -56,8 +56,11 @@ export const SoldierFundamentalForm = ({
     const [edit_button_class, set_edit_button_class] = useState(init_edit_button_class)
     const [delete_button_class, set_delete_button_class] = useState(init_delete_button_class)
     const [small_delete_button_class, set_small_delete_button_class] = useState(init_small_delete_button_class)
-    const [add_small_form_button_class, set_add_small_form_button_class] = useState(init_add_small_form_button_class)    
+    const [add_small_form_button_class, set_add_small_form_button_class] = useState(init_add_small_form_button_class)
     const [edit_disabled, set_edit_disabled] = useState(init_edit_disabled)
+    const [save_status, set_save_status] = useState()
+    const [delete_status, set_delete_status] = useState()
+    const cancelling = useRef(false)
 
 
     /*DEFINING COMMONLY USED DIALOG FUNCTIONS*/
@@ -119,34 +122,57 @@ export const SoldierFundamentalForm = ({
         set_edit_button_class("edit-button-hidden")
         set_delete_button_class("delete-button-hidden")
         set_small_delete_button_class('delete-button-visible')
-        set_add_small_form_button_class('add-small-form-button-visible')        
+        set_add_small_form_button_class('add-small-form-button-visible')
         set_edit_disabled(false)
         const temp_soldier_fundamentals_list = cloneDeep(soldier_fundamentals_list)
         temp_soldier_fundamentals_list[form_index]['button_state'] = "save"
         set_soldier_fundamentals_list(temp_soldier_fundamentals_list)
     }
 
-    const onCancelChanges = (event) => {
+    const onCancelChanges = async (event) => {
         event.preventDefault()
 
         if (permanently_disable_edit) {
             return
         }
 
-        set_save_button_class("save-changes-button-hidden")
-        set_cancel_button_class("cancel-button-hidden")
-        set_edit_button_class("edit-button-visible")
-        set_delete_button_class("delete-button-visible")
-        set_small_delete_button_class('delete-button-hidden')
-        set_add_small_form_button_class('add-small-form-button-hidden')        
-        set_edit_disabled(true)
-        const temp_soldier_fundamentals_list = cloneDeep(soldier_fundamentals_list)
-        temp_soldier_fundamentals_list[form_index]['button_state'] = "edit"
-        temp_soldier_fundamentals_list[form_index]['official_name'] = previously_saved_official_name
-        temp_soldier_fundamentals_list[form_index]['awards'] = cloneDeep(previously_saved_awards)
-        temp_soldier_fundamentals_list[form_index]['related_vocation_ranks'] = cloneDeep(previously_saved_related_vocation_ranks)
-        set_soldier_fundamentals_list(temp_soldier_fundamentals_list)
-        //console.log(temp_soldier_fundamentals_list)        
+        // If the cancel button is clicked while the form is in the process of being saved, 
+        // overwrite the ongoing save with the original data
+        if (save_status == "pending") {
+            set_save_status("cancelling")
+            cancelling.current = true
+            await createOrEditSoldierFundamental({
+                id,
+                official_name: previously_saved_official_name,
+                awards: previously_saved_awards,
+                related_vocation_ranks: previously_saved_related_vocation_ranks,
+                soldier_fundamentals_list,
+                set_soldier_fundamentals_list,
+                form_index,
+                unit,
+                http_method: "PUT"
+            })
+            set_save_status("resolved")
+            cancelling.current = false
+            // In this case, do not return to the previously saved state so that the user can make an edit based
+            // on the latest changes.                    
+        } else {
+            // If the cancel button is clicked, return to the previously saved state         
+            set_save_button_class("save-changes-button-hidden")
+            set_cancel_button_class("cancel-button-hidden")
+            set_edit_button_class("edit-button-visible")
+            set_delete_button_class("delete-button-visible")
+            set_small_delete_button_class('delete-button-hidden')
+            set_add_small_form_button_class('add-small-form-button-hidden')
+            set_edit_disabled(true)
+            const temp_soldier_fundamentals_list = cloneDeep(soldier_fundamentals_list)
+            temp_soldier_fundamentals_list[form_index]['button_state'] = "edit"
+            temp_soldier_fundamentals_list[form_index]['official_name'] = previously_saved_official_name
+            temp_soldier_fundamentals_list[form_index]['awards'] = cloneDeep(previously_saved_awards)
+            temp_soldier_fundamentals_list[form_index]['related_vocation_ranks'] = cloneDeep(previously_saved_related_vocation_ranks)
+            set_soldier_fundamentals_list(temp_soldier_fundamentals_list)
+            //console.log(temp_soldier_fundamentals_list)
+        }
     }
 
 
@@ -175,7 +201,7 @@ export const SoldierFundamentalForm = ({
 
         if (event.target.checked) {
             // Otherwise, update the soldier_fundamentals_list to reflect the change in checkbox
-            if (!temp_soldier_fundamentals_list[form_index]['related_vocation_ranks'][checkbox_vocation]){
+            if (!temp_soldier_fundamentals_list[form_index]['related_vocation_ranks'][checkbox_vocation]) {
                 temp_soldier_fundamentals_list[form_index]['related_vocation_ranks'][checkbox_vocation] = [checkbox_rank]
             } else {
                 temp_soldier_fundamentals_list[form_index]['related_vocation_ranks'][checkbox_vocation].push(checkbox_rank)
@@ -198,8 +224,9 @@ export const SoldierFundamentalForm = ({
             return
         }
 
+        set_save_status("pending")
         const official_name_cleaned = official_name.replace(/\s+/g, ' ').trim()
-        const awards_cleaned = awards.map(award=>award.replace(/\s+/g, ' ').trim()).filter(award=>award) // remove empty strings
+        const awards_cleaned = awards.map(award => award.replace(/\s+/g, ' ').trim()).filter(award => award) // remove empty strings
         //Check if the previously saved text is an empty string
         // If so, it is an update so a 'PUT' method should be used.
         // Otherwise, create a new Introduction object with 'POST'
@@ -229,6 +256,7 @@ export const SoldierFundamentalForm = ({
         // If the official_name has not been saved previously, deleting the form will not alter anything in the database.
         // As such, call the delete function right away
         if (previously_saved_official_name == '') {
+            set_delete_status("pending")                  
             deleteSoldierFundamental({
                 id,
                 soldier_fundamentals_list,
@@ -290,6 +318,7 @@ export const SoldierFundamentalForm = ({
             return
         }
         // Otherwise execute the delete operation
+        set_delete_status("pending")         
         deleteSoldierFundamental({
             id,
             soldier_fundamentals_list,
@@ -327,13 +356,13 @@ export const SoldierFundamentalForm = ({
                 })
             })
             // Only change the button displays when the data has been successfully saved
-            if (response.status == 200) {
+            if (response.status == 200 && !cancelling.current) {
                 set_save_button_class("save-changes-button-hidden")
                 set_cancel_button_class("cancel-button-hidden")
                 set_edit_button_class("edit-button-visible")
                 set_delete_button_class("delete-button-visible")
                 set_small_delete_button_class('delete-button-hidden')
-                set_add_small_form_button_class('add-small-form-button-hidden')                 
+                set_add_small_form_button_class('add-small-form-button-hidden')
                 set_edit_disabled(true)
                 const temp_soldier_fundamentals_list = cloneDeep(soldier_fundamentals_list)
                 temp_soldier_fundamentals_list[form_index]['button_state'] = "edit"
@@ -344,14 +373,22 @@ export const SoldierFundamentalForm = ({
                 temp_soldier_fundamentals_list[form_index]['previously_saved_related_vocation_ranks'] = cloneDeep(related_vocation_ranks)
                 set_soldier_fundamentals_list(temp_soldier_fundamentals_list)
                 //console.log(temp_soldier_fundamentals_list)               
-            } else if (!response.ok) {
+            } else if (!response.ok && !cancelling.current) {
                 // Display the error message in a dialogue box
                 const response_data = await response.json()
                 displayErrorMessage(response_data.message)
             }
         } catch (error) {
-            displayErrorMessage(error.message)
+            if (!cancelling.current){
+                // If the saving process isn't cancelled, display the error message associated with the saving process if any. 
+                if (error.message == "Failed to fetch") {
+                    displayErrorMessage("You are not connected to the internet")
+                } else {
+                    displayErrorMessage(error.message)
+                }
+            }
         }
+        set_save_status("resolved")
     }
 
 
@@ -383,8 +420,13 @@ export const SoldierFundamentalForm = ({
             }
 
         } catch (error) {
-            displayErrorMessage(error.message)
+            if (error.message == "Failed to fetch"){
+                displayErrorMessage("You are not connected to the internet")
+            } else {
+                displayErrorMessage(error.message)
+            }
         }
+        set_delete_status("resolved")
 
     }
 
@@ -399,7 +441,7 @@ export const SoldierFundamentalForm = ({
         event.preventDefault()
         const temp_soldier_fundamentals_list = cloneDeep(soldier_fundamentals_list)
         temp_soldier_fundamentals_list[form_index]['awards'].splice(award_form_index, 1)
-        set_soldier_fundamentals_list(temp_soldier_fundamentals_list)        
+        set_soldier_fundamentals_list(temp_soldier_fundamentals_list)
         console.log(temp_soldier_fundamentals_list)
     }
 
@@ -407,13 +449,13 @@ export const SoldierFundamentalForm = ({
         event.preventDefault()
         const temp_soldier_fundamentals_list = cloneDeep(soldier_fundamentals_list)
         temp_soldier_fundamentals_list[form_index]['awards'][award_form_index] = event.target.value
-        set_soldier_fundamentals_list(temp_soldier_fundamentals_list)   
+        set_soldier_fundamentals_list(temp_soldier_fundamentals_list)
         console.log(temp_soldier_fundamentals_list)
     }
 
 
     return (
-        <div style={{display: display}}>
+        <div style={{ display: display }}>
             <form onSubmit={onClickSave} className="section-module">
                 <div className="template-group">
                     <p>Official Name:</p>
@@ -431,7 +473,7 @@ export const SoldierFundamentalForm = ({
                             return (
                                 <div key={i_outer} className="each-vocation-group">
                                     <div className="vocation-rank-option-group">
-                                        <label style={{fontWeight: "bold"}}>{vocation}</label>
+                                        <label style={{ fontWeight: "bold" }}>{vocation}</label>
                                     </div>
                                     <ul>
                                         {available_vocation_ranks[vocation].map((rank, i_inner) => {
@@ -443,7 +485,7 @@ export const SoldierFundamentalForm = ({
                                                 <li key={i_inner} className="vocation-rank-li">
                                                     <input
                                                         onChange={(event) => { onChangeCheckbox(event, form_index) }}
-                                                        style={{transform: "scale(1.3)", marginRight: "10px"}}
+                                                        style={{ transform: "scale(1.3)", marginRight: "10px" }}
                                                         type="checkbox"
                                                         name={`${vocation}||${rank}`}
                                                         checked={available_related_vocation_ranks[vocation].includes(rank)}
@@ -461,15 +503,15 @@ export const SoldierFundamentalForm = ({
                 <div className="template-group">
                     <div className="awards-group">
                         <p>Award:</p>
-                            {awards.map((award, award_form_index) => {
-                                return (
-                                    <div key={award_form_index} className="award-group">
-                                        <input onChange={(event) => { onChangeAward(event, award_form_index) }} className="title-input" name='official_name' placeholder="e.g. Gold Award" value={award} disabled={edit_disabled}></input>
-                                        <button onClick={(event) => { onClickDeleteAward(event, award_form_index) }} className={small_delete_button_class}>Delete</button>
-                                    </div>
-                                )
-                            })}
-                            <button onClick={onAddAwardForm} className={add_small_form_button_class}>Add Award</button>
+                        {awards.map((award, award_form_index) => {
+                            return (
+                                <div key={award_form_index} className="award-group">
+                                    <input onChange={(event) => { onChangeAward(event, award_form_index) }} className="title-input" name='official_name' placeholder="e.g. Gold Award" value={award} disabled={edit_disabled}></input>
+                                    <button onClick={(event) => { onClickDeleteAward(event, award_form_index) }} className={small_delete_button_class}>Delete</button>
+                                </div>
+                            )
+                        })}
+                        <button onClick={onAddAwardForm} className={add_small_form_button_class}>Add Award</button>
                     </div>
                 </div>
                 <div className="save-edit-delete-group">
@@ -477,6 +519,9 @@ export const SoldierFundamentalForm = ({
                     <button onClick={onEdit} className={edit_button_class}>Edit</button>
                     <button onClick={onCancelChanges} className={cancel_button_class}>Cancel</button>
                     <button onClick={(event) => { onClickDelete(event, form_index) }} className={delete_button_class}>Delete</button>
+                    {save_status == "pending" && <div className="saving-text">Saving...</div>}
+                    {save_status == "cancelling" && <div className="cancelling-text">Cancelling...</div>}                                             
+                    {delete_status == "pending" && <div className="deleting-text">Deleting...</div>}                       
                 </div>
             </form>
         </div>
