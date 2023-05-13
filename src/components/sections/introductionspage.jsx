@@ -32,6 +32,11 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
             const init_introductions_dict = Object.fromEntries(init_introductions_list.map(obj => [obj.id, obj]))
             let temp_introductions_list = cloneDeep(introductions_list)
             temp_introductions_list = temp_introductions_list.map(obj => {
+                if (obj.button_state == "save") {
+                    // If there are any unsaved changes, DO NOT replace the form's data with the one from the database!
+                    // Instead, keep the existing form data on the client side. (including the display state)
+                    return obj
+                }                
                 const live_display_state = obj.display
                 if (init_introductions_dict.hasOwnProperty(obj.id)) {
                     obj = init_introductions_dict[obj.id]
@@ -54,11 +59,11 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
         }
         fetchSectionData()
 
-    }, [unit, [].concat(...introductions_list.filter(obj => obj.button_state == 'edit')
-                                                     .map(obj => obj.previously_saved_achievement_title)).join()])
+    }, [unit, pre_unit_achievements_list.map(obj => obj.previously_saved_achievement_title).join()])
     // ^Only reload the Introductions data when any of the pre_unit_achievement titles have been changed and saved
-    // Note: This works by setting the dependency with a string of all the previously_saved_achievement_titles combined
+    // Note: This works by setting the dependency with a string of all the previously_saved_pre_unit_achievements combined
     // This way, the string and thus the dependency will change whenever a change is made and saved to any of the pre unit achievement titles.
+
 
 
     // Make an API call to obtain the pre-unit achievement information.

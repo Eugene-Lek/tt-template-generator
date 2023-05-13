@@ -29,6 +29,11 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
             const init_primary_appointments_dict = Object.fromEntries(init_primary_appointments_list.map(obj => [obj.id, obj]))
             let temp_primary_appointments_list = cloneDeep(primary_appointments_list)
             temp_primary_appointments_list = temp_primary_appointments_list.map(obj => {
+                if (obj.button_state == "save") {
+                    // If there are any unsaved changes, DO NOT replace the form's data with the one from the database!
+                    // Instead, keep the existing form data on the client side. (including the display state)
+                    return obj
+                }                  
                 const live_display_state = obj.display
                 if (init_primary_appointments_dict.hasOwnProperty(obj.id)) {
                     obj = init_primary_appointments_dict[obj.id]
@@ -51,15 +56,10 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
         }
         fetchSectionData()
 
-    }, [unit, [].concat(...primary_appointments_list.filter(obj => obj.button_state == 'edit')
-                                                    .map(obj => obj.previously_saved_related_achievements.sort())).join()])
+    }, [unit, [].concat(...primary_appointments_list.map(obj => obj.previously_saved_related_achievements.sort())).join()])
     // ^Only reload the primary appointments data when any of the primary_appointment_achievement titles have been changed and saved
     // Note: This works by setting the dependency with a string of all the previously_saved_related_achievements combined
     // This way, the string and thus the dependency will change whenever a change is made and saved to any of the related achievement titles.
-    // EXCEPTION: Do not reload if the primary appointment form is in the 'saved' state (and thus the button displayed is 'edit'). 
-    // Otherwise the reload will lead to a loss of changes
-    // This is achieved by only including the previously_saved_related_achievements to the list IF its corresponding primary achievement form
-    // if in a saved state.
 
 
     const getVocationRanksTemplateOverview = (available_vocation_ranks, section_list) => {
