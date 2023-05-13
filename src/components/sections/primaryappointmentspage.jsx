@@ -52,7 +52,7 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
         fetchSectionData()
 
     }, [unit, [].concat(...primary_appointments_list.filter(obj => obj.button_state == 'edit')
-        .map(obj => obj.previously_saved_related_achievements.sort())).join()])
+                                                    .map(obj => obj.previously_saved_related_achievements.sort())).join()])
     // ^Only reload the primary appointments data when any of the primary_appointment_achievement titles have been changed and saved
     // Note: This works by setting the dependency with a string of all the previously_saved_related_achievements combined
     // This way, the string and thus the dependency will change whenever a change is made and saved to any of the related achievement titles.
