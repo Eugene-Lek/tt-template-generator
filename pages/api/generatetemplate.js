@@ -336,8 +336,8 @@ export default async function handler(req, res) {
                 } else {
                     var achievement_string = `the ${soldier_fundamental_award_pairs[0][0]} for his ${soldier_fundamental_award_pairs[0][1]}`
                 }
-                const soldier_fundamentals_transcript = `In the area of soldier fundamentals, {rank} {surname} has also performed well — he attained ${achievement_string}.`
-                const soldier_fundamentals_testimonial = `In the area of soldier fundamentals, {rank} {surname} has also performed well — he attained ${achievement_string}.`
+                const soldier_fundamentals_transcript = `In the area of soldier fundamentals, {rank} {surname} attained ${achievement_string}.`
+                const soldier_fundamentals_testimonial = `In the area of soldier fundamentals, {rank} {surname} attained ${achievement_string}.`
                 var soldier_fundamental_paras = [
                     generateOptionTextRuns(soldier_fundamentals_transcript, standard_placeholders),
                     generateOptionParagraph(soldier_fundamentals_testimonial, standard_placeholders),
