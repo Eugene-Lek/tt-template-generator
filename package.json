@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@prisma/client": "^4.13.0",
+    "@vercel/analytics": "^1.0.2",
     "bcrypt": "^5.1.0",
     "docx": "^8.0.3",
     "eslint": "8.37.0",
