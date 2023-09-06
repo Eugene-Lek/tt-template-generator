@@ -246,7 +246,7 @@ export default function SuperAdmin({ units_init_data }) {
     return (
         <>
             <Head>
-                <title>T&T Generator</title>
+                <title>T&T Template Generator</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
