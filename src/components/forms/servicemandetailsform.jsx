@@ -188,7 +188,7 @@ export default function ServicemanDetailsForm({ selected_unit, unit_data, set_di
                     <input type="text" className="form-input" name="Full Name" value={form_data['Full Name']} onChange={onChangeString} />
                 </div>
                 <div className="form-input-field-group">
-                    <label className="form-text">Surname:</label>
+                    <label className="form-text">First Name:</label>
                     <input type="text" className="form-input" name="Surname" value={form_data['Surname']} onChange={onChangeString} />
                 </div>
                 <div className="form-input-field-group">
