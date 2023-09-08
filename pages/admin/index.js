@@ -38,6 +38,7 @@ export default function AdminLogin({ units }) {
             <Head>
                 <title>T&T Template Generator</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta name="robots" content="noindex,nofollow"/>
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <main>

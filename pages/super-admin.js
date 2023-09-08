@@ -248,6 +248,7 @@ export default function SuperAdmin({ units_init_data }) {
             <Head>
                 <title>T&T Template Generator</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta name="robots" content="noindex,nofollow"/>
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <Header title={"Super-Admin Page"} subtitle={"Manage Unit Admin Accounts"} />

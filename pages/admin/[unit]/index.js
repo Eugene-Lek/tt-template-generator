@@ -139,6 +139,7 @@ export default function UnitAdminHome({ unit, id, init_companies, init_vocations
             <Head>
                 <title>T&T Template Generator</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta name="robots" content="noindex,nofollow"/>
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <AdminHeader title={title} unit={unit} id={id} set_dialog_settings={set_dialog_settings} />
