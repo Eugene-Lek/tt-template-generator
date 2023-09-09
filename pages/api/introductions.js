@@ -134,6 +134,9 @@ export default async function handler(req, res) {
                                                 .filter(placeholder=>!personal_particulars.includes(placeholder))   
         console.log(inserted_pre_unit_achievements)
         const all_pre_unit_achievements = await prisma.PreUnitAchievement.findMany({
+            where: {
+                unitName: unit
+            },
             select: {
                 id: true,
                 title: true

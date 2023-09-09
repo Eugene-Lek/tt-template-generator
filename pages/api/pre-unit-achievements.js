@@ -212,7 +212,11 @@ export default async function handler(req, res) {
                 achievement_title = achievement_title.toLowerCase()
                 if (previously_saved_achievement_title !== achievement_title) {
                     // If the title has been edited, update it in all related introductions too
-                    const all_introductions = await prisma.Introduction.findMany()
+                    const all_introductions = await prisma.Introduction.findMany({
+                        where: {
+                            unitName: unit
+                        }
+                    })
                     const updated_introductions_data = all_introductions.map(obj=>{
                         const inserted_placeholders_transcript = [...obj.transcripttemplate.matchAll(/\{[^}]+\}/g)].map(obj=> obj[0].slice(1,-1).toLowerCase()) // global search
                         if (inserted_placeholders_transcript.includes(previously_saved_achievement_title)) {
