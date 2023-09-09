@@ -16,14 +16,14 @@ export default async function handler(req, res) {
                 Introductions: true
             }
         })
-        var introductions = introductions_raw.Introductions.map(obj => ({ id: obj.id, template: obj.template }))
+        var introductions = introductions_raw.Introductions.map(obj => ({ id: obj.id, template: obj.template, transcript: obj.transcript }))
     }
     if (req.method == 'DELETE') {
         // Block the deletion if the pre-unit achievement has been inserted into an Introduction template
         for (let i = 0; i < introductions.length; i++) {
-            const inserted_placeholders_wording = [...introductions[i]['template'].matchAll(/\{[^}]+\}/g)] // global search 
+            const inserted_placeholders_testimonial = [...introductions[i]['template'].matchAll(/\{[^}]+\}/g)] // global search 
                 .map(obj => obj[0].slice(1, -1).toLowerCase()) // index 0 corresponds to the actual match detected. The rest is metadata
-            if (inserted_placeholders_wording.includes(achievement_title.toLowerCase())) {
+            if (inserted_placeholders_testimonial.includes(achievement_title.toLowerCase())) {
                 return res.status(400).json({
                     message: `*'${achievement_title}' cannot be deleted as it is used in the below Introduction Template.*
                                                         
@@ -31,9 +31,20 @@ export default async function handler(req, res) {
 
                                                         *If you want to delete '${achievement_title}', you must remove it from the above Introduction Template first.*
                                                         *(Remember to click 'Save')*`
-                }
-                )
+                })
             }
+            const inserted_placeholders_transcript = [...introductions[i]['transcript'].matchAll(/\{[^}]+\}/g)] // global search 
+                .map(obj => obj[0].slice(1, -1).toLowerCase()) // index 0 corresponds to the actual match detected. The rest is metadata
+            if (inserted_placeholders_transcript.includes(achievement_title.toLowerCase())) {
+                return res.status(400).json({
+                    message: `*'${achievement_title}' cannot be deleted as it is used in the below Introduction Template.*
+                                                        
+                                                        "${introductions[i]['template']}"
+
+                                                        *If you want to delete '${achievement_title}', you must remove it from the above Introduction Template first.*
+                                                        *(Remember to click 'Save')*`
+                })
+            }            
         }
 
     }
@@ -110,11 +121,16 @@ export default async function handler(req, res) {
         }
         // Get the related vocation ranks of the Introductions which contain this pre-unit achievement 
         const related_introductions_ids = introductions.map(introduction => {
-            const inserted_placeholders_wording = [...introduction['template'].matchAll(/\{[^}]+\}/g)] // global search 
+            const inserted_placeholders_testimonial = [...introduction['template'].matchAll(/\{[^}]+\}/g)] // global search 
                 .map(obj => obj[0].slice(1, -1).toLowerCase()) // index 0 corresponds to the actual match detected. The rest is metadata
-            if (inserted_placeholders_wording.includes(achievement_title.toLowerCase())) {
+            if (inserted_placeholders_testimonial.includes(achievement_title.toLowerCase())) {
                 return { id: introduction.id }
             }
+            const inserted_placeholders_transcript = [...introduction['transcript'].matchAll(/\{[^}]+\}/g)] // global search 
+                .map(obj => obj[0].slice(1, -1).toLowerCase()) // index 0 corresponds to the actual match detected. The rest is metadata
+            if (inserted_placeholders_transcript.includes(achievement_title.toLowerCase())) {
+                return { id: introduction.id }
+            }            
         }).filter(id => id) // Remove undefined elements
         const related_vocation_ranks_ids_dict = await prisma.Introduction.findMany({
             where: {
