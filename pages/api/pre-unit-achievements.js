@@ -39,7 +39,7 @@ export default async function handler(req, res) {
                 return res.status(400).json({
                     message: `*'${achievement_title}' cannot be deleted as it is used in the below Introduction Template.*
                                                         
-                                                        "${introductions[i]['template']}"
+                                                        "${introductions[i]['transcript']}"
 
                                                         *If you want to delete '${achievement_title}', you must remove it from the above Introduction Template first.*
                                                         *(Remember to click 'Save')*`
