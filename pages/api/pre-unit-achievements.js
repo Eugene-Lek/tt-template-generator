@@ -16,7 +16,7 @@ export default async function handler(req, res) {
                 Introductions: true
             }
         })
-        var introductions = introductions_raw.Introductions.map(obj => ({ id: obj.id, template: obj.template, transcript: obj.transcript }))
+        var introductions = introductions_raw.Introductions.map(obj => ({ id: obj.id, template: obj.template, transcript: obj.transcripttemplate }))
     }
     if (req.method == 'DELETE') {
         // Block the deletion if the pre-unit achievement has been inserted into an Introduction template
