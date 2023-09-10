@@ -17,6 +17,7 @@ model Unit {
   isRandomlyGeneratedPassword Boolean
 
   Companies                      String[]
+  PersonalParticularsFields      PersonalParticularsField[]
   Vocations                      Vocation[]
   VocationRankCombinations       VocationRankCombination[]
   PreUnitAchievements            PreUnitAchievement[]
@@ -28,6 +29,17 @@ model Unit {
   OtherContributions             OtherContribution[]
   OtherIndividualAchievements    OtherIndividualAchievement[]
   Conclusions                    Conclusion[]
+}
+
+model PersonalParticularsField {
+  id       String @id @default(uuid())
+  name     String
+  type     String
+  order    Int
+  Unit     Unit   @relation(fields: [unitName], references: [name])
+  unitName String
+
+  @@unique([name, unitName])
 }
 
 model Vocation {
@@ -71,7 +83,7 @@ model VocationRankCombination {
 
 model PreUnitAchievement {
   id        String                    @id @default(uuid())
-  title     String                    
+  title     String
   template  String
   appliesto VocationRankCombination[]
 
