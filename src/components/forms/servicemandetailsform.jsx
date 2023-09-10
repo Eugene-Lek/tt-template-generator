@@ -3,24 +3,10 @@ import cloneDeep from 'lodash/cloneDeep';
 import { SectionCheckBoxes } from "./sectioncheckboxes";
 
 
-const complusory_fields = [
-    'Rank',
-    'Full Name',
-    'Surname',
-    'Enlistment Date',
-    'Coy',
-    'Vocation',
-    'Rank Category'
-]
-
 export default function ServicemanDetailsForm({ selected_unit, unit_data, set_dialog_settings }) {
 
     const [form_data, set_form_data] = useState({
-        'Rank': '',
-        'Full Name': '',
-        'Surname': '',
-        'Enlistment Date': '',
-        'Coy': '',
+        'Personal Particulars': {},
         'Vocation': '',
         'Rank Category': '',
         'Pre-Unit Achievements': {},
@@ -33,6 +19,15 @@ export default function ServicemanDetailsForm({ selected_unit, unit_data, set_di
 
 
     const [generate_status, set_generate_status] = useState()
+
+    const personalParticularsFields = unit_data?.PersonalParticularsFields.map(fieldSet => fieldSet.name)
+    const personalParticularsFieldsTypes = Object.fromEntries(unit_data ? unit_data.PersonalParticularsFields.map(fieldSet => [fieldSet.name, fieldSet.type]) : [])
+    const complusory_fields = [
+        'Vocation',
+        'Rank Category',
+        'Primary Appointments'
+    ]
+    complusory_fields.concat(unit_data ? personalParticularsFields : [])
 
     // Parameter Validation
     if (!selected_unit) {
@@ -105,11 +100,16 @@ export default function ServicemanDetailsForm({ selected_unit, unit_data, set_di
         })
     }
 
-    const onChangeString = (event) => {
+    const onChangePersonalParticular = (event) => {
+        const temp_form_data = cloneDeep(form_data)
+        temp_form_data["Personal Particulars"][event.target.name] = event.target.value
+        set_form_data(temp_form_data)
+    }
+
+    const onChangeVocationRank = (event) => {
         const temp_form_data = cloneDeep(form_data)
         temp_form_data[event.target.name] = event.target.value
         set_form_data(temp_form_data)
-        console.log(temp_form_data)
     }
 
     const onGenerate = async (event) => {
@@ -145,7 +145,8 @@ export default function ServicemanDetailsForm({ selected_unit, unit_data, set_di
                 body: JSON.stringify({
                     form_data,
                     selected_unit,
-                    complusory_fields
+                    complusory_fields,
+                    personalParticularsFieldsTypes
                 })
             })
             if (response.status == 200) {
@@ -154,7 +155,7 @@ export default function ServicemanDetailsForm({ selected_unit, unit_data, set_di
                 const url = URL.createObjectURL(response_blob)
                 const a = document.createElement('a')
                 a.href = url
-                a.download = `(T&T Template) ${form_data["Rank"]} ${form_data["Full Name"]}.docx`
+                a.download = `(T&T Template) ${form_data["Personal Particulars"]["Rank"].toUpperCase()} ${form_data["Personal Particulars"]["Full Name"].toUpperCase()}.docx`
                 document.body.appendChild(a)
                 a.click()
                 a.remove()
@@ -179,39 +180,24 @@ export default function ServicemanDetailsForm({ selected_unit, unit_data, set_di
         <form className="user-form">
             <section>
                 <h2 className="form-section-header">1. Personal Particulars</h2>
-                <div className="form-input-field-group">
-                    <label className="form-text">Rank:</label>
-                    <input type="text" className="form-input" name="Rank" value={form_data['Rank']} onChange={onChangeString} />
-                </div>
-                <div className="form-input-field-group">
-                    <label className="form-text">Full Name:</label>
-                    <input type="text" className="form-input" name="Full Name" value={form_data['Full Name']} onChange={onChangeString} />
-                </div>
-                <div className="form-input-field-group">
-                    <label className="form-text">First Name:</label>
-                    <input type="text" className="form-input" name="Surname" value={form_data['Surname']} onChange={onChangeString} />
-                </div>
-                <div className="form-input-field-group">
-                    <label className="form-text">Enlistment Date:</label>
-                    <input type="date" className="form-input" name="Enlistment Date" value={form_data['Enlistment Date']} onChange={onChangeString} />
-                </div>
+                {unit_data.PersonalParticularsFields.map(field => {
+                    if (field.type.startsWith("Text")) {
+                        return (
+                            <div key={field.id} className="form-input-field-group">
+                                <label className="form-text">{field.name}:</label>
+                                <input type="text" className="form-input" name={field.name} value={form_data["Personal Particulars"][field.name]} onChange={onChangePersonalParticular} />
+                            </div>
+                        )
+                    } else if (field.type == "Date") {
+                        return (
+                            <div key={field.id} className="form-input-field-group">
+                                <label className="form-text">{field.name}:</label>
+                                <input type="date" className="form-input" name={field.name} value={form_data["Personal Particulars"][field.name]} onChange={onChangePersonalParticular} />
+                            </div>
+                        )
+                    }
+                })}
                 <div className="radio-button-group">
-                    <div className="radio-button-section">
-                        <h3 className="form-section-sub-header">
-                            Coy
-                        </h3>
-                        {unit_data.Companies.length == 0 && (
-                            <p className="no-companies-warning">Your S1 department has not added any Coys yet.</p>
-                        )}
-                        {unit_data.Companies.map((company, index) => {
-                            return (
-                                <div style={{ display: "flex", flexDirection: "row" }} key={index}>
-                                    <input type="radio" name="Coy" value={company} onClick={onChangeString} />
-                                    <label className="form-text">{company}</label>
-                                </div>
-                            )
-                        })}
-                    </div>
                     <div className="radio-button-section">
                         <h3 className="form-section-sub-header">
                             Vocation
@@ -222,7 +208,7 @@ export default function ServicemanDetailsForm({ selected_unit, unit_data, set_di
                         {unit_vocations.map((vocation, index) => {
                             return (
                                 <div style={{ display: "flex", flexDirection: "row" }} key={index}>
-                                    <input type="radio" name="Vocation" value={vocation} onClick={onChangeString} />
+                                    <input type="radio" name="Vocation" value={vocation} onClick={onChangeVocationRank} />
                                     <label className="form-text">{vocation}</label>
                                 </div>
                             )
@@ -233,15 +219,15 @@ export default function ServicemanDetailsForm({ selected_unit, unit_data, set_di
                             Rank Category
                         </h3>
                         <div style={{ display: "flex", flexDirection: "row" }}>
-                            <input type="radio" name="Rank Category" value="Officer" onClick={onChangeString} />
+                            <input type="radio" name="Rank Category" value="Officer" onClick={onChangeVocationRank} />
                             <label className="form-text">Officer</label>
                         </div>
                         <div style={{ display: "flex", flexDirection: "row" }}>
-                            <input type="radio" name="Rank Category" value="Specialist" onClick={onChangeString} />
+                            <input type="radio" name="Rank Category" value="Specialist" onClick={onChangeVocationRank} />
                             <label className="form-text">Specialist</label>
                         </div>
                         <div style={{ display: "flex", flexDirection: "row" }}>
-                            <input type="radio" name="Rank Category" value="Enlistee" onClick={onChangeString} />
+                            <input type="radio" name="Rank Category" value="Enlistee" onClick={onChangeVocationRank} />
                             <label className="form-text">Enlistee</label>
                         </div>
                     </div>
@@ -301,7 +287,7 @@ export default function ServicemanDetailsForm({ selected_unit, unit_data, set_di
                 selected_vocation_and_rank={selected_vocation_and_rank}
                 selected_valid_vocation_rank={selected_valid_vocation_rank}
             />
-            <div style={{display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "30px"}}>
+            <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "30px" }}>
                 <button onClick={onGenerate} className="generate-button">Submit</button>
                 {generate_status == "pending" && <div className="generating-text">Generating...</div>}
             </div>
