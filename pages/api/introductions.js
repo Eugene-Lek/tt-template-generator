@@ -1,9 +1,17 @@
 import prisma from "lib/prisma"
 import { v4 as uuidv4 } from "uuid"
 
-const personal_particulars = ["rank", "full Name", "surname", "enlistment Date", "coy", "primary appointment"].map(e=>e.toLowerCase())
-
 export default async function handler(req, res) {
+
+    const response = await prisma.PersonalParticularsField.findMany({
+        where: {
+            unitName: unit
+        }, orderBy: {
+            order: 'asc',
+        },
+    })
+    const personal_particulars = response.map(obj => obj.name.toLowerCase())
+
     if (req.method != "GET") {
         // 'GET' requests have no 'body'
         var { unit, id, template, transcript_template, related_vocation_ranks } = req.body
@@ -28,92 +36,107 @@ export default async function handler(req, res) {
                 PreUnitAchievements: true
             }
         })
-        pre_unit_achievements = pre_unit_achievements.PreUnitAchievements.map(obj=>obj.title)
-        const valid_placholders = [...personal_particulars, ...pre_unit_achievements].map(str => str.toLowerCase())
+        pre_unit_achievements = pre_unit_achievements.PreUnitAchievements.map(obj => obj.title)
 
-        const inserted_placeholders_transcript = [...transcript_template.matchAll(/\{[^}]+\}/g)].map(obj=> obj[0].slice(1,-1).toLowerCase()) //slice to remove the braces
-        const inserted_placeholders_testimonial = [...template.matchAll(/\{[^}]+\}/g)].map(obj=> obj[0].slice(1,-1).toLowerCase()) //slice to remove the braces        
+        const valid_placholders = [...personal_particulars, "Primary Appointment", ...pre_unit_achievements].map(str => str.toLowerCase())
+
+        const inserted_placeholders_transcript = [...transcript_template.matchAll(/\{[^}]+\}/g)].map(obj => obj[0].slice(1, -1).toLowerCase()) //slice to remove the braces
+        const inserted_placeholders_testimonial = [...template.matchAll(/\{[^}]+\}/g)].map(obj => obj[0].slice(1, -1).toLowerCase()) //slice to remove the braces        
         // Check if there are any unpaired { or }
         const num_open_curly_transcript = [...transcript_template.matchAll(/\{/g)].length
         const num_close_curly_transcript = [...transcript_template.matchAll(/\}/g)].length
-        if (num_open_curly_transcript < num_close_curly_transcript){
-            return res.status(400).json({ message: `At least 1 unpaired '}' was detected in the *transcript* 
+        if (num_open_curly_transcript < num_close_curly_transcript) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '}' was detected in the *transcript* 
                                                     Either pair it with a '{' or remove the unpaired '}'` })
         } else if (num_open_curly_transcript > num_close_curly_transcript) {
-            return res.status(400).json({ message: `At least 1 unpaired '{' was detected in the *transcript* 
+            return res.status(400).json({
+                message: `At least 1 unpaired '{' was detected in the *transcript* 
                                                     Either pair it with a '}' or remove the unpaired '{'` })
-        } else if (inserted_placeholders_transcript.length !== num_open_curly_transcript){
-            return res.status(400).json({ message: `At least 1 unpaired '{' was detected in the *transcript* 
-                                                    Either pair it with a '}' or remove the unpaired '{'` })            
-        }        
+        } else if (inserted_placeholders_transcript.length !== num_open_curly_transcript) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '{' was detected in the *transcript* 
+                                                    Either pair it with a '}' or remove the unpaired '{'` })
+        }
         const num_open_curly_testimonial = [...template.matchAll(/\{/g)].length
         const num_close_curly_testimonial = [...template.matchAll(/\}/g)].length
-        if (num_open_curly_testimonial < num_close_curly_testimonial){
-            return res.status(400).json({ message: `At least 1 unpaired '}' was detected in the *testimonial* 
+        if (num_open_curly_testimonial < num_close_curly_testimonial) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '}' was detected in the *testimonial* 
                                                     Either pair it with a '{' or remove the unpaired '}'` })
         } else if (num_open_curly_testimonial > num_close_curly_testimonial) {
-            return res.status(400).json({ message: `At least 1 unpaired '{' was detected in the *testimonial* 
+            return res.status(400).json({
+                message: `At least 1 unpaired '{' was detected in the *testimonial* 
                                                     Either pair it with a '}' or remove the unpaired '{'` })
-        } else if (inserted_placeholders_testimonial.length !== num_open_curly_testimonial){
-            return res.status(400).json({ message: `At least 1 unpaired '{' was detected in the *testimonial* 
-                                                    Either pair it with a '}' or remove the unpaired '{'` })            
-        }             
+        } else if (inserted_placeholders_testimonial.length !== num_open_curly_testimonial) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '{' was detected in the *testimonial* 
+                                                    Either pair it with a '}' or remove the unpaired '{'` })
+        }
         // Check if the placholders are valid        
-        for (let i=0; i<inserted_placeholders_transcript.length; i++){
+        for (let i = 0; i < inserted_placeholders_transcript.length; i++) {
             const candidate_placeholder = inserted_placeholders_transcript[i]
-            if (!valid_placholders.includes(candidate_placeholder)){
-                return res.status(400).json({ message: `{${candidate}} was found in the Transcript template, but '${candidate}' is neither a Personal Particular nor Pre-Unit Achievement.
+            if (!valid_placholders.includes(candidate_placeholder)) {
+                return res.status(400).json({
+                    message: `{${candidate}} was found in the Transcript template, but '${candidate}' is neither a Personal Particular nor Pre-Unit Achievement.
                                                         
                                                         *Personal Particulars (case-insensitive):*
                                                         ${personal_particulars.join(", ")} 
                                                         
                                                         *Pre-Unit Achievements (case-insensitive):*
-                                                        ${pre_unit_achievements.join(", ")}` 
-                    }
+                                                        ${pre_unit_achievements.join(", ")}`
+                }
                 )
             }
         }
-        for (let i=0; i<inserted_placeholders_testimonial.length; i++){
+        for (let i = 0; i < inserted_placeholders_testimonial.length; i++) {
             const candidate_placeholder = inserted_placeholders_testimonial[i]
-            if (!valid_placholders.includes(candidate_placeholder)){
-                return res.status(400).json({ message: `{${candidate_placeholder}} was found in the Testimonial template, but '${candidate_placeholder}' is not a Personal Particular.
+            if (!valid_placholders.includes(candidate_placeholder)) {
+                return res.status(400).json({
+                    message: `{${candidate_placeholder}} was found in the Testimonial template, but '${candidate_placeholder}' is not a Personal Particular.
                                                         
                                                         *Personal Particulars (case-insensitive):*
                                                         ${personal_particulars.join(", ")}
                                                         
                                                         *Pre-Unit Achievements (case-insensitive):*
                                                         ${pre_unit_achievements.join(", ")}`
-                    }
+                }
                 )
             }
-        }     
+        }
         // Check if there are any unpaired < or > 
-        const num_red_coloured_insertions_transcript =  [...transcript_template.matchAll(/\<[^\>]+\>/g)]
+        const num_red_coloured_insertions_transcript = [...transcript_template.matchAll(/\<[^\>]+\>/g)]
         const num_less_than_transcript = [...transcript_template.matchAll(/\</g)].length
         const num_greater_than_transcript = [...transcript_template.matchAll(/\>/g)].length
-        if (num_less_than_transcript < num_greater_than_transcript){
-            return res.status(400).json({ message: `At least 1 unpaired '>' was detected in the *transcript* 
+        if (num_less_than_transcript < num_greater_than_transcript) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '>' was detected in the *transcript* 
                                                     Either pair it with a '<' or remove the unpaired '>'` })
         } else if (num_less_than_transcript > num_greater_than_transcript) {
-            return res.status(400).json({ message: `At least 1 unpaired '<' was detected in the *transcript* 
+            return res.status(400).json({
+                message: `At least 1 unpaired '<' was detected in the *transcript* 
                                                     Either pair it with a '>' or remove the unpaired '<'` })
-        } else if (num_red_coloured_insertions_transcript.length !== num_less_than_transcript){
-            return res.status(400).json({ message: `At least 1 unpaired '<' was detected in the *transcript* 
-                                                    Either pair it with a '>' or remove the unpaired '<'` })       
-        }  
-        const num_red_coloured_insertions_testimonial =   [...template.matchAll(/\<[^\>]+\>/g)]
+        } else if (num_red_coloured_insertions_transcript.length !== num_less_than_transcript) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '<' was detected in the *transcript* 
+                                                    Either pair it with a '>' or remove the unpaired '<'` })
+        }
+        const num_red_coloured_insertions_testimonial = [...template.matchAll(/\<[^\>]+\>/g)]
         const num_less_than_testimonial = [...template.matchAll(/\</g)].length
-        const num_greater_than_testimonial = [...template.matchAll(/\>/g)].length 
-        if (num_less_than_testimonial < num_greater_than_testimonial){
-            return res.status(400).json({ message: `At least 1 unpaired '>' was detected in the *testimonial* 
+        const num_greater_than_testimonial = [...template.matchAll(/\>/g)].length
+        if (num_less_than_testimonial < num_greater_than_testimonial) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '>' was detected in the *testimonial* 
                                                     Either pair it with a '<' or remove the unpaired '>'` })
         } else if (num_less_than_testimonial > num_greater_than_testimonial) {
-            return res.status(400).json({ message: `At least 1 unpaired '<' was detected in the *testimonial* 
+            return res.status(400).json({
+                message: `At least 1 unpaired '<' was detected in the *testimonial* 
                                                     Either pair it with a '>' or remove the unpaired '<'` })
-        } else if (num_red_coloured_insertions_testimonial.length !== num_less_than_testimonial){
-            return res.status(400).json({ message: `At least 1 unpaired '<' was detected in the *testimonial* 
-                                                    Either pair it with a '>' or remove the unpaired '<'` })           
-        }            
+        } else if (num_red_coloured_insertions_testimonial.length !== num_less_than_testimonial) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '<' was detected in the *testimonial* 
+                                                    Either pair it with a '>' or remove the unpaired '<'` })
+        }
         // Find related Vocation-Rank-Combination objects via related_vocation_ranks_list
         const related_vocation_ranks_nested_list = Object.keys(related_vocation_ranks).map((vocation) => {
             return related_vocation_ranks[vocation].map((rank) => {
@@ -131,7 +154,7 @@ export default async function handler(req, res) {
         })
         // Find the Pre-Unit Achievements associated with the transcript/testimonial so they can be connected to the same VRC objects
         const inserted_pre_unit_achievements = [... new Set([...inserted_placeholders_transcript, ...inserted_placeholders_testimonial])]
-                                                .filter(placeholder=>!personal_particulars.includes(placeholder))   
+            .filter(placeholder => !personal_particulars.includes(placeholder))
         console.log(inserted_pre_unit_achievements)
         const all_pre_unit_achievements = await prisma.PreUnitAchievement.findMany({
             where: {
@@ -141,12 +164,12 @@ export default async function handler(req, res) {
                 id: true,
                 title: true
             }
-        })        
-        await Promise.all(all_pre_unit_achievements.map(obj=>{
-            if (inserted_pre_unit_achievements.includes(obj.title.toLowerCase())){
+        })
+        await Promise.all(all_pre_unit_achievements.map(obj => {
+            if (inserted_pre_unit_achievements.includes(obj.title.toLowerCase())) {
                 // If inside, connect
                 return prisma.PreUnitAchievement.update({
-                    where:{
+                    where: {
                         id: obj.id
                     },
                     data: {
@@ -154,13 +177,13 @@ export default async function handler(req, res) {
                             connect: related_vocation_ranks_ids
                         }
                     }
-                })                  
+                })
             } else {
                 // If not inside, disconnect. This works because each VRC can only be assigned to 1 introduction, so 
                 // there will never be a situation where a Pre-Unit Achievement is linked to a VRC via 2 sources and 
                 // disconnected from the VRC just because it is removed from 1 source. 
                 return prisma.PreUnitAchievement.update({
-                    where:{
+                    where: {
                         id: obj.id
                     },
                     data: {
@@ -168,7 +191,7 @@ export default async function handler(req, res) {
                             disconnect: related_vocation_ranks_ids
                         }
                     }
-                })                  
+                })
             }
         }))
     }
@@ -206,16 +229,16 @@ export default async function handler(req, res) {
                     var init_introductions_list = unit_introductions.map((introduction) => {
                         let related_vocation_ranks = {}
                         introduction.appliesto.forEach(obj => {
-                            if (related_vocation_ranks.hasOwnProperty(obj.vocation)){
+                            if (related_vocation_ranks.hasOwnProperty(obj.vocation)) {
                                 related_vocation_ranks[obj.vocation].push(obj.rank)
                             } else {
                                 related_vocation_ranks[obj.vocation] = [obj.rank]
                             }
                         })
-                        const inserted_placeholders_transcript = [...introduction.transcripttemplate.matchAll(/\{[^}]+\}/g)].map(obj=> obj[0].slice(1,-1).toLowerCase()) //slice to remove the braces
-                        const inserted_placeholders_testimonial = [...introduction.template.matchAll(/\{[^}]+\}/g)].map(obj=> obj[0].slice(1,-1).toLowerCase()) //slice to remove the braces
+                        const inserted_placeholders_transcript = [...introduction.transcripttemplate.matchAll(/\{[^}]+\}/g)].map(obj => obj[0].slice(1, -1).toLowerCase()) //slice to remove the braces
+                        const inserted_placeholders_testimonial = [...introduction.template.matchAll(/\{[^}]+\}/g)].map(obj => obj[0].slice(1, -1).toLowerCase()) //slice to remove the braces
                         const inserted_pre_unit_achievements = [... new Set([...inserted_placeholders_transcript, ...inserted_placeholders_testimonial])]
-                                                                .filter(placeholder=>!personal_particulars.includes(placeholder)) 
+                            .filter(placeholder => !personal_particulars.includes(placeholder))
                         return {
                             id: introduction.id,
                             template: introduction.template,
@@ -224,7 +247,7 @@ export default async function handler(req, res) {
                             previously_saved_transcript_template: introduction.transcripttemplate,
                             related_vocation_ranks: related_vocation_ranks,
                             previously_saved_related_vocation_ranks: related_vocation_ranks,
-                            previously_saved_pre_unit_achievements: inserted_pre_unit_achievements,                            
+                            previously_saved_pre_unit_achievements: inserted_pre_unit_achievements,
                             button_state: "edit",
                             display: "block"
                         }
