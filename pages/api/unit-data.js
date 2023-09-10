@@ -2,7 +2,7 @@ import prisma from "lib/prisma"
 
 export default async function handler(req, res) {
     if (!req.query.unit){
-        return
+        return res.status(400).json({message: "You have not selected a unit"})
     }
     try {
         switch (req.method) {
@@ -12,8 +12,13 @@ export default async function handler(req, res) {
                         name: req.query.unit
                     },
                     select: {
-                        Companies: true,
-                        Vocations: true, 
+                        Companies: true, 
+                        Vocations: true,                        
+                        PersonalParticularsFields: {
+                            orderBy: {
+                                order: 'asc',
+                              },                            
+                        },
                         PreUnitAchievements: {
                             include: {
                                 appliesto: true
