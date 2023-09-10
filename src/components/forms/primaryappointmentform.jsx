@@ -523,11 +523,11 @@ export const PrimaryAppointmentForm = ({
                 </div>
                 <div className="template-group">
                     <p>Transcript Template:</p>
-                    <textarea onChange={(event) => { onChangeText(event, form_index) }} className="transcript-template-input" name="transcript_template" placeholder="e.g. In his primary role, {Rank} {Surname} was responsible for his platoon's training, morale and discipline. In this role, {Rank} {Surname} demonstrated strong leadership and performed well." value={transcript_template} disabled={edit_disabled}></textarea>
+                    <textarea onChange={(event) => { onChangeText(event, form_index) }} className="transcript-template-input" name="transcript_template" placeholder="e.g. In his primary role, {Rank} {First Name} was responsible for his platoon's training, morale and discipline. In this role, {Rank} {First Name} demonstrated strong leadership and performed well." value={transcript_template} disabled={edit_disabled}></textarea>
                 </div>
                 <div className="template-group">
                     <p>Testimonial Template:</p>
-                    <textarea onChange={(event) => { onChangeText(event, form_index) }} className="template-input" name='template' placeholder="e.g. In his primary role, {Rank} {Surname} was responsible for his platoon's training, morale and discipline. In this role, {Rank} {Surname} demonstrated strong leadership and performed well. Notably, <Insert a Trait of a Good Leader> . For instance, <Insert a specific incident that demonstrated this trait>" value={template} disabled={edit_disabled}></textarea>
+                    <textarea onChange={(event) => { onChangeText(event, form_index) }} className="template-input" name='template' placeholder="e.g. In his primary role, {Rank} {First Name} was responsible for his platoon's training, morale and discipline. In this role, {Rank} {First Name} demonstrated strong leadership and performed well. Notably, <Insert a Trait of a Good Leader> . For instance, <Insert a specific incident that demonstrated this trait>" value={template} disabled={edit_disabled}></textarea>
                 </div>
                 <div className="save-edit-delete-group">
                     <button type="submit" className={save_button_class}>Save</button>

@@ -415,7 +415,7 @@ export const PreUnitAchievementForm = ({
                 </div>
                 <div className="template-group">
                     <p>Wording:</p>
-                    <textarea onChange={(event) => { onChangeText(event, form_index) }} className="transcript-template-input" name='achievement_wording' placeholder="e.g. To this end, {Rank} {Surname} performed the best among his peers and graduated with a Sword of Honour (Top Performer)." value={achievement_wording} disabled={edit_disabled}></textarea>
+                    <textarea onChange={(event) => { onChangeText(event, form_index) }} className="transcript-template-input" name='achievement_wording' placeholder="e.g. To this end, {Rank} {First Name} performed the best among his peers and graduated with a Sword of Honour (Top Performer)." value={achievement_wording} disabled={edit_disabled}></textarea>
                 </div>
                 <div className="save-edit-delete-group">
                     <button type="submit" className={save_button_class}>Save</button>

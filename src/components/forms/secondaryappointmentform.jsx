@@ -480,11 +480,11 @@ export const SecondaryAppointmentForm = ({
                 </div>
                 <div className="template-group">
                     <p>Transcript Template:</p>
-                    <textarea onChange={(event) => { onChangeText(event, form_index) }} className="transcript-template-input" name="transcript_template" placeholder="e.g. As Armskote In-Charge, {Rank} {Surname} was also entrusted to manage the weapons and controlled equipment within his Company." value={transcript_template} disabled={edit_disabled}></textarea>
+                    <textarea onChange={(event) => { onChangeText(event, form_index) }} className="transcript-template-input" name="transcript_template" placeholder="e.g. As Armskote In-Charge, {Rank} {First Name} was also entrusted to manage the weapons and controlled equipment within his Company." value={transcript_template} disabled={edit_disabled}></textarea>
                 </div>
                 <div className="template-group">
                     <p>Testimonial Template:</p>
-                    <textarea onChange={(event) => { onChangeText(event, form_index) }} className="template-input" name='template' placeholder="e.g. As Armskote In-Charge, {Rank} {Surname} was also entrusted to manage the weapons and controlled equipment within his Company. In this role, he has proven to be <Insert Trait of a Good ASIC>. For example, <Insert a specific incident that demonstrated this trait> ." value={template} disabled={edit_disabled}></textarea>
+                    <textarea onChange={(event) => { onChangeText(event, form_index) }} className="template-input" name='template' placeholder="e.g. As Armskote In-Charge, {Rank} {First Name} was also entrusted to manage the weapons and controlled equipment within his Company. In this role, he has proven to be <Insert Trait of a Good ASIC>. For example, <Insert a specific incident that demonstrated this trait> ." value={template} disabled={edit_disabled}></textarea>
                 </div>
                 <div className="save-edit-delete-group">
                     <button type="submit" className={save_button_class}>Save</button>

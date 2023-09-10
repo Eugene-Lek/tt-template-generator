@@ -476,11 +476,11 @@ export const ConclusionForm = ({
                 </div>
                 <div className="template-group">
                     <p>Transcript Template:</p>
-                    <textarea onChange={(event) => { onChangeText(event, index) }} className="transcript-template-input" name="transcript_template" placeholder="In summary, {rank} {surname} was a valued member of the Battalion and we thank him for his contributions" value={transcript_template} disabled={edit_disabled}></textarea>
+                    <textarea onChange={(event) => { onChangeText(event, index) }} className="transcript-template-input" name="transcript_template" placeholder="In summary, {rank} {first name} was a valued member of the Battalion and we thank him for his contributions" value={transcript_template} disabled={edit_disabled}></textarea>
                 </div>
                 <div className="template-group">
                     <p>Testimonial Template:</p>
-                    <textarea onChange={(event) => { onChangeText(event, index) }} className="template-input" name="template" placeholder="In summary, {rank} {surname} served with pride and purpose. Throughout his tenure in {coy} Company, he adopted a positive attitude and was able to gain the respect of both superiors and peers. We are confident that {rank} {surname} will be a valuable asset to his future employers. We thank him for his contributions to National Service and wish him the very best for his future endeavours." value={template} disabled={edit_disabled}></textarea>
+                    <textarea onChange={(event) => { onChangeText(event, index) }} className="template-input" name="template" placeholder="In summary, {rank} {first name} served with pride and purpose. Throughout his tenure in {coy} Company, he adopted a positive attitude and was able to gain the respect of both superiors and peers. We are confident that {rank} {first name} will be a valuable asset to his future employers. We thank him for his contributions to National Service and wish him the very best for his future endeavours." value={template} disabled={edit_disabled}></textarea>
                 </div>
                 <div className="save-edit-delete-group">
                     <button type="submit" className={save_button_class}>Save</button>
