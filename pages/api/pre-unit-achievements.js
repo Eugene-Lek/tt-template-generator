@@ -1,9 +1,17 @@
 import prisma from "lib/prisma"
 import { v4 as uuidv4 } from "uuid"
 
-const personal_particulars = ["Rank", "Full Name", "Surname", "Enlistment Date", "Coy", "Primary Appointment"]
-
 export default async function handler(req, res) {
+
+    const response = await prisma.PersonalParticularsField.findMany({
+        where: {
+            unitName: unit
+        }, orderBy: {
+            order: 'asc',
+        },
+    })
+    const personal_particulars = response.map(obj => obj.name.toLowerCase())
+
     if (req.method !== "GET") {
         // 'GET' requests have no 'body'
         var { unit, id, achievement_title, previously_saved_achievement_title, achievement_wording } = req.body
@@ -70,7 +78,8 @@ export default async function handler(req, res) {
             return res.status(400).json({ message: `'${achievement_title}' already exists.` })
         }
         // Placeholder Validation
-        const valid_placholders = personal_particulars.map(str => str.toLowerCase())
+        const valid_placholders = [...personal_particulars, "Primary Appointment"].map(str => str.toLowerCase())
+        
         const inserted_placeholders_wording = [...achievement_wording.matchAll(/\{[^}]+\}/g)] // global search
         // Check if there are any unpaired { or }
         const num_open_curly_wording = [...achievement_wording.matchAll(/\{/g)].length

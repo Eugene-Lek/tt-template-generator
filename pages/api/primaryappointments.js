@@ -1,9 +1,17 @@
 import prisma from "lib/prisma"
 import { v4 as uuidv4 } from "uuid"
 
-const personal_particulars = ["Rank", "Full Name", "Surname", "Enlistment Date", "Coy", "Primary Appointment"]
-
 export default async function handler(req, res) {
+
+    const response = await prisma.PersonalParticularsField.findMany({
+        where: {
+            unitName: unit
+        }, orderBy: {
+            order: 'asc',
+        },
+    })
+    const personal_particulars = response.map(obj => obj.name.toLowerCase())
+
     if (req.method != "GET") {
         // 'GET' requests have no 'body'
         var { unit, id, appointment, template, transcript_template, related_vocation_ranks } = req.body

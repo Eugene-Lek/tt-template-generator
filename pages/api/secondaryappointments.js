@@ -1,9 +1,17 @@
 import prisma from "lib/prisma"
 import { v4 as uuidv4 } from "uuid"
 
-const personal_particulars = ["Rank", "Full Name", "Surname", "Enlistment Date", "Coy", "Primary Appointment"]
-
 export default async function handler(req, res) {
+
+    const response = await prisma.PersonalParticularsField.findMany({
+        where: {
+            unitName: unit
+        }, orderBy: {
+            order: 'asc',
+        },
+    })
+    const personal_particulars = response.map(obj => obj.name.toLowerCase())
+
     if (req.method != "GET") {
         // 'GET' requests have no 'body'
         var { unit, id, appointment, template, transcript_template, related_vocation_ranks } = req.body
@@ -23,7 +31,7 @@ export default async function handler(req, res) {
             return res.status(400).json({ message: 'The testimonial template is missing' })
         }       
         // Placeholder Validation
-        const valid_placholders = [...personal_particulars].map(str => str.toLowerCase())
+        const valid_placholders = [...personal_particulars, "Primary Appointment"].map(str => str.toLowerCase())
 
         const inserted_placeholders_transcript = [...transcript_template.matchAll(/\{[^}]+\}/g)] // global search
         const inserted_placeholders_testimonial = [...template.matchAll(/\{[^}]+\}/g)] // global search        

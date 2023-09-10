@@ -1,9 +1,17 @@
 import prisma from "lib/prisma"
 import { v4 as uuidv4 } from "uuid"
 
-const personal_particulars = ["Rank", "Full Name", "Surname", "Enlistment Date", "Coy", "Primary Appointment"]
-
 export default async function handler(req, res) {
+
+    const response = await prisma.PersonalParticularsField.findMany({
+        where: {
+            unitName: unit
+        }, orderBy: {
+            order: 'asc',
+        },
+    })
+    const personal_particulars = response.map(obj => obj.name.toLowerCase())    
+
     if (req.method != "GET") {
         // 'GET' requests have no 'body'
         var { unit, id, template, transcript_template, related_vocation_ranks } = req.body
@@ -12,7 +20,7 @@ export default async function handler(req, res) {
         // Parameter Validation
         if (!transcript_template) {
             return res.status(400).json({ message: 'The transcript template is missing' })
-        }        
+        }
         if (!template) {
             return res.status(400).json({ message: 'The testimonial template is missing' })
         }
@@ -20,87 +28,101 @@ export default async function handler(req, res) {
             return res.status(400).json({ message: 'This Conclusion template must be assigned to at least 1 vocation-rank combination' })
         }
         // Placeholder Validation
-        const valid_placholders = [...personal_particulars].map(str => str.toLowerCase())
+        const valid_placholders = [...personal_particulars, "Primary Appointment"].map(str => str.toLowerCase())
 
         const inserted_placeholders_transcript = [...transcript_template.matchAll(/\{[^}]+\}/g)] // global search
         const inserted_placeholders_testimonial = [...template.matchAll(/\{[^}]+\}/g)] // global search
         // Check if there are any unpaired { or }
         const num_open_curly_transcript = [...transcript_template.matchAll(/\{/g)].length
         const num_close_curly_transcript = [...transcript_template.matchAll(/\}/g)].length
-        if (num_open_curly_transcript < num_close_curly_transcript){
-            return res.status(400).json({ message: `At least 1 unpaired '}' was detected in the *transcript* 
+        if (num_open_curly_transcript < num_close_curly_transcript) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '}' was detected in the *transcript* 
                                                     Either pair it with a '{' or remove the unpaired '}'` })
         } else if (num_open_curly_transcript > num_close_curly_transcript) {
-            return res.status(400).json({ message: `At least 1 unpaired '{' was detected in the *transcript* 
+            return res.status(400).json({
+                message: `At least 1 unpaired '{' was detected in the *transcript* 
                                                     Either pair it with a '}' or remove the unpaired '{'` })
-        } else if (inserted_placeholders_transcript.length !== num_open_curly_transcript){
-            return res.status(400).json({ message: `At least 1 unpaired '{' was detected in the *transcript* 
-                                                    Either pair it with a '}' or remove the unpaired '{'` })            
-        }        
+        } else if (inserted_placeholders_transcript.length !== num_open_curly_transcript) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '{' was detected in the *transcript* 
+                                                    Either pair it with a '}' or remove the unpaired '{'` })
+        }
         const num_open_curly_testimonial = [...template.matchAll(/\{/g)].length
         const num_close_curly_testimonial = [...template.matchAll(/\}/g)].length
-        if (num_open_curly_testimonial < num_close_curly_testimonial){
-            return res.status(400).json({ message: `At least 1 unpaired '}' was detected in the *testimonial* 
+        if (num_open_curly_testimonial < num_close_curly_testimonial) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '}' was detected in the *testimonial* 
                                                     Either pair it with a '{' or remove the unpaired '}'` })
         } else if (num_open_curly_testimonial > num_close_curly_testimonial) {
-            return res.status(400).json({ message: `At least 1 unpaired '{' was detected in the *testimonial* 
+            return res.status(400).json({
+                message: `At least 1 unpaired '{' was detected in the *testimonial* 
                                                     Either pair it with a '}' or remove the unpaired '{'` })
-        } else if (inserted_placeholders_testimonial.length !== num_open_curly_testimonial){
-            return res.status(400).json({ message: `At least 1 unpaired '{' was detected in the *testimonial* 
-                                                    Either pair it with a '}' or remove the unpaired '{'` })            
-        }             
+        } else if (inserted_placeholders_testimonial.length !== num_open_curly_testimonial) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '{' was detected in the *testimonial* 
+                                                    Either pair it with a '}' or remove the unpaired '{'` })
+        }
         // Check if the placholders are valid                
-        for (let i=0; i<inserted_placeholders_transcript.length; i++){
+        for (let i = 0; i < inserted_placeholders_transcript.length; i++) {
             const candidate_placeholder_data = inserted_placeholders_transcript[i]
-            const candidate_placeholder = candidate_placeholder_data[0].slice(1,-1) // index 0 corresponds to the actual match detected. The rest is metadata
-            if (!valid_placholders.includes(candidate_placeholder.toLowerCase())){
-                return res.status(400).json({ message: `{${candidate_placeholder}} was found in the Transcript template, but '${candidate_placeholder}' is not a Personal Particular.
-                                                        
-                                                        *Personal Particulars (case-insensitive):*
-                                                        ${personal_particulars.join(", ")}` 
-                    }
-                )
-            }
-        }        
-        for (let i=0; i<inserted_placeholders_testimonial.length; i++){
-            const candidate_placeholder_data = inserted_placeholders_testimonial[i]
-            const candidate_placeholder = candidate_placeholder_data[0].slice(1,-1) // index 0 corresponds to the actual match detected. The rest is metadata
-            if (!valid_placholders.includes(candidate_placeholder.toLowerCase())){
-                return res.status(400).json({ message: `{${candidate_placeholder}} was found in the Testimonial template, but '${candidate_placeholder}' is not a Personal Particular.
+            const candidate_placeholder = candidate_placeholder_data[0].slice(1, -1) // index 0 corresponds to the actual match detected. The rest is metadata
+            if (!valid_placholders.includes(candidate_placeholder.toLowerCase())) {
+                return res.status(400).json({
+                    message: `{${candidate_placeholder}} was found in the Transcript template, but '${candidate_placeholder}' is not a Personal Particular.
                                                         
                                                         *Personal Particulars (case-insensitive):*
                                                         ${personal_particulars.join(", ")}`
-                    }
+                }
                 )
             }
-        }                  
+        }
+        for (let i = 0; i < inserted_placeholders_testimonial.length; i++) {
+            const candidate_placeholder_data = inserted_placeholders_testimonial[i]
+            const candidate_placeholder = candidate_placeholder_data[0].slice(1, -1) // index 0 corresponds to the actual match detected. The rest is metadata
+            if (!valid_placholders.includes(candidate_placeholder.toLowerCase())) {
+                return res.status(400).json({
+                    message: `{${candidate_placeholder}} was found in the Testimonial template, but '${candidate_placeholder}' is not a Personal Particular.
+                                                        
+                                                        *Personal Particulars (case-insensitive):*
+                                                        ${personal_particulars.join(", ")}`
+                }
+                )
+            }
+        }
         // Check if there are any unpaired < or > 
-        const num_red_coloured_insertions_transcript =  [...transcript_template.matchAll(/\<[^\>]+\>/g)]
+        const num_red_coloured_insertions_transcript = [...transcript_template.matchAll(/\<[^\>]+\>/g)]
         const num_less_than_transcript = [...transcript_template.matchAll(/\</g)].length
         const num_greater_than_transcript = [...transcript_template.matchAll(/\>/g)].length
-        if (num_less_than_transcript < num_greater_than_transcript){
-            return res.status(400).json({ message: `At least 1 unpaired '>' was detected in the *transcript* 
+        if (num_less_than_transcript < num_greater_than_transcript) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '>' was detected in the *transcript* 
                                                     Either pair it with a '<' or remove the unpaired '>'` })
         } else if (num_less_than_transcript > num_greater_than_transcript) {
-            return res.status(400).json({ message: `At least 1 unpaired '<' was detected in the *transcript* 
+            return res.status(400).json({
+                message: `At least 1 unpaired '<' was detected in the *transcript* 
                                                     Either pair it with a '>' or remove the unpaired '<'` })
-        } else if (num_red_coloured_insertions_transcript.length !== num_less_than_transcript){
-            return res.status(400).json({ message: `At least 1 unpaired '<' was detected in the *transcript* 
-                                                    Either pair it with a '>' or remove the unpaired '<'` })       
-        }  
-        const num_red_coloured_insertions_testimonial =   [...template.matchAll(/\<[^\>]+\>/g)]
+        } else if (num_red_coloured_insertions_transcript.length !== num_less_than_transcript) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '<' was detected in the *transcript* 
+                                                    Either pair it with a '>' or remove the unpaired '<'` })
+        }
+        const num_red_coloured_insertions_testimonial = [...template.matchAll(/\<[^\>]+\>/g)]
         const num_less_than_testimonial = [...template.matchAll(/\</g)].length
-        const num_greater_than_testimonial = [...template.matchAll(/\>/g)].length 
-        if (num_less_than_testimonial < num_greater_than_testimonial){
-            return res.status(400).json({ message: `At least 1 unpaired '>' was detected in the *testimonial* 
+        const num_greater_than_testimonial = [...template.matchAll(/\>/g)].length
+        if (num_less_than_testimonial < num_greater_than_testimonial) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '>' was detected in the *testimonial* 
                                                     Either pair it with a '<' or remove the unpaired '>'` })
         } else if (num_less_than_testimonial > num_greater_than_testimonial) {
-            return res.status(400).json({ message: `At least 1 unpaired '<' was detected in the *testimonial* 
+            return res.status(400).json({
+                message: `At least 1 unpaired '<' was detected in the *testimonial* 
                                                     Either pair it with a '>' or remove the unpaired '<'` })
-        } else if (num_red_coloured_insertions_testimonial.length !== num_less_than_testimonial){
-            return res.status(400).json({ message: `At least 1 unpaired '<' was detected in the *testimonial* 
-                                                    Either pair it with a '>' or remove the unpaired '<'` })           
-        }    
+        } else if (num_red_coloured_insertions_testimonial.length !== num_less_than_testimonial) {
+            return res.status(400).json({
+                message: `At least 1 unpaired '<' was detected in the *testimonial* 
+                                                    Either pair it with a '>' or remove the unpaired '<'` })
+        }
         // Find related Vocation-Rank-Combination objects via related_vocation_ranks_list
         const related_vocation_ranks_nested_list = Object.keys(related_vocation_ranks).map((vocation) => {
             return related_vocation_ranks[vocation].map((rank) => {
@@ -141,17 +163,17 @@ export default async function handler(req, res) {
                         template: "",
                         previously_saved_template: "",
                         transcript_template: "",
-                        previously_saved_transcript_template: "",                        
-                        related_vocation_ranks:{},
+                        previously_saved_transcript_template: "",
+                        related_vocation_ranks: {},
                         previously_saved_related_vocation_ranks: {},
                         button_state: "save",
                         display: "block"
                     }]
                 } else {
-                    var init_conclusions_list  = unit_conclusions.map((conclusion) => {
+                    var init_conclusions_list = unit_conclusions.map((conclusion) => {
                         let related_vocation_ranks = {}
                         conclusion.appliesto.forEach(obj => {
-                            if (related_vocation_ranks.hasOwnProperty(obj.vocation)){
+                            if (related_vocation_ranks.hasOwnProperty(obj.vocation)) {
                                 related_vocation_ranks[obj.vocation].push(obj.rank)
                             } else {
                                 related_vocation_ranks[obj.vocation] = [obj.rank]
@@ -162,7 +184,7 @@ export default async function handler(req, res) {
                             template: conclusion.template,
                             previously_saved_template: conclusion.template,
                             transcript_template: conclusion.transcripttemplate,
-                            previously_saved_transcript_template: conclusion.transcripttemplate,                            
+                            previously_saved_transcript_template: conclusion.transcripttemplate,
                             related_vocation_ranks: related_vocation_ranks,
                             previously_saved_related_vocation_ranks: related_vocation_ranks,
                             button_state: "edit",
@@ -184,7 +206,7 @@ export default async function handler(req, res) {
                             create: {
                                 id: id,
                                 template: template,
-                                transcripttemplate: transcript_template,                                
+                                transcripttemplate: transcript_template,
                                 appliesto: {
                                     connect: related_vocation_ranks_ids
                                 }
@@ -204,7 +226,7 @@ export default async function handler(req, res) {
                     },
                     data: {
                         template: template,
-                        transcripttemplate: transcript_template,                         
+                        transcripttemplate: transcript_template,
                         appliesto: {
                             set: related_vocation_ranks_ids
                         }
