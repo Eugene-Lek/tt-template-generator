@@ -52,7 +52,6 @@ const generateOptionParagraph = (template, placeholder_data) => {
     const paragraphs = hydrated_template.split(/\n+/g)
     const paragraph_objects = paragraphs.map(paragraph => {
         const textruns = paragraph.split(/(?=\<[^\>]+\>)|(?<=\<[^\>]+\>)/g)
-        console.log(textruns)
         const textrun_objects = textruns.map(textrun_template => {
             if (textrun_template.startsWith("<") && textrun_template.endsWith(">")) {
                 return new TextRun({ text: textrun_template + ' ', color: "f04e1f", size: 22, font: "Cambria (Body)" })
@@ -60,7 +59,6 @@ const generateOptionParagraph = (template, placeholder_data) => {
                 return new TextRun({ text: textrun_template + ' ', size: 22, font: "Cambria (Body)" })
             }
         })
-        console.log(textrun_objects)
         return new Paragraph({ children: textrun_objects, spacing: { after: 200, line: 276 } })
     })
     return paragraph_objects
@@ -92,7 +90,7 @@ const generateOptionTextRuns = (template, placeholder_data) => {
 }
 
 export default async function handler(req, res) {
-    const { form_data, selected_unit, complusory_fields } = req.body
+    const { form_data, selected_unit, complusory_fields, personalParticularsFieldsTypes } = req.body
 
     // Server-side parameter validation
     const missing_data = Object.keys(form_data).map(field => {
@@ -118,12 +116,25 @@ export default async function handler(req, res) {
     }
 
     // Data Cleaning
-    form_data["Rank"] = form_data["Rank"].replace(/\s+/g, ' ').trim().toUpperCase()
-    form_data["Full Name"] = form_data["Full Name"].replace(/\s+/g, ' ').trim().toUpperCase()
-    form_data["Surname"] = form_data["Surname"].replace(/\s+/g, ' ').trim().toUpperCase()
-    let [year, month, day] = form_data['Enlistment Date'].split('-')
-    month = month_dict[Number(month)]
-    form_data['Enlistment Date'] = `${Number(day)} ${month} ${year}`
+    // Lowercase all field names, remove all extra spaces and modify to match specified type
+    Object.keys(form_data["Personal Particulars"]).forEach(fieldName => {
+        const fieldValue = form_data["Personal Particulars"][fieldName]
+        if (personalParticularsFieldsTypes[fieldName] == "Text (Capitalised)") {
+             // Capitalise each word. Does not undo user capitalisations of other letters
+            form_data["Personal Particulars"][fieldName.toLowerCase()] = fieldValue.replace(/\s+/g, ' ').trim().replace(/(^\w{1})|(\W+\w{1})/g, letter => letter.toUpperCase());
+
+        } else if (personalParticularsFieldsTypes[fieldName] == "Text (ALL CAPS)") {
+            form_data["Personal Particulars"][fieldName.toLowerCase()] = fieldValue.replace(/\s+/g, ' ').trim().toUpperCase()
+
+        } else if (personalParticularsFieldsTypes[fieldName] == "Date") {
+            let [year, month, day] = fieldValue.split('-')
+            month = month_dict[Number(month)]
+            form_data["Personal Particulars"][fieldName.toLowerCase()] = `${Number(day)} ${month} ${year}`
+
+        }
+    })
+
+    console.log(form_data)
 
     if (req.method == "POST") {
         try {
@@ -181,7 +192,6 @@ export default async function handler(req, res) {
                     Conclusion: true
                 }
             })
-            console.log(relevant_templates)
             // Validate the Introduction and Conclusion
             if (!relevant_templates.Introduction) {
                 return res.status(400).json({
@@ -195,11 +205,7 @@ export default async function handler(req, res) {
             }
             // Create placholder-data dictionaries (KEYS MUST BE LOWERCASED)
             const standard_placeholders = {
-                "rank": form_data["Rank"],
-                "full name": form_data["Full Name"],
-                "surname": form_data["Surname"],
-                "enlistment date": form_data["Enlistment Date"],
-                "coy": form_data["Coy"],
+                ...form_data["Personal Particulars"],
                 "primary appointment": relevant_templates.PrimaryAppointments.length > 0 ? relevant_templates.PrimaryAppointments[0].title : "<Insert Primary Appointment>"
             }
             const pre_unit_achievement_placeholder_data = Object.fromEntries(
@@ -336,8 +342,8 @@ export default async function handler(req, res) {
                 } else {
                     var achievement_string = `the ${soldier_fundamental_award_pairs[0][0]} for his ${soldier_fundamental_award_pairs[0][1]}`
                 }
-                const soldier_fundamentals_transcript = `In the area of soldier fundamentals, {rank} {surname} attained ${achievement_string}.`
-                const soldier_fundamentals_testimonial = `In the area of soldier fundamentals, {rank} {surname} attained ${achievement_string}.`
+                const soldier_fundamentals_transcript = `In the area of soldier fundamentals, <rank> <first name> attained ${achievement_string}.`
+                const soldier_fundamentals_testimonial = `In the area of soldier fundamentals, <rank> <first name> attained ${achievement_string}.`
                 var soldier_fundamental_paras = [
                     generateOptionTextRuns(soldier_fundamentals_transcript, standard_placeholders),
                     generateOptionParagraph(soldier_fundamentals_testimonial, standard_placeholders),
@@ -348,7 +354,6 @@ export default async function handler(req, res) {
                     generateOptionParagraph("<Insert a paragraph about his Soldier Fundamentals Achievements (if any)>", standard_placeholders)
                 ]
             }
-            console.log(soldier_fundamental_paras)
             const transcript_textruns = [].concat(...[
                 introduction_paras[0],
                 ...primary_appointment_paras.map(arr => arr[0]),
@@ -368,7 +373,6 @@ export default async function handler(req, res) {
                 conclusion_paras[1]
             ]).filter(element => element) // remove null values
             // Build the goddamn word doc (losing my sanity rn)
-            console.log(transcript_textruns)
             const doc = new Document({
                 sections: [
                     {
@@ -392,7 +396,7 @@ export default async function handler(req, res) {
                 ]
             })
             const b64string = await Packer.toBase64String(doc);
-            res.setHeader('Content-Disposition', `attachment; filename=(T&T Template) ${form_data["Rank"]} ${form_data["Full Name"]}.docx`);
+            res.setHeader('Content-Disposition', `attachment; filename=(T&T Template) ${form_data["Personal Particulars"]["rank"]} ${form_data["Personal Particulars"]["full name"]}.docx`);
             res.send(Buffer.from(b64string, 'base64'));
         } catch (error) {
             console.log(error)
