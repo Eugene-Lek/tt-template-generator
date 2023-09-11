@@ -24,7 +24,7 @@ export function SecondaryAppointmentsPage({ unit, section_name, available_vocati
                 }
             })
             const secondary_appointments_response_data = await secondary_appointments_response.json()
-            console.log(secondary_appointments_response_data.init_list)
+            
             set_secondary_appointments_list(secondary_appointments_response_data.init_list)  
             set_load_status('loaded')  
         }
