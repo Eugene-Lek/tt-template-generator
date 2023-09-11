@@ -377,10 +377,10 @@ export const UnitForm = ({
                 <button onClick={onClickResetPassword} className={reset_password_button_class}>Reset Password</button>
                 <div className="unit-overview">
                     <div>
-                        <div className="overview-header">Coys</div>
-                        {overview_data.Companies?.length > 0 ?
-                            <div className="overview-text">{overview_data.Companies.join(", ")}</div>
-                            : <div className="overview-text" style={{ color: "red" }}>No Coys have been added yet</div>}
+                        <div className="overview-header">Personal Particular Fields</div>
+                        {overview_data.PersonalParticularsFields?.length > 0 ?
+                            <div className="overview-text">{overview_data.PersonalParticularsFields.map(fieldSet => `${fieldSet.name} (${fieldSet.type})`).join(", ")}</div>
+                            : <div className="overview-text" style={{ color: "red" }}>No Personal Particular Fields have been added yet</div>}
                     </div>
                     <div>
                         <div className="overview-header">Vocations</div>

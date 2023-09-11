@@ -317,10 +317,10 @@ export default function SuperAdmin({ units_init_data }) {
                                     </div>
                                     <div className="unit-overview">
                                         <div>
-                                            <div className="overview-header">Coys</div>
-                                            {unit_to_delete_data.overview_data.Companies?.length > 0 ?
-                                                <div className="overview-text">{unit_to_delete_data.overview_data.Companies.join(", ")}</div>
-                                                : <div className="overview-text" style={{ color: "red" }}>No Coys have been added yet</div>}
+                                            <div className="overview-header">Personal Particular Fields</div>
+                                            {unit_to_delete_data.overview_data.PersonalParticularsFields?.length > 0 ?
+                                                <div className="overview-text">{unit_to_delete_data.overview_data.PersonalParticularsFields.map(fieldSet => `${fieldSet.name} (${fieldSet.type})`).join(", ")}</div>
+                                                : <div className="overview-text" style={{ color: "red" }}>No Personal Particular Fields have been added yet</div>}
                                         </div>
                                         <div>
                                             <div className="overview-header">Vocations</div>
@@ -379,6 +379,11 @@ export default function SuperAdmin({ units_init_data }) {
 export async function getServerSideProps() {
     const units_data = await prisma.Unit.findMany({
         include: {
+            PersonalParticularsFields: {
+                orderBy: {
+                    order: 'asc',
+                  },                            
+            },            
             Vocations: true,
             Introductions: true,
             PreUnitAchievements: true,
@@ -396,7 +401,7 @@ export async function getServerSideProps() {
                 id: uuidv4(),
                 unit: "",
                 overview_data: {
-                    Companies: [],
+                    PersonalParticularsFields: [],
                     Vocations: [],
                     Introductions: [],
                     PreUnitAchievements: [],
