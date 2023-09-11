@@ -21,7 +21,7 @@ export default async function handler(req, res) {
                 order: 'asc',
             },
         })
-        const existingPersonalParticulars = response.map(obj => obj.name.toLowerCase())
+        const existingPersonalParticulars = response.filter(obj => obj.id != id).map(obj => obj.name.toLowerCase())
         if (existingPersonalParticulars.includes(name.toLowerCase())) return res.status(400).json({ message: `"${name}" already exists` })
     }
 
