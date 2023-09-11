@@ -6,7 +6,7 @@ import cloneDeep from 'lodash/cloneDeep';
 
 const valid_ranks = ["Officer", "Specialist", "Enlistee"]
 
-export function SecondaryAppointmentsPage({ unit, section_name, available_vocation_ranks, set_dialog_settings }) {
+export function SecondaryAppointmentsPage({ unit, section_name, available_vocation_ranks, set_dialog_settings, savedPersonalParticularsFields }) {
 
     const [load_status, set_load_status] = useState('loading')
     const [secondary_appointments_list, set_secondary_appointments_list] = useState([])
@@ -30,7 +30,7 @@ export function SecondaryAppointmentsPage({ unit, section_name, available_vocati
         }
         fetchSectionData()
 
-    }, [unit])
+    }, [unit, savedPersonalParticularsFields])
 
 
     const getVocationRanksTemplateOverview = (available_vocation_ranks, section_list) => {

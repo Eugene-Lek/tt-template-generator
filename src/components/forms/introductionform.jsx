@@ -1,8 +1,6 @@
 import { useState, useRef } from "react"
 import cloneDeep from 'lodash/cloneDeep';
 
-const personal_particulars = ["rank", "full Name", "surname", "enlistment Date", "coy", "primary appointment"].map(e=>e.toLowerCase())
-
 export const IntroductionForm = ({
     id,
     template,
@@ -20,7 +18,8 @@ export const IntroductionForm = ({
     unit,
     set_dialog_settings,
     permanently_disable_edit,
-    display
+    display,
+    savedPersonalParticularsFields
 }) => {
     /*COMPARE related_vocation_ranks AGAINST available_vocation_ranks TO DECIDE WHICH CHECKBOXES TO CHECK*/
     // This is important because Vocation-Rank-Combination objects and their connections are retained even if
@@ -336,6 +335,7 @@ export const IntroductionForm = ({
 
 
     /* HELPER FUNCTIONS THAT DIRECTLY INVOKE API CALLS TO EXECUTE POST/PUT/DELETE REQUESTS */
+    const personal_particulars = savedPersonalParticularsFields ? savedPersonalParticularsFields.map(fieldSet => fieldSet.name.toLowerCase()) : []
     const createOrEditIntroduction = async ({
         id,
         template,

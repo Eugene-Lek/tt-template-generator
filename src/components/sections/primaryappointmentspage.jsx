@@ -6,7 +6,7 @@ import cloneDeep from 'lodash/cloneDeep';
 
 const valid_ranks = ["Officer", "Specialist", "Enlistee"]
 
-export function PrimaryAppointmentsPage({ unit, section_name, available_vocation_ranks, set_dialog_settings }) {
+export function PrimaryAppointmentsPage({ unit, section_name, available_vocation_ranks, set_dialog_settings, savedPersonalParticularsFields }) {
 
     const [load_status, set_load_status] = useState('loading')
     const [primary_appointments_list, set_primary_appointments_list] = useState([])
@@ -56,7 +56,7 @@ export function PrimaryAppointmentsPage({ unit, section_name, available_vocation
         }
         fetchSectionData()
 
-    }, [unit, [].concat(...primary_appointments_list.map(obj => obj.previously_saved_related_achievements.sort())).join()])
+    }, [unit, [].concat(...primary_appointments_list.map(obj => obj.previously_saved_related_achievements.sort())).join(), savedPersonalParticularsFields])
     // ^Only reload the primary appointments data when any of the primary_appointment_achievement titles have been changed and saved
     // Note: This works by setting the dependency with a string of all the previously_saved_related_achievements combined
     // This way, the string and thus the dependency will change whenever a change is made and saved to any of the related achievement titles.

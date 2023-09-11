@@ -6,7 +6,7 @@ import cloneDeep from 'lodash/cloneDeep';
 
 const valid_ranks = ["Officer", "Specialist", "Enlistee"]
 
-export function OtherContributionsPage({ unit, section_name, available_vocation_ranks, set_dialog_settings }) {
+export function OtherContributionsPage({ unit, section_name, available_vocation_ranks, set_dialog_settings, savedPersonalParticularsFields }) {
 
     const [load_status, set_load_status] = useState('loading')
     const [other_contributions_list, set_other_contributions_list] = useState([])
@@ -30,7 +30,7 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
         }
         fetchSectionData()
 
-    }, [unit])
+    }, [unit, savedPersonalParticularsFields])
 
 
     const getVocationRanksTemplateOverview = (available_vocation_ranks, section_list) => {

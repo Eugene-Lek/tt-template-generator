@@ -6,7 +6,7 @@ import cloneDeep from "lodash/cloneDeep";
 
 const valid_ranks = ["Officer", "Specialist", "Enlistee"]
 
-export function ConclusionsPage({ unit, section_name, available_vocation_ranks, set_dialog_settings }) {
+export function ConclusionsPage({ unit, section_name, available_vocation_ranks, set_dialog_settings, savedPersonalParticularsFields }) {
 
     const [load_status, set_load_status] = useState("loading")
     const [conclusions_list, set_conclusions_list] = useState([])
@@ -27,8 +27,8 @@ export function ConclusionsPage({ unit, section_name, available_vocation_ranks, 
             set_load_status("loaded")
         }
         fetchSectionData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [unit])
+
+    }, [unit, savedPersonalParticularsFields])
 
 
     const getVocationRanksTemplateOverview = (available_vocation_ranks, section_list) => {
@@ -40,7 +40,6 @@ export function ConclusionsPage({ unit, section_name, available_vocation_ranks, 
             const rank_template_entries = vocation_ranks_template_overview[vocation].map(rank => [rank, []])
             vocation_ranks_template_overview[vocation] = Object.fromEntries(rank_template_entries)
         })
-        console.log(section_list)
         section_list.forEach(section => {
             const section_related_vocation_ranks = section.previously_saved_related_vocation_ranks
             Object.keys(section_related_vocation_ranks).forEach(vocation => {
