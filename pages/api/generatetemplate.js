@@ -93,34 +93,28 @@ export default async function handler(req, res) {
     const { form_data, selected_unit, complusory_fields, personalParticularsFieldsTypes } = req.body
 
     // Server-side parameter validation
-    const missing_data = Object.keys(form_data).map(field => {
-        if (!complusory_fields.includes(field)) {
-            return
-        }
-        if (field != 'Primary Appointments') {
-            return form_data[field] == '' ? field : null
-        }
-        else if (field == 'Primary Appointments') {
-            const no_selections = Object.values(form_data[field]).length == 0 ||
-                Object.values(form_data[field]).every(selection => !selection) // check if every selection is false
-            if (no_selections) {
-                return field
-            }
-        }
-    }).filter(field => field) // remove undefined elements
-    if (missing_data.length > 0) {
-        return res.status(400).json({
-            message: `Please provide the following information: 
-                                                ${missing_data.map((field, index) => `${index + 1}. ${field}`).join("\n")}`
-        })
+    const missingFields = complusory_fields.filter(field => {
+        if (field == "Vocation" || field == "Rank Category" || field == 'Primary Appointments') return !form_data[field] // filter for undefined or ''
+        else return !form_data["Personal Particulars"][field] // filter for undefined or ''
+    }) 
+    const noPrimaryAppointmentSelected = Object.values(form_data['Primary Appointments']).length == 0 ||
+        Object.values(form_data['Primary Appointments']).every(selection => !selection) // check if every selection is false
+    if (noPrimaryAppointmentSelected) {
+        missingFields.push('Primary Appointments')
     }
 
+    if (missingFields.length > 0) {
+        return res.status(400).json({
+            message: `Please provide the following information: 
+                                                ${missingFields.map((field, index) => `${index + 1}. ${field}`).join("\n")}`
+        })
+    }
     // Data Cleaning
     // Lowercase all field names, remove all extra spaces and modify to match specified type
     Object.keys(form_data["Personal Particulars"]).forEach(fieldName => {
         const fieldValue = form_data["Personal Particulars"][fieldName]
         if (personalParticularsFieldsTypes[fieldName] == "Text (Capitalised)") {
-             // Capitalise each word. Does not undo user capitalisations of other letters
+            // Capitalise each word. Does not undo user capitalisations of other letters
             form_data["Personal Particulars"][fieldName.toLowerCase()] = fieldValue.replace(/\s+/g, ' ').trim().replace(/(^\w{1})|(\W+\w{1})/g, letter => letter.toUpperCase());
 
         } else if (personalParticularsFieldsTypes[fieldName] == "Text (ALL CAPS)") {

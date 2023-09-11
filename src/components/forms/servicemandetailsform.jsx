@@ -22,12 +22,12 @@ export default function ServicemanDetailsForm({ selected_unit, unit_data, set_di
 
     const personalParticularsFields = unit_data?.PersonalParticularsFields.map(fieldSet => fieldSet.name)
     const personalParticularsFieldsTypes = Object.fromEntries(unit_data ? unit_data.PersonalParticularsFields.map(fieldSet => [fieldSet.name, fieldSet.type]) : [])
-    const complusory_fields = [
+    let complusory_fields = [
         'Vocation',
         'Rank Category',
         'Primary Appointments'
     ]
-    complusory_fields.concat(unit_data ? personalParticularsFields : [])
+    complusory_fields = [].concat(unit_data ? personalParticularsFields : []).concat(complusory_fields)
 
     // Parameter Validation
     if (!selected_unit) {
@@ -117,24 +117,21 @@ export default function ServicemanDetailsForm({ selected_unit, unit_data, set_di
 
         set_generate_status("pending")
         // Client-side parameter validation
-        const missing_data = Object.keys(form_data).map(field => {
-            if (!complusory_fields.includes(field)) {
-                return
-            }
-            if (field != 'Primary Appointments') {
-                return form_data[field] == '' ? field : null
-            }
-            else if (field == 'Primary Appointments') {
-                const no_selections = Object.values(form_data[field]).length == 0 ||
-                    Object.values(form_data[field]).every(selection => !selection) // check if every selection is false
-                if (no_selections) {
-                    return field
-                }
-            }
-        }).filter(field => field) // remove undefined elements
-        if (missing_data.length > 0) {
+        const missingFields = complusory_fields.filter(field => {
+            if (field == "Vocation" || field == "Rank Category" || field == 'Primary Appointments') return !form_data[field] // filter for undefined or ''
+            else return !form_data["Personal Particulars"][field] // filter for undefined or ''
+        })
+        const noPrimaryAppointmentSelected = Object.values(form_data['Primary Appointments']).length == 0 ||
+            Object.values(form_data['Primary Appointments']).every(selection => !selection) // check if every selection is false
+        if (noPrimaryAppointmentSelected) {
+            missingFields.push('Primary Appointments')
+        }
+
+        if (missingFields.length > 0) {
             displayErrorMessage(`Please provide the following information: 
-                                ${missing_data.map((field, index) => `${index + 1}. ${field}`).join("\n")}`)
+                                ${missingFields.map((field, index) => `${index + 1}. ${field}`).join("\n")}`)
+            set_generate_status("resolved")
+            return
         }
         try {
             const response = await fetch('/api/generatetemplate', {
