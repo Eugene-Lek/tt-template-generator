@@ -14,6 +14,7 @@ import { OtherIndividualAchievementsPage } from "@/src/components/sections/other
 import { ConclusionsPage } from "@/src/components/sections/conclusionspage"
 import { CompaniesForm } from "@/src/components/forms/companyform"
 import { AdminHeader } from '@/src/components/header/adminheader'
+import { PersonalParticularsFieldsPage } from '@/src/components/sections/personalparticularsfieldspage'
 
 const init_sections = [
     { title: "Introduction", className: "section-button-selected", selected: true },
@@ -25,9 +26,14 @@ const init_sections = [
     { title: "Conclusion", className: "section-button-right-unselected", selected: false }
 ]
 
-export default function UnitAdminHome({ unit, id, init_companies, init_vocations_list }) {
+export default function UnitAdminHome({ unit, id, init_personal_particulars_fields, init_vocations_list }) {
     const title = `${unit}'s T&T Template Generator Admin Page`
+
+    const [personalParticularsFields, setPersonalParticularsFields] = useState(init_personal_particulars_fields)
+    const [savedPersonalParticularsFields, setSavedPersonalParticularsFields] = useState(init_personal_particulars_fields)
+
     const [forms_list, set_forms_list] = useState(init_vocations_list)
+
     const available_vocation_ranks_raw = forms_list.map((form) => {
         const ranks_list = [form.previously_saved_ranks.have_officer ? 'Officer' : '',
         form.previously_saved_ranks.have_specialist ? 'Specialist' : '',
@@ -35,7 +41,7 @@ export default function UnitAdminHome({ unit, id, init_companies, init_vocations
         return [form.previously_saved_vocation, ranks_list]
     }).filter(pair => pair[0]) // Remove pairs with empty vocations
     const available_vocation_ranks = Object.fromEntries(available_vocation_ranks_raw)
-    console.log(available_vocation_ranks)
+
     const [sections, set_sections] = useState(init_sections)
 
     const [dialog_settings, set_dialog_settings] = useState({
@@ -145,13 +151,17 @@ export default function UnitAdminHome({ unit, id, init_companies, init_vocations
             <AdminHeader title={title} unit={unit} id={id} set_dialog_settings={set_dialog_settings} />
             <main className="home-body">
                 <section className="big-section">
-                    <h2 className="big-section-title">1. Add Companies</h2>
+                    <h2 className="big-section-title">1. Personal Particulars Fields</h2>
                     <div className="big-section-description-group">
-                        <p className="big-section-description"> Add the coys that belong to your unit! </p>
-                        <p className="big-section-description">These coy names will be inserted into the T&T templates, so you should write them in the way you want them to be displayed. (e.g. Headquarters instead of HQ) </p>
+                        <p className="big-section-description"> Specify the personal particulars you want to collect from users! </p>
+                        <p className="big-section-description">These personal particulars can be inserted into the T&T templates later on, with the field names functioning as placeholders.</p>
+                        <p className="big-section-description">{"e.g. {Full name} is used to represent the person's full name"}</p>
                     </div>
-                    <CompaniesForm
-                        init_companies={init_companies}
+                    <PersonalParticularsFieldsPage
+                        personalParticularsFields={personalParticularsFields}
+                        setPersonalParticularsFields={setPersonalParticularsFields}
+                        savedPersonalParticularsFields={savedPersonalParticularsFields}
+                        setSavedPersonalParticularsFields={setSavedPersonalParticularsFields}
                         unit={unit}
                         set_dialog_settings={set_dialog_settings}
                     />
@@ -212,6 +222,7 @@ export default function UnitAdminHome({ unit, id, init_companies, init_vocations
                             section_name={sections[0]['title']}
                             available_vocation_ranks={available_vocation_ranks}
                             set_dialog_settings={set_dialog_settings}
+                            savedPersonalParticularsFields={savedPersonalParticularsFields}
                         />
                     )}
                     {sections[1]['selected'] && (
@@ -220,6 +231,7 @@ export default function UnitAdminHome({ unit, id, init_companies, init_vocations
                             section_name={sections[1]['title']}
                             available_vocation_ranks={available_vocation_ranks}
                             set_dialog_settings={set_dialog_settings}
+                            savedPersonalParticularsFields={savedPersonalParticularsFields}
                         />
                     )}
                     {sections[2]['selected'] && (
@@ -228,6 +240,7 @@ export default function UnitAdminHome({ unit, id, init_companies, init_vocations
                             section_name={sections[2]['title']}
                             available_vocation_ranks={available_vocation_ranks}
                             set_dialog_settings={set_dialog_settings}
+                            savedPersonalParticularsFields={savedPersonalParticularsFields}
                         />
                     )}
                     {sections[3]['selected'] && (
@@ -244,6 +257,7 @@ export default function UnitAdminHome({ unit, id, init_companies, init_vocations
                             section_name={sections[4]['title']}
                             available_vocation_ranks={available_vocation_ranks}
                             set_dialog_settings={set_dialog_settings}
+                            savedPersonalParticularsFields={savedPersonalParticularsFields}
                         />
                     )}
                     {sections[5]['selected'] && (
@@ -252,6 +266,7 @@ export default function UnitAdminHome({ unit, id, init_companies, init_vocations
                             section_name={sections[5]['title']}
                             available_vocation_ranks={available_vocation_ranks}
                             set_dialog_settings={set_dialog_settings}
+                            savedPersonalParticularsFields={savedPersonalParticularsFields}
                         />
                     )}
                     {sections[6]['selected'] && (
@@ -260,6 +275,7 @@ export default function UnitAdminHome({ unit, id, init_companies, init_vocations
                             section_name={sections[6]['title']}
                             available_vocation_ranks={available_vocation_ranks}
                             set_dialog_settings={set_dialog_settings}
+                            savedPersonalParticularsFields={savedPersonalParticularsFields}
                         />
                     )}
                 </section>
@@ -286,7 +302,8 @@ export async function getServerSideProps({ params }) {
             name: unit
         },
         include: {
-            Vocations: true
+            Vocations: true,
+            PersonalParticularsFields: true
         }
     })
     // If the unit does not exist, return nothing as props.    
@@ -295,26 +312,25 @@ export async function getServerSideProps({ params }) {
             props: {
                 unit: {name: unit},
                 id: '',
-                init_companies: [],
+                init_personal_particulars_fields: [],
                 init_vocations_list: []
             }
         }
     }
     // Otherwise, return accordingly
-    const unit_companies = unit_data_dict.Companies
-    if (unit_companies.length < 1) {
-        var init_companies = {
-            companies: [''],
-            previously_saved_companies: [''],
-            button_state: "save"
-        }
+    const personal_particulars_fields = unit_data_dict.PersonalParticularsFields
+    if (personal_particulars_fields.length < 1) {
+        var init_personal_particulars_fields = [
+            {id: uuidv4(), name: "Full Name", type: "Text (ALL CAPS)", order: 0}, 
+            {id: uuidv4(), name: "Rank", type: "Text (ALL CAPS)", order: 1}, 
+            {id: uuidv4(), name: "First Name", type: "Text (ALL CAPS)", order: 2}, 
+            {id: uuidv4(), name: "Enlistment Date", type: "Date", order: 3},
+            {id: uuidv4(), name: "Company", type: "Text (Capitalised)", order: 4}
+        ]
     } else {
-        var init_companies = {
-            companies: unit_companies,
-            previously_saved_companies: unit_companies,
-            button_state: "edit"
-        }
+        init_personal_particulars_fields = personal_particulars_fields.sort((a, b) => a.order - b.order)
     }
+
     const unit_vocations = unit_data_dict.Vocations
     if (unit_vocations.length < 1) {
         var init_vocations_list = [{
@@ -357,7 +373,7 @@ export async function getServerSideProps({ params }) {
         props: {
             unit,
             id: unit_data_dict.id,
-            init_companies,
+            init_personal_particulars_fields,
             init_vocations_list
         }
     }
