@@ -10,9 +10,9 @@ import ServicemanDetailsForm from '@/src/components/forms/servicemandetailsform'
 
 export default function AdminLogin({ units }) {
 
-    const units_options = units.map(unit => ({ label: unit, value: unit }))
+    const units_options = units.map(unit => ({ label: unit.name, value: unit }))
 
-    const [selected_unit, set_selected_unit] = useState('')
+    const [selected_unit, set_selected_unit] = useState({name: undefined, id: undefined})
     const [input_password, set_input_password] = useState('')
     const router = useRouter()
 
@@ -24,12 +24,74 @@ export default function AdminLogin({ units }) {
         "onClickDialog": function () { return },
         "onClickDialogProps": {}
     })
-    const onAttemptLogin = (event) => {
-        event.preventDefault()
-        const authenticated = true
-        // Make API call to authenticate user
-        if (authenticated) {
-            router.push(`admin/${selected_unit}`)
+
+    const closeDialogueBox = () => {
+        set_dialog_settings({
+            "message": '',
+            "buttons": [],
+            "line_props": [],
+            "displayed": false,
+            "onClickDialog": function () { return },
+            "onClickDialogProps": {}
+        })
+    }
+
+    const displayErrorMessage = async (error_message) => {
+
+        // This is necessary as the number of lines error messages consist of varies
+        const error_num_lines = error_message.split('\n').length
+
+        // If the error message consists of more than 1 line, align the text to the left instead
+        if (error_num_lines == 1) {
+            var error_lines_props = Array(error_num_lines).fill({
+                color: "#000000", font_size: "16px", text_align: "center", margin_right: "auto", margin_left: "auto"
+            })
+        } else {
+            var error_lines_props = Array(error_num_lines).fill({
+                color: "#000000", font_size: "16px", text_align: "left", margin_right: "auto", margin_left: "0"
+            })
+        }
+
+        set_dialog_settings({
+            "message":
+                `*Error*
+                ${error_message}`,
+            "buttons": [
+                { text: "Close", action: "exit", background: "#01a4d9", color: "#FFFFFF" }
+            ],
+            "line_props": [
+                { color: "#E60023", font_size: "25px", text_align: "center", margin_right: "auto", margin_left: "auto" },
+                ...error_lines_props],
+            "displayed": true,
+            "onClickDialog": closeDialogueBox,
+            "onClickDialogProps": { set_dialog_settings }
+        })
+    }
+
+    const onAttemptLogin = async() => {
+        // Input validation
+        if (!selected_unit.name || !selected_unit.id) {
+            displayErrorMessage("You have not selected a unit")
+            return
+        }           
+        
+        if (!input_password) {
+            displayErrorMessage("You have not keyed in the password")
+            return            
+        }
+        
+        const verification = await fetch(`/api/authentication/verifyadminpassword?current_password=${encodeURIComponent(input_password)}&unitID=${selected_unit.id}`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        if (!verification.ok) {
+            const response_data = await verification.json()
+            displayErrorMessage(response_data.message)  
+            return              
+        } else {
+            router.push(`/admin/${selected_unit.name}`)
         }
     }
 
@@ -51,7 +113,7 @@ export default function AdminLogin({ units }) {
                             onChange={option => set_selected_unit(option.value)}
                             options={units_options}
                             placeholder={"Your Unit"} />
-                        <input className='login-input' onChange={event => set_input_password(event.target.value)} type={"password"} placeholder='Password'></input>
+                        <input className='login-input' onChange={(event) => {set_input_password(event.target.value)}} type={"password"} placeholder='Password'></input>
                         <button onClick={onAttemptLogin} className='login-button'>Login</button>
                     </div>
                 </section>
@@ -72,13 +134,26 @@ export default function AdminLogin({ units }) {
 
 
 export async function getServerSideProps() {
-    const unit_names_list = await prisma.Unit.findMany({
+    const units = await prisma.Unit.findMany({
         select: {
+            id: true,
             name: true
         }
     })
-    const units = unit_names_list.map(obj => obj.name)
-    units.sort()
+
+    units.sort((a, b) => {
+        const xString = String(a.name);
+        const yString = String(b.name);
+    
+        if( xString < yString )
+            return -1;
+    
+        if( xString > yString )
+            return 1;
+    
+        return 0;
+    })
+
     return {
         props: {
             units

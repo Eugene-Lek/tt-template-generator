@@ -26,7 +26,7 @@ const init_sections = [
     { title: "Conclusion", className: "section-button-right-unselected", selected: false }
 ]
 
-export default function UnitAdminHome({ unit, id, init_personal_particulars_fields, init_vocations_list }) {
+export default function UnitAdminHome({ unit, id, init_personal_particulars_fields, init_vocations_list, error }) {
     const title = `${unit}'s T&T Template Generator Admin Page`
 
     const [personalParticularsFields, setPersonalParticularsFields] = useState(init_personal_particulars_fields)
@@ -53,6 +53,32 @@ export default function UnitAdminHome({ unit, id, init_personal_particulars_fiel
         "onClickDialogProps": {}
     })
 
+    if (error) {
+        return (
+            <>
+                <Head>
+                    <title>T&T Generator</title>
+                    <meta name="viewport" content="width=device-width, initial-scale=1" />
+                    <link rel="icon" href="/favicon.ico" />
+                </Head>
+                <main>
+                    <Dialog
+                        message={
+                            `*Error*
+                            ${error}`
+                        }
+                        buttons={[]}
+                        line_props={[
+                            { color: "#E60023", font_size: "25px", text_align: "center", margin_right: "auto", margin_left: "auto" },
+                            ...error_lines_props
+                        ]}
+                        onClickDialog={function () { return }}
+                        onClickDialogProps={{}}
+                    />
+                </main>
+            </>
+        )        
+    }
 
     if (id == '') {
         const error_message = `*${unit.name}* does not exist in the database. 
@@ -69,7 +95,7 @@ export default function UnitAdminHome({ unit, id, init_personal_particulars_fiel
             var error_lines_props = Array(error_num_lines).fill({
                 color: "#000000", font_size: "16px", text_align: "left", margin_right: "auto", margin_left: "0"
             })
-        }        
+        }
         return (
             <>
                 <Head>
@@ -82,7 +108,7 @@ export default function UnitAdminHome({ unit, id, init_personal_particulars_fiel
                         message={
                             `*Error*
                             ${error_message}`
-                            }
+                        }
                         buttons={[]}
                         line_props={[
                             { color: "#E60023", font_size: "25px", text_align: "center", margin_right: "auto", margin_left: "auto" },
@@ -90,7 +116,7 @@ export default function UnitAdminHome({ unit, id, init_personal_particulars_fiel
                         ]}
                         onClickDialog={function () { return }}
                         onClickDialogProps={{}}
-                    />                    
+                    />
                 </main>
             </>
         )
@@ -145,7 +171,7 @@ export default function UnitAdminHome({ unit, id, init_personal_particulars_fiel
             <Head>
                 <title>T&T Template Generator</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <meta name="robots" content="noindex,nofollow"/>
+                <meta name="robots" content="noindex,nofollow" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <AdminHeader title={title} unit={unit} id={id} set_dialog_settings={set_dialog_settings} />
@@ -295,8 +321,44 @@ export default function UnitAdminHome({ unit, id, init_personal_particulars_fiel
     )
 }
 
-export async function getServerSideProps({ params }) {
+export async function getServerSideProps({ params, req }) {
+
     const unit = params.unit.toUpperCase()
+    const { cookie } = req.headers
+
+    if (!cookie) {
+        return {
+            redirect: {
+                destination: '/admin',
+                permanent: false,
+            },
+        }
+    }
+
+    const rootURL = process.env.NODE_ENV == "production" ? process.env.SERVER_URL : 'http://localhost:3000'
+    const response = await fetch(`${rootURL}/api/authentication/verifyauthentication?unitName=${unit}&cookieType=AdminAuth`, {
+        credentials: "include",
+        headers: { cookie },
+    })
+    
+    if (response.status == 401) {
+        return {
+            redirect: {
+                destination: '/admin',
+                permanent: false,
+            },
+        }
+    }
+
+    if (response.status == 500) {
+        const error = await response.json()
+        return {
+            props: {
+                error: error.message
+            }
+        }
+    }
+
     const unit_data_dict = await prisma.Unit.findUnique({
         where: {
             name: unit
@@ -310,7 +372,7 @@ export async function getServerSideProps({ params }) {
     if (!unit_data_dict) {
         return {
             props: {
-                unit: {name: unit},
+                unit: { name: unit },
                 id: '',
                 init_personal_particulars_fields: [],
                 init_vocations_list: []
@@ -321,11 +383,11 @@ export async function getServerSideProps({ params }) {
     const personal_particulars_fields = unit_data_dict.PersonalParticularsFields
     if (personal_particulars_fields.length < 1) {
         var init_personal_particulars_fields = [
-            {id: uuidv4(), name: "Full Name", type: "Text (ALL CAPS)", order: 0}, 
-            {id: uuidv4(), name: "Rank", type: "Text (ALL CAPS)", order: 1}, 
-            {id: uuidv4(), name: "First Name", type: "Text (ALL CAPS)", order: 2}, 
-            {id: uuidv4(), name: "Enlistment Date", type: "Date", order: 3},
-            {id: uuidv4(), name: "Company", type: "Text (Capitalised)", order: 4}
+            { id: uuidv4(), name: "Full Name", type: "Text (ALL CAPS)", order: 0 },
+            { id: uuidv4(), name: "Rank", type: "Text (ALL CAPS)", order: 1 },
+            { id: uuidv4(), name: "First Name", type: "Text (ALL CAPS)", order: 2 },
+            { id: uuidv4(), name: "Enlistment Date", type: "Date", order: 3 },
+            { id: uuidv4(), name: "Company", type: "Text (Capitalised)", order: 4 }
         ]
     } else {
         init_personal_particulars_fields = personal_particulars_fields.sort((a, b) => a.order - b.order)
