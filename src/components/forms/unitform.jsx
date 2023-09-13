@@ -81,10 +81,10 @@ export const UnitForm = ({
     }
 
 
-    const displayPassword = (random_password) => {
+    const displayPassword = (new_password) => {
         set_dialog_settings({
             "message": `*This is ${unit.toUpperCase().replace(/\s+/g, ' ').trim()}'s account password:*
-                        ${random_password}
+                        ${new_password}
                         *You must store this somewhere as the system cannot display it again.*`,
             "buttons": [
                 { text: "Close", action: "exit", background: "#01a4d9", color: "#FFFFFF" }
@@ -309,8 +309,8 @@ export const UnitForm = ({
                 console.log(temp_units_data)
                 // Display the generated password if the Unit Admin Account is newly created
                 const response_data = await response.json()
-                if (response_data.random_password) {
-                    displayPassword(response_data.random_password)
+                if (response_data.new_password) {
+                    displayPassword(response_data.new_password)
                 }
                 set_save_button_class("save-changes-button-hidden")
                 set_cancel_button_class("cancel-button-invisible")
@@ -343,7 +343,7 @@ export const UnitForm = ({
             })
             if (response.status == 200) {
                 const response_data = await response.json()
-                displayPassword(response_data.random_password)
+                displayPassword(response_data.new_password)
                 set_save_button_class("save-changes-button-hidden")
                 set_cancel_button_class("cancel-button-invisible")
                 set_edit_button_class("edit-button-visible")
