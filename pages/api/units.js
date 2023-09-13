@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt'
 
 const saltRounds = 10
 const random_password_length = 12
+const PASSWORD_MIN_LENGTH = 10
 const super_admin_page_name = "super-admin"
 const DEFAULT_PERSONAL_PARTICULAR_FIELDS = [
     { name: "Full Name", type: "Text (ALL CAPS)" },
@@ -27,10 +28,10 @@ const genPassword = (passwordLength) => {
 export default async function handler(req, res) {
 
     if (req.method != "GET") {
-        var { id, unit, field_to_patch, selected_copy_unit } = req.body
+        var { id, unit, selected_copy_unit, field_to_patch, new_password } = req.body
     }
 
-    if (req.method == "POST" || req.method == "PATCH") {
+    if (req.method == "POST" || (req.method == "PATCH" && field_to_patch == "unitName")) {
         // Parameter Validation
         if (unit == super_admin_page_name) {
             return res.status(400).json({ message: "super-admin is an invalid unit name." })
@@ -51,7 +52,7 @@ export default async function handler(req, res) {
                         PersonalParticularsFields: {
                             orderBy: {
                                 order: 'asc',
-                              },                            
+                            },
                         },
                         Vocations: true,
                         Introductions: true,
@@ -234,7 +235,7 @@ export default async function handler(req, res) {
                                     obj.id = undefined // This way prisma will automatically assign a new id to the object
                                     obj.unitName = undefined // Get rid of foreign key
                                     return obj
-                                })                                
+                                })
                             },
                             Vocations: {
                                 create: copy_unit_data.Vocations.map(obj => {
@@ -383,8 +384,12 @@ export default async function handler(req, res) {
                     })
                     return res.status(200).json({ message: "Unit Admin account name successfully updated." })
                 } else if (field_to_patch == "password") {
-                    // Generate a random password
-                    const random_password = genPassword(random_password_length)
+                    // Password validation (If new password is provided)                 
+                    if (new_password && new_password.length < PASSWORD_MIN_LENGTH) { throw new Error(`Your password must be at least ${PASSWORD_MIN_LENGTH} characters long`) }
+
+                    // Generate a random password if no password is provided
+                    if (!new_password) { var new_password = genPassword(random_password_length) }
+
                     // A random salt is generated for every password hashing request
                     const salt = await bcrypt.genSalt(saltRounds)
                     // The salt is used to set the parameters of the hashing function
@@ -392,21 +397,43 @@ export default async function handler(req, res) {
                     // used to initialise the hashing function that is used to hash the user's input password. 
                     // This second hash is then compared to the stored hash, and if they are the same, 
                     // the user is authenticated. 
-                    const hashed_password = await bcrypt.hash(random_password, salt)
+                    const hashed_password = await bcrypt.hash(new_password, salt)
                     await prisma.Unit.update({
                         where: {
                             id: id
                         },
                         data: {
                             password: hashed_password,
-                            isRandomlyGeneratedPassword: true
+                            isRandomlyGeneratedPassword: !new_password
                         }
                     })
-                    return res.status(200).json({ random_password: random_password, message: "Unit admin account password successfully updated." })
+                    return res.status(200).json({ new_password: new_password, message: "Unit admin account password successfully updated." })
+
+                } else if (field_to_patch == "userPassword") {
+                    // Password validation
+                    if (new_password.length < PASSWORD_MIN_LENGTH) { throw new Error(`Your password must be at least ${PASSWORD_MIN_LENGTH} characters long`) }
+
+                    // A random salt is generated for every password hashing request
+                    const salt = await bcrypt.genSalt(saltRounds)
+                    // The salt is used to set the parameters of the hashing function
+                    // It will be attached to the hash in the final result so that way it can be 
+                    // used to initialise the hashing function that is used to hash the user's input password. 
+                    // This second hash is then compared to the stored hash, and if they are the same, 
+                    // the user is authenticated. 
+                    const hashed_password = await bcrypt.hash(new_password, salt)
+                    await prisma.Unit.update({
+                        where: {
+                            id: id
+                        },
+                        data: {
+                            userPassword: hashed_password,
+                        }
+                    })
+                    return res.status(200).json({ new_password: new_password, message: "User password successfully updated." })
                 }
                 break
+
             case "DELETE":
-                console.log("reached1")                
                 await prisma.PersonalParticularsField.deleteMany({
                     where: {
                         unitName: unit
