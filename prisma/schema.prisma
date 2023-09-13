@@ -15,7 +15,7 @@ model Unit {
   name                        String  @unique
   password                    String
   isRandomlyGeneratedPassword Boolean
-  userPassword                String
+  userPassword                String?
 
   Companies                      String[]
   PersonalParticularsFields      PersonalParticularsField[]
