@@ -285,7 +285,6 @@ export const UnitForm = ({
         http_method,
         selected_copy_unit,
     }) => {
-        console.log(unit)
         try {
             const response = await fetch("/api/units", {
                 method: http_method,
