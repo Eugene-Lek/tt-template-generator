@@ -78,7 +78,7 @@ export default function UserLogin({ units }) {
       return
     }
 
-    const verification = await fetch(`/api/authentication/verifyuserpassword?current_password=${encodeURIComponent(input_password)}&unitID=${selected_unit.id}`, {
+    const verification = await fetch(`/api/authentication/verifyuserpassword?current_password=${encodeURIComponent(input_password)}&unitID=${encodeURIComponent(selected_unit.id)}&timestamp=${new Date().getTime()}`, {
       method: "GET",
       headers: {
         'Content-Type': 'application/json'
