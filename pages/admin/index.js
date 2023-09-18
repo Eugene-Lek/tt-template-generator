@@ -14,6 +14,7 @@ export default function AdminLogin({ units }) {
 
     const [selected_unit, set_selected_unit] = useState({name: undefined, id: undefined})
     const [input_password, set_input_password] = useState('')
+    const [loading, setLoading] = useState(false)
     const router = useRouter()
 
     const [dialog_settings, set_dialog_settings] = useState({
@@ -69,14 +70,18 @@ export default function AdminLogin({ units }) {
     }
 
     const onAttemptLogin = async() => {
+        setLoading(true)
+
         // Input validation
         if (!selected_unit.name || !selected_unit.id) {
             displayErrorMessage("You have not selected a unit")
+            setLoading(false)
             return
         }           
         
         if (!input_password) {
             displayErrorMessage("You have not keyed in the password")
+            setLoading(false)
             return            
         }
         
@@ -89,11 +94,12 @@ export default function AdminLogin({ units }) {
 
         if (!verification.ok) {
             const response_data = await verification.json()
-            displayErrorMessage(response_data.message)  
-            return              
+            displayErrorMessage(response_data.message)           
         } else {
-            router.push(`/admin/${selected_unit.name}`)
+            await router.push(`/admin/${selected_unit.name}`)
         }
+        setLoading(false)
+        
     }
 
     return (
@@ -115,7 +121,7 @@ export default function AdminLogin({ units }) {
                             options={units_options}
                             placeholder={"Your Unit"} />
                         <input className='login-input' onChange={(event) => {set_input_password(event.target.value)}} type={"password"} placeholder='Password'></input>
-                        <button onClick={onAttemptLogin} className='login-button'>Login</button>
+                        <button onClick={onAttemptLogin} disabled={loading} style={{ backgroundColor: loading ? "rgb(173 196 204)" : "#01a4d9", fontWeight: "bold", width: loading ? "135px" : "90px", border: "0px", borderRadius: "20px", color: "white", fontSize: "20px" }}>{loading ? "Logging in" : "Login"}</button>
                     </div>
                 </section>
                 {dialog_settings.displayed && (

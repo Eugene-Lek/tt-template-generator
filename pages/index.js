@@ -12,6 +12,7 @@ export default function UserLogin({ units }) {
 
   const [selected_unit, set_selected_unit] = useState({ name: undefined, id: undefined })
   const [input_password, set_input_password] = useState('')
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
 
   const [dialog_settings, set_dialog_settings] = useState({
@@ -67,14 +68,18 @@ export default function UserLogin({ units }) {
   }
 
   const onAttemptLogin = async () => {
+    setLoading(true)
+
     // Input validation
     if (!selected_unit.name || !selected_unit.id) {
       displayErrorMessage("You have not selected a unit")
+      setLoading(false)
       return
     }
 
     if (!input_password) {
       displayErrorMessage("You have not keyed in the password")
+      setLoading(false)
       return
     }
 
@@ -84,13 +89,15 @@ export default function UserLogin({ units }) {
         'Content-Type': 'application/json'
       }
     })
+
     if (!verification.ok) {
       const response_data = await verification.json()
       displayErrorMessage(response_data.message)
-      return
     } else {
-      router.push(`/${selected_unit.name}`)
+      await router.push(`/${selected_unit.name}`)
     }
+    setLoading(false)
+
   }
 
   return (
@@ -116,7 +123,7 @@ export default function UserLogin({ units }) {
               <input style={{ width: "200px", height: "32px", fontSize: "16px", boxSizing: "border-box", border: "2px solid #ccc", borderRadius: "4px" }} onChange={(event) => { set_input_password(event.target.value) }} type={"password"} placeholder='Password'></input>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "48px", alignItems: "center" }}>
-              <button onClick={onAttemptLogin} style={{ backgroundColor: "#01a4d9", fontWeight: "bold", width: "90px", border: "0px", borderRadius: "20px", color: "white", fontSize: "20px" }}>Login</button>
+              <button onClick={onAttemptLogin} disabled={loading} style={{ backgroundColor: loading ? "rgb(173 196 204)" : "#01a4d9", fontWeight: "bold", width: loading ? "135px" : "90px", border: "0px", borderRadius: "20px", color: "white", fontSize: "20px" }}>{loading ? "Logging in" : "Login"}</button>
               <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                 <div style={{ fontWeight: "bold" }}>{"Don't know the password?"}</div>
                 <div style={{ maxWidth: "200px" }}> {"Please contact your unit's S1 dept as the password might have changed!"}</div>
