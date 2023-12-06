@@ -2,7 +2,7 @@ import {useFormik} from "formik"
 
 const PASSWORD_MIN_LENGTH = 10
 
-export default function ResetUserPaswordForm({ unitID, set_dialog_settings }) {
+export default function ResetUserPaswordForm({ unit, unitID, set_dialog_settings }) {
     const closeDialogueBox = () => {
         set_dialog_settings({
             "message": '',
@@ -68,8 +68,9 @@ export default function ResetUserPaswordForm({ unitID, set_dialog_settings }) {
     }
 
     const resetPassword = async ({
+        current_password,
         new_password,
-        confirm_new_password
+        confirm_new_password,
     }) => {
         try {
             // Parameter validation
@@ -88,8 +89,10 @@ export default function ResetUserPaswordForm({ unitID, set_dialog_settings }) {
                 },
                 body: JSON.stringify({
                     id: unitID,
+                    unit,
                     field_to_patch: "userPassword",
-                    new_password
+                    new_password,
+                    current_password
                 })
             })
             if (response.status == 200) {
@@ -108,13 +111,14 @@ export default function ResetUserPaswordForm({ unitID, set_dialog_settings }) {
     }
     const formik = useFormik({
         onSubmit: resetPassword,
-        initialValues: {new_password: '', confirm_new_password: ''}
+        initialValues: { current_password: '', new_password: '', confirm_new_password: '' }
     })
 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: "24px", alignItems: "center" }}>
             <div style={{ fontWeight: "bold", fontSize: "32px"}}>Reset User Password</div>
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <input type="password" id={"current_password"} {...formik.getFieldProps("current_password")} style={{ width: "200px", height: "32px", fontSize: "16px", boxSizing: "border-box", border: "2px solid #ccc", borderRadius: "4px" }} placeholder="Current Password" />                
                 <input type="password" id={"new_password"} {...formik.getFieldProps("new_password")} style={{ width: "200px", height: "32px", fontSize: "16px", boxSizing: "border-box", border: "2px solid #ccc", borderRadius: "4px" }} placeholder="New Password" />
                 <input type="password" id={"confirm_new_password"} {...formik.getFieldProps("confirm_new_password")} style={{ width: "200px", height: "32px", fontSize: "16px", boxSizing: "border-box", border: "2px solid #ccc", borderRadius: "4px" }} placeholder="Confirm New Password" />
             </div>

@@ -2,7 +2,7 @@ import { useFormik } from "formik"
 
 const PASSWORD_MIN_LENGTH = 10
 
-export default function ResetAdminPaswordForm({ unitID, set_dialog_settings }) {
+export default function ResetAdminPaswordForm({ unit, unitID, set_dialog_settings }) {
     const closeDialogueBox = () => {
         set_dialog_settings({
             "message": '',
@@ -81,18 +81,6 @@ export default function ResetAdminPaswordForm({ unitID, set_dialog_settings }) {
             if (!passwordsMatch) { throw new Error("Passwords do not match") }
 
             if (new_password.length < PASSWORD_MIN_LENGTH) { throw new Error(`Your password must be at least ${PASSWORD_MIN_LENGTH} characters long`) }
-            // verify current password
-            const verification = await fetch(`/api/authentication/verifyadminpassword?current_password=${encodeURIComponent(current_password)}&unitID=${unitID}`, {
-                method: "GET",
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            if (!verification.ok) {
-                const response_data = await verification.json()
-                displayErrorMessage(response_data.message)  
-                return              
-            }
 
             // Execute the update
             const response = await fetch("/api/units", {
@@ -102,8 +90,10 @@ export default function ResetAdminPaswordForm({ unitID, set_dialog_settings }) {
                 },
                 body: JSON.stringify({
                     id: unitID,
+                    unit,
                     field_to_patch: "password",
-                    new_password
+                    new_password,
+                    current_password
                 })
             })
             if (response.status == 200) {

@@ -1,9 +1,19 @@
 import prisma from "lib/prisma"
+import { authenticate, tokenExpiredMessage } from "@/src/authentication";
 
 export default async function handler(req, res) {
     if (!req.query.unit){
         return res.status(400).json({message: "You have not selected a unit"})
     }
+
+    var cookie = req.cookies["UserAuth"]
+    console.log(cookie)
+
+    let authenticated = authenticate(req.query.unit, cookie)
+    if (!authenticated) {
+        return res.status(401).json({ message: tokenExpiredMessage });
+    }  
+
     try {
         switch (req.method) {
             case "GET":

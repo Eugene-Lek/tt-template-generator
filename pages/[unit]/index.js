@@ -91,7 +91,8 @@ export async function getServerSideProps({ params, req }) {
     const unit_data_response = await fetch(`${rootURL}/api/unit-data?unit=${selected_unit}`, {
         method: "GET",
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            cookie            
         }
     })
     const {unit_data_dict: unit_data} = await unit_data_response.json()

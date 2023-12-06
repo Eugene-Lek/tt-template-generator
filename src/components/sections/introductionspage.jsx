@@ -1,5 +1,6 @@
 import { IntroductionForm } from "src/components/forms/introductionform"
 import { PreUnitAchievementForm } from "src/components/forms/preunitachievementform"
+
 import Select from "react-select"
 import { useEffect, useState } from "react"
 import { v4 as uuidv4 } from "uuid"
@@ -16,6 +17,49 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
     const [selected_introduction_vocation_rank, set_selected_introduction_vocation_rank] = useState('')
     const [selected_pre_unit_achievement_title, set_selected_pre_unit_achievement_title] = useState('')
 
+    const closeDialogueBox = () => {
+        set_dialog_settings({
+            "message": '',
+            "buttons": [],
+            "line_props": [],
+            "displayed": false,
+            "onClickDialog": function () { return },
+            "onClickDialogProps": {}
+        })
+    }
+
+    const displayErrorMessage = async (error_message) => {
+
+        // This is necessary as the number of lines error messages consist of varies
+        const error_num_lines = error_message.split('\n').length
+
+        // If the error message consists of more than 1 line, align the text to the left instead
+        if (error_num_lines == 1) {
+            var error_lines_props = Array(error_num_lines).fill({
+                color: "#000000", font_size: "16px", text_align: "center", margin_right: "auto", margin_left: "auto"
+            })
+        } else {
+            var error_lines_props = Array(error_num_lines).fill({
+                color: "#000000", font_size: "16px", text_align: "left", margin_right: "auto", margin_left: "0"
+            })
+        }
+
+        set_dialog_settings({
+            "message":
+                `*Error*
+                ${error_message}`,
+            "buttons": [
+                { text: "Close", action: "exit", background: "#01a4d9", color: "#FFFFFF" }
+            ],
+            "line_props": [
+                { color: "#E60023", font_size: "25px", text_align: "center", margin_right: "auto", margin_left: "auto" },
+                ...error_lines_props],
+            "displayed": true,
+            "onClickDialog": closeDialogueBox,
+            "onClickDialogProps": { set_dialog_settings }
+        })
+    }
+
     // Make an API call to obtain the introduction information.
 
     useEffect(() => {
@@ -26,6 +70,11 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                     'Content-Type': 'application/json'
                 }
             })
+            if (!introductions_response.ok) {
+                const response_data = await introductions_response.json()
+                displayErrorMessage(response_data.message)                          
+                return
+            }
             const introductions_response_data = await introductions_response.json()
             const init_introductions_list = introductions_response_data.init_introductions_list
             // Maintain the hidden state of forms. This means newly added but unsaved forms will remain displayed
@@ -76,9 +125,14 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                     'Content-Type': 'application/json'
                 }
             })
+            if (!pre_unit_achievements_response.ok) {
+                const response_data = await pre_unit_achievements_response.json()
+                displayErrorMessage(response_data.message)
+                return
+            }
             const pre_unit_achievements_response_data = await pre_unit_achievements_response.json()
             set_pre_unit_achievements_list(pre_unit_achievements_response_data.init_list)
-            set_load_status_pre_unit_achievement('loaded')
+            set_load_status_pre_unit_achievement('loaded')            
         }
         fetchSectionData()
 
@@ -254,7 +308,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                             <ol>
                                 <li>Rank</li>
                                 <li>Full Name</li>
-                                <li>Surname</li>
+                                <li>first name</li>
                                 <li>Enlistment Date</li>
                                 <li>Coy</li>
                                 <li>Primary Appointment</li>
@@ -263,7 +317,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                             <div className="example-module-explanation">To do so, we need to wrap the Personal Particulars in curly brackets {'{ }'} e.g. {'{Rank}'} (case-insensitive).</div>
                             <IntroductionForm
                                 transcript_template={'{Rank} {Full Name} served as a {Primary Appointment} in {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE).'}
-                                template="{Rank} {Full Name} enlisted in the Singapore Armed Forces on {Enlistment Date}. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Specialist Cadet Course. Subsequently, {Rank} {Surname} was posted to {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE) where he was assigned the role of {Primary Appointment}."
+                                template="{Rank} {Full Name} enlisted in the Singapore Armed Forces on {Enlistment Date}. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Specialist Cadet Course. Subsequently, {Rank} {first name} was posted to {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE) where he was assigned the role of {Primary Appointment}."
                                 related_vocation_ranks={{ 'Signals': ['Specialist'], 'Combat Engineers': ['Specialist'] }}
                                 available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}
@@ -280,7 +334,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                             <div className="example-module-explanation">Anything wraped in {"<"} and {">"} will be coloured red by the program to catch the user&apos;s attention (Note: It will only be coloured red in the result). </div>
                             <IntroductionForm
                                 transcript_template={'{Rank} {Full Name} served as a {Primary Appointment} in {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE).'}
-                                template="{Rank} {Full Name} enlisted in the Singapore Armed Forces on {Enlistment Date}. Upon completion of his Basic Military Training, he was posted to <Insert Original Company> Company, 30th Battalion, Singapore Combat Engineers (30SCE) to serve as a Field Engineer Pioneer. Unfortunately, {Rank} {Surname} ended up suffering from <Insert Physical Injury> and could no longer participate in outfield training or physical activities. After his medical status had been re-evaluated, {Rank} {Surname} was re-deployed to the <Insert New Coy (e.g. Battalion HQ) Or New Platoon (e.g. 'A' Company HQ)> as a <Insert Clerk Appointment (e.g. Finance Clerk)>."
+                                template="{Rank} {Full Name} enlisted in the Singapore Armed Forces on {Enlistment Date}. Upon completion of his Basic Military Training, he was posted to <Insert Original Company> Company, 30th Battalion, Singapore Combat Engineers (30SCE) to serve as a Field Engineer Pioneer. Unfortunately, {Rank} {first name} ended up suffering from <Insert Physical Injury> and could no longer participate in outfield training or physical activities. After his medical status had been re-evaluated, {Rank} {first name} was re-deployed to the <Insert New Coy (e.g. Battalion HQ) Or New Platoon (e.g. 'A' Company HQ)> as a <Insert Clerk Appointment (e.g. Finance Clerk)>."
                                 related_vocation_ranks={{ 'Admin': ['Enlistee'] }}
                                 available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}
@@ -313,14 +367,14 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                             <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>For example, these are the default settings for &apos;Sword of Honour&apos; and &apos;Sword of Merit&apos;:</div>
                             <PreUnitAchievementForm
                                 achievement_title={'Sword of Honour'}
-                                achievement_wording={'To this end, {Rank} {Surname} performed the best among his peers and graduated with a Sword of Honour (Top Performer).'}
+                                achievement_wording={'To this end, {Rank} {first name} performed the best among his peers and graduated with a Sword of Honour (Top Performer).'}
                                 button_state={"save"}
                                 permanently_disable_edit
                                 display="block"
                             />
                             <PreUnitAchievementForm
                                 achievement_title={'Sword of Merit'}
-                                achievement_wording={'To this end, {rank} {surname} performed well and graduated with a Sword of Merit (Top 10%).'}
+                                achievement_wording={'To this end, {rank} {first name} performed well and graduated with a Sword of Merit (Top 10%).'}
                                 button_state={"save"}
                                 permanently_disable_edit
                                 display="block"
@@ -329,7 +383,7 @@ export function IntroductionsPage({ unit, section_name, available_vocation_ranks
                             <div className="example-module-explanation">To do so, we need to wrap the Pre-Unit Achievements in curly brackets {'{ }'} e.g. {'{Sword of Honour}'} (case-insensitive).</div>
                             <IntroductionForm
                                 transcript_template={'{Rank} {Full Name} served as a {Primary Appointment} in {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE).'}
-                                template="{Rank} {Full Name} enlisted in the Singapore Armed Forces on {Enlistment Date}. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Officer Cadet School where he underwent training to become a commissioned Army Officer. {Sword of Honour} {Sword of Merit} Upon commissioning, {Rank} {Surname} was posted to {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE) to take on the appointment of {Primary Appointment}."
+                                template="{Rank} {Full Name} enlisted in the Singapore Armed Forces on {Enlistment Date}. Having displayed strong potential for military leadership during his Basic Military Training, he was selected to attend the Officer Cadet School where he underwent training to become a commissioned Army Officer. {Sword of Honour} {Sword of Merit} Upon commissioning, {Rank} {first name} was posted to {Coy} Company, 30th Battalion, Singapore Combat Engineers (30SCE) to take on the appointment of {Primary Appointment}."
                                 related_vocation_ranks={{ 'Signals': ['Officer'], 'Combat Engineers': ['Officer'] }}
                                 available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}

@@ -13,6 +13,49 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
     const [selected_other_contribution_vocation_rank, set_selected_other_contribution_vocation_rank] = useState('')
     const [selected_other_contribution_title, set_selected_other_contribution_title] = useState('')
 
+    const closeDialogueBox = () => {
+        set_dialog_settings({
+            "message": '',
+            "buttons": [],
+            "line_props": [],
+            "displayed": false,
+            "onClickDialog": function () { return },
+            "onClickDialogProps": {}
+        })
+    }
+
+    const displayErrorMessage = async (error_message) => {
+
+        // This is necessary as the number of lines error messages consist of varies
+        const error_num_lines = error_message.split('\n').length
+
+        // If the error message consists of more than 1 line, align the text to the left instead
+        if (error_num_lines == 1) {
+            var error_lines_props = Array(error_num_lines).fill({
+                color: "#000000", font_size: "16px", text_align: "center", margin_right: "auto", margin_left: "auto"
+            })
+        } else {
+            var error_lines_props = Array(error_num_lines).fill({
+                color: "#000000", font_size: "16px", text_align: "left", margin_right: "auto", margin_left: "0"
+            })
+        }
+
+        set_dialog_settings({
+            "message":
+                `*Error*
+                ${error_message}`,
+            "buttons": [
+                { text: "Close", action: "exit", background: "#01a4d9", color: "#FFFFFF" }
+            ],
+            "line_props": [
+                { color: "#E60023", font_size: "25px", text_align: "center", margin_right: "auto", margin_left: "auto" },
+                ...error_lines_props],
+            "displayed": true,
+            "onClickDialog": closeDialogueBox,
+            "onClickDialogProps": { set_dialog_settings }
+        })
+    }
+
     // Make an API call to obtain the section information.
 
     useEffect(() => {
@@ -23,6 +66,12 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
                     'Content-Type': 'application/json'
                 }
             })
+            if (!other_contributions_response.ok) {
+                const response_data = await other_contributions_response.json()
+                displayErrorMessage(response_data.message)                          
+                return
+            }
+
             const other_contributions_response_data = await other_contributions_response.json()
             console.log(other_contributions_response_data.init_list)
             set_other_contributions_list(other_contributions_response_data.init_list)
@@ -171,7 +220,7 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
                             <ol>
                                 <li>Rank</li>
                                 <li>Full Name</li>
-                                <li>Surname</li>
+                                <li>First Name</li>
                                 <li>Enlistment Date</li>
                                 <li>Coy</li>
                                 <li>Primary Appointment</li>
@@ -180,8 +229,8 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
                             <div className="example-module-explanation">To do so, we need to wrap the Personal Particulars in curly brackets {'{ }'} e.g. {'{Rank}'} (case-insensitive).</div>
                             <OtherContributionForm
                                 contribution="NDP"
-                                transcript_template="{Rank} {Surname} was also involved in the ..."
-                                template="{Rank} {Surname} was also involved in the ..."
+                                transcript_template="{Rank} {First Name} was also involved in the ..."
+                                template="{Rank} {First Name} was also involved in the ..."
                                 related_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}
@@ -198,8 +247,8 @@ export function OtherContributionsPage({ unit, section_name, available_vocation_
                             <div className="example-module-explanation">Anything wraped in {"<"} and {">"} will be coloured red by the program to catch the user&apos;s attention (Note: It will only be coloured red in the result). </div>
                             <OtherContributionForm
                                 contribution="NDP"
-                                transcript_template={'{Rank} {Surname} was also involved in the <Insert NDP segment/operations> for the National Day Parade <Insert Year> . Specifically, he was appointed as <Insert Appointment>, tasked with <role/responsibility>.'}
-                                template="{Rank} {Surname} was also involved in the <Insert NDP segment/operations> for the National Day Parade <Insert Year> . Specifically, he was appointed as <Insert Appointment>, tasked with <role/responsibility>. Throughout this assignment, <Insert a specific example of what he did well> , a testament to his <positive character trait that was demonstrated in the specific example>."
+                                transcript_template={'{Rank} {First Name} was also involved in the <Insert NDP segment/operations> for the National Day Parade <Insert Year> . Specifically, he was appointed as <Insert Appointment>, tasked with <role/responsibility>.'}
+                                template="{Rank} {First Name} was also involved in the <Insert NDP segment/operations> for the National Day Parade <Insert Year> . Specifically, he was appointed as <Insert Appointment>, tasked with <role/responsibility>. Throughout this assignment, <Insert a specific example of what he did well> , a testament to his <positive character trait that was demonstrated in the specific example>."
                                 related_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}

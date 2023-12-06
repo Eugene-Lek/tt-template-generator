@@ -101,8 +101,8 @@ export default function ResetPasswords({ unitName, unitID, error }) {
             <AdminHeader title={`${unitName}'s T&T Template Generator Admin Page`} unit={unitName} id={unitID} set_dialog_settings={set_dialog_settings} />
             <main>
                 <div style={{ display: "flex", flexDirection: "column", gap: "48px", marginTop: "48px" }}>
-                    <ResetAdminPaswordForm unitID={unitID} set_dialog_settings={set_dialog_settings}/>
-                    <ResetUserPaswordForm unitID={unitID} set_dialog_settings={set_dialog_settings}/>
+                    <ResetAdminPaswordForm unit={unitName} unitID={unitID} set_dialog_settings={set_dialog_settings}/>
+                    <ResetUserPaswordForm unit={unitName} unitID={unitID} set_dialog_settings={set_dialog_settings}/>
                 </div>
                 {dialog_settings.displayed && (
                     <Dialog

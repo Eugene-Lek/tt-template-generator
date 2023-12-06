@@ -1,6 +1,21 @@
 import prisma from "lib/prisma"
+import { authenticate, tokenExpiredMessage } from "@/src/authentication";
 
 export default async function handler(req, res) {
+
+    if (req.method != "GET"){
+        // 'GET' requests have no 'body'
+        var { unit, id, achievement_title, previously_saved_achievement_title, achievement_wording, parent_id} = req.body
+    } else {
+        var { unit } = req.query
+    }
+
+    var cookie = req.cookies["AdminAuth"]
+
+    let authenticated = authenticate(unit, cookie)
+    if (!authenticated) {
+        return res.status(401).json({ message: tokenExpiredMessage });
+    }
 
     const response = await prisma.PersonalParticularsField.findMany({
         where: {
@@ -11,10 +26,6 @@ export default async function handler(req, res) {
     })
     const personal_particulars = response.map(obj => obj.name.toLowerCase())
 
-    if (req.method != "GET"){
-        // 'GET' requests have no 'body'
-        var { unit, id, achievement_title, previously_saved_achievement_title, achievement_wording, parent_id} = req.body
-    }
     if (req.method == 'DELETE'){
         // Block the deletion if the pre-unit achievement has been inserted into an Introduction template
         let primary_appointments = await prisma.Unit.findUnique({

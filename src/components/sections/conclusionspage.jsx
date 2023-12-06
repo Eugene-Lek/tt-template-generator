@@ -12,6 +12,49 @@ export function ConclusionsPage({ unit, section_name, available_vocation_ranks, 
     const [conclusions_list, set_conclusions_list] = useState([])
     const [selected_conclusion_vocation_rank, set_selected_conclusion_vocation_rank] = useState("")
 
+    const closeDialogueBox = () => {
+        set_dialog_settings({
+            "message": '',
+            "buttons": [],
+            "line_props": [],
+            "displayed": false,
+            "onClickDialog": function () { return },
+            "onClickDialogProps": {}
+        })
+    }
+
+    const displayErrorMessage = async (error_message) => {
+
+        // This is necessary as the number of lines error messages consist of varies
+        const error_num_lines = error_message.split('\n').length
+
+        // If the error message consists of more than 1 line, align the text to the left instead
+        if (error_num_lines == 1) {
+            var error_lines_props = Array(error_num_lines).fill({
+                color: "#000000", font_size: "16px", text_align: "center", margin_right: "auto", margin_left: "auto"
+            })
+        } else {
+            var error_lines_props = Array(error_num_lines).fill({
+                color: "#000000", font_size: "16px", text_align: "left", margin_right: "auto", margin_left: "0"
+            })
+        }
+
+        set_dialog_settings({
+            "message":
+                `*Error*
+                ${error_message}`,
+            "buttons": [
+                { text: "Close", action: "exit", background: "#01a4d9", color: "#FFFFFF" }
+            ],
+            "line_props": [
+                { color: "#E60023", font_size: "25px", text_align: "center", margin_right: "auto", margin_left: "auto" },
+                ...error_lines_props],
+            "displayed": true,
+            "onClickDialog": closeDialogueBox,
+            "onClickDialogProps": { set_dialog_settings }
+        })
+    }
+
     // Make an API call to obtain the conclusion information.
 
     useEffect(() => {
@@ -22,6 +65,12 @@ export function ConclusionsPage({ unit, section_name, available_vocation_ranks, 
                     "Content-Type": "application/json"
                 }
             })
+            if (!conclusions_response.ok) {
+                const response_data = await conclusions_response.json()
+                displayErrorMessage(response_data.message)                          
+                return
+            }
+
             const conclusions_response_data = await conclusions_response.json()
             set_conclusions_list(conclusions_response_data.init_conclusions_list)
             set_load_status("loaded")
@@ -152,7 +201,7 @@ export function ConclusionsPage({ unit, section_name, available_vocation_ranks, 
                             <ol>
                                 <li>Rank</li>
                                 <li>Full Name</li>
-                                <li>Surname</li>
+                                <li>First Name</li>
                                 <li>Enlistment Date</li>
                                 <li>Coy</li>
                                 <li>Primary Appointment</li>
@@ -160,8 +209,8 @@ export function ConclusionsPage({ unit, section_name, available_vocation_ranks, 
                             <div className="example-module-explanation" style={{ fontWeight: 'bold' }}>Let&apos;s say we want to include these Personal Particulars in our BSOM template.</div>
                             <div className="example-module-explanation">To do so, we need to wrap the Personal Particulars in curly brackets {'{ }'} e.g. {'{Rank}'} (case-insensitive).</div>
                             <ConclusionForm
-                                transcript_template="In summary, {rank} {surname} was a valued member of the Battalion and we thank him for his contributions."
-                                template="In summary, {rank} {surname} was ... We thank him for his contributions to National Service and wish him the very best for his future endeavours."
+                                transcript_template="In summary, {rank} {First Name} was a valued member of the Battalion and we thank him for his contributions."
+                                template="In summary, {rank} {First Name} was ... We thank him for his contributions to National Service and wish him the very best for his future endeavours."
                                 related_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}
@@ -177,8 +226,8 @@ export function ConclusionsPage({ unit, section_name, available_vocation_ranks, 
                             <div className="example-module-explanation">To do so, we need to include {"<Insert Character Trait>"} and {"<Insert specific examplet that demonstrates this trait>"}.</div>
                             <div className="example-module-explanation">Anything wraped in {"<"} and {">"} will be coloured red by the program to catch the user&apos;s attention (Note: It will only be coloured red in the result). </div>
                             <ConclusionForm
-                                transcript_template={'In summary, {rank} {surname} was a valued member of the Battalion and we thank him for his contributions.'}
-                                template="In summary, {rank} {surname} was <Summarise the character traits you appreciate about him in 2 to 4 sentences>. We thank him for his contributions to National Service and wish him the very best for his future endeavours."
+                                transcript_template={'In summary, {rank} {First Name} was a valued member of the Battalion and we thank him for his contributions.'}
+                                template="In summary, {rank} {First Name} was <Summarise the character traits you appreciate about him in 2 to 4 sentences>. We thank him for his contributions to National Service and wish him the very best for his future endeavours."
                                 related_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}

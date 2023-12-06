@@ -1,5 +1,6 @@
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import prisma from "@/lib/prisma";
+import { authenticate, tokenExpiredMessage } from "@/src/authentication";
 
 const month_dict = {
     "1": "January",
@@ -91,6 +92,13 @@ const generateOptionTextRuns = (template, placeholder_data) => {
 
 export default async function handler(req, res) {
     const { form_data, selected_unit, complusory_fields, personalParticularsFieldsTypes } = req.body
+
+    var cookie = req.cookies["UserAuth"]
+
+    let authenticated = authenticate(selected_unit, cookie)
+    if (!authenticated) {
+        return res.status(401).json({ message: tokenExpiredMessage });
+    }  
 
     // Server-side parameter validation
     const missingFields = complusory_fields.filter(field => {

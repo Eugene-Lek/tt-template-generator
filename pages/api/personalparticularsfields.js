@@ -1,10 +1,20 @@
 import prisma from "lib/prisma"
+import { authenticate, tokenExpiredMessage } from "@/src/authentication";
 
 export default async function handler(req, res) {
 
     if (req.method != "GET" && req.method != "HEAD") {
         var { unit, personalParticularsField, previouslySavedName, remainingFields } = req.body
         var { name, type, id, order } = personalParticularsField
+    } else {
+        var { unit } = req.query
+    }
+
+    var cookie = req.cookies["AdminAuth"]
+
+    let authenticated = authenticate(unit, cookie)
+    if (!authenticated) {
+        return res.status(401).json({ message: tokenExpiredMessage });
     }
 
     // Parameter Validation   

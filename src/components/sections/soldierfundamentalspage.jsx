@@ -13,6 +13,49 @@ export function SoldierFundamentalsPage({ unit, section_name, available_vocation
     const [selected_soldier_fundamental_vocation_rank, set_selected_soldier_fundamental_vocation_rank] = useState('')
     const [selected_soldier_fundamental_title, set_selected_soldier_fundamental_title] = useState('')
 
+    const closeDialogueBox = () => {
+        set_dialog_settings({
+            "message": '',
+            "buttons": [],
+            "line_props": [],
+            "displayed": false,
+            "onClickDialog": function () { return },
+            "onClickDialogProps": {}
+        })
+    }
+
+    const displayErrorMessage = async (error_message) => {
+
+        // This is necessary as the number of lines error messages consist of varies
+        const error_num_lines = error_message.split('\n').length
+
+        // If the error message consists of more than 1 line, align the text to the left instead
+        if (error_num_lines == 1) {
+            var error_lines_props = Array(error_num_lines).fill({
+                color: "#000000", font_size: "16px", text_align: "center", margin_right: "auto", margin_left: "auto"
+            })
+        } else {
+            var error_lines_props = Array(error_num_lines).fill({
+                color: "#000000", font_size: "16px", text_align: "left", margin_right: "auto", margin_left: "0"
+            })
+        }
+
+        set_dialog_settings({
+            "message":
+                `*Error*
+                ${error_message}`,
+            "buttons": [
+                { text: "Close", action: "exit", background: "#01a4d9", color: "#FFFFFF" }
+            ],
+            "line_props": [
+                { color: "#E60023", font_size: "25px", text_align: "center", margin_right: "auto", margin_left: "auto" },
+                ...error_lines_props],
+            "displayed": true,
+            "onClickDialog": closeDialogueBox,
+            "onClickDialogProps": { set_dialog_settings }
+        })
+    }
+
     // Make an API call to obtain the section information.
 
     useEffect(() => {
@@ -23,6 +66,12 @@ export function SoldierFundamentalsPage({ unit, section_name, available_vocation
                     'Content-Type': 'application/json'
                 }
             })
+            if (!soldier_fundamentals_response.ok) {
+                const response_data = await soldier_fundamentals_response.json()
+                displayErrorMessage(response_data.message)                          
+                return
+            }
+
             const soldier_fundamentals_response_data = await soldier_fundamentals_response.json()
             set_soldier_fundamentals_list(soldier_fundamentals_response_data.init_list)
             set_load_status('loaded')
@@ -150,7 +199,7 @@ export function SoldierFundamentalsPage({ unit, section_name, available_vocation
                             <ol>
                                 <li>Rank</li>
                                 <li>Full Name</li>
-                                <li>Surname</li>
+                                <li>First Name</li>
                                 <li>Enlistment Date</li>
                                 <li>Coy</li>
                                 <li>Secondary Appointment</li>

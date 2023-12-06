@@ -13,6 +13,49 @@ export function SecondaryAppointmentsPage({ unit, section_name, available_vocati
     const [selected_secondary_appointment_vocation_rank, set_selected_secondary_appointment_vocation_rank] = useState('')
     const [selected_secondary_appointment_title, set_selected_secondary_appointment_title] = useState('')
 
+    const closeDialogueBox = () => {
+        set_dialog_settings({
+            "message": '',
+            "buttons": [],
+            "line_props": [],
+            "displayed": false,
+            "onClickDialog": function () { return },
+            "onClickDialogProps": {}
+        })
+    }
+
+    const displayErrorMessage = async (error_message) => {
+
+        // This is necessary as the number of lines error messages consist of varies
+        const error_num_lines = error_message.split('\n').length
+
+        // If the error message consists of more than 1 line, align the text to the left instead
+        if (error_num_lines == 1) {
+            var error_lines_props = Array(error_num_lines).fill({
+                color: "#000000", font_size: "16px", text_align: "center", margin_right: "auto", margin_left: "auto"
+            })
+        } else {
+            var error_lines_props = Array(error_num_lines).fill({
+                color: "#000000", font_size: "16px", text_align: "left", margin_right: "auto", margin_left: "0"
+            })
+        }
+
+        set_dialog_settings({
+            "message":
+                `*Error*
+                ${error_message}`,
+            "buttons": [
+                { text: "Close", action: "exit", background: "#01a4d9", color: "#FFFFFF" }
+            ],
+            "line_props": [
+                { color: "#E60023", font_size: "25px", text_align: "center", margin_right: "auto", margin_left: "auto" },
+                ...error_lines_props],
+            "displayed": true,
+            "onClickDialog": closeDialogueBox,
+            "onClickDialogProps": { set_dialog_settings }
+        })
+    }
+
     // Make an API call to obtain the section information.
 
     useEffect(() => {
@@ -23,6 +66,12 @@ export function SecondaryAppointmentsPage({ unit, section_name, available_vocati
                     'Content-Type': 'application/json'
                 }
             })
+            if (!secondary_appointments_response.ok) {
+                const response_data = await secondary_appointments_response.json()
+                displayErrorMessage(response_data.message)                          
+                return
+            }
+
             const secondary_appointments_response_data = await secondary_appointments_response.json()
             
             set_secondary_appointments_list(secondary_appointments_response_data.init_list)  
@@ -62,9 +111,9 @@ export function SecondaryAppointmentsPage({ unit, section_name, available_vocati
             id: uuidv4(),
             appointment: "",
             previously_saved_appointment: "",
-            template: "{rank} {surname} also served as a _________ . He was responsible for _________ . {rank} {surname} was <Insert Trait of a Good _________ >. For example, <Insert specific incident(s) that demonstrate this trait>.",
+            template: "{rank} {first name} also served as a _________ . He was responsible for _________ . {rank} {first name} was <Insert Trait of a Good _________ >. For example, <Insert specific incident(s) that demonstrate this trait>.",
             previously_saved_template: "",
-            transcript_template: "{rank} {surname} also served as a _________ . He was responsible for _________ .",
+            transcript_template: "{rank} {first name} also served as a _________ . He was responsible for _________ .",
             previously_saved_transcript_template: "",
             related_vocation_ranks: {},
             previously_saved_related_vocation_ranks: {},
@@ -169,7 +218,7 @@ export function SecondaryAppointmentsPage({ unit, section_name, available_vocati
                             <ol>
                                 <li>Rank</li>
                                 <li>Full Name</li>
-                                <li>Surname</li>
+                                <li>First Name</li>
                                 <li>Enlistment Date</li>
                                 <li>Coy</li>
                                 <li>Primary Appointment</li>
@@ -178,8 +227,8 @@ export function SecondaryAppointmentsPage({ unit, section_name, available_vocati
                             <div className="example-module-explanation">To do so, we need to wrap the Personal Particulars in curly brackets {'{ }'} e.g. {'{Rank}'} (case-insensitive).</div>
                             <SecondaryAppointmentForm
                                 appointment="Armskote In-Charge"
-                                transcript_template="As Armskote In-Charge, {Rank} {Surname} was also entrusted to manage the weapons and controlled equipment within his Company."
-                                template="As Armskote In-Charge, {Rank} {Surname} was also entrusted to manage the weapons and controlled equipment within his Company."
+                                transcript_template="As Armskote In-Charge, {Rank} {First Name} was also entrusted to manage the weapons and controlled equipment within his Company."
+                                template="As Armskote In-Charge, {Rank} {First Name} was also entrusted to manage the weapons and controlled equipment within his Company."
                                 related_vocation_ranks={{ 'Signals': ['Specialist', 'Enlistee'], 'Combat Engineers': ['Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}
@@ -196,8 +245,8 @@ export function SecondaryAppointmentsPage({ unit, section_name, available_vocati
                             <div className="example-module-explanation">Anything wraped in {"<"} and {">"} will be coloured red by the program to catch the user&apos;s attention (Note: It will only be coloured red in the result). </div>
                             <SecondaryAppointmentForm
                                 appointment="Armskote In-Charge"
-                                transcript_template={'As Armskote In-Charge, {Rank} {Surname} was also entrusted to manage the weapons and controlled equipment within his Company. '}
-                                template="As Armskote In-Charge, {Rank} {Surname} was also entrusted to manage the weapons and controlled equipment within his Company. In this role, he has proven to be <Insert Trait of a Good ASIC>. For example, <Insert a specific incident that demonstrated this trait>."
+                                transcript_template={'As Armskote In-Charge, {Rank} {First Name} was also entrusted to manage the weapons and controlled equipment within his Company. '}
+                                template="As Armskote In-Charge, {Rank} {First Name} was also entrusted to manage the weapons and controlled equipment within his Company. In this role, he has proven to be <Insert Trait of a Good ASIC>. For example, <Insert a specific incident that demonstrated this trait>."
                                 related_vocation_ranks={{ 'Signals': ['Specialist', 'Enlistee'], 'Combat Engineers': ['Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 available_vocation_ranks={{ 'Signals': ['Officer', 'Specialist', 'Enlistee'], 'Combat Engineers': ['Officer', 'Specialist', 'Enlistee'], 'Admin': ['Enlistee'] }}
                                 button_state={"save"}

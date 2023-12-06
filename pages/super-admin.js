@@ -45,6 +45,11 @@ export default function SuperAdmin({ units_init_data }) {
                     'Content-Type': 'application/json'
                 }
             })
+            if (!units_response.ok) {
+                const response_data = await units_response.json()
+                displayErrorMessage(response_data.message)                          
+                return
+            }            
             const units_response_data = await units_response.json()
             set_units_data(units_response_data.units_init_data)
         }

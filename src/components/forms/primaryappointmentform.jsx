@@ -43,6 +43,12 @@ export const PrimaryAppointmentForm = ({
                     'Content-Type': 'application/json'
                 }
             })
+            if (!related_achievements_response.ok) {
+                const response_data = await related_achievements_response.json()
+                displayErrorMessage(response_data.message)                          
+                return
+            }
+
             const related_achievements_response_data = await related_achievements_response.json()
             set_related_achievements_list(related_achievements_response_data.init_list)
         }

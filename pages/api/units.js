@@ -1,6 +1,7 @@
 
 import prisma from "@/lib/prisma"
 import bcrypt from 'bcrypt'
+import { authenticate, tokenExpiredMessage } from "@/src/authentication";
 
 const saltRounds = 10
 const random_password_length = 12
@@ -28,8 +29,21 @@ const genPassword = (passwordLength) => {
 export default async function handler(req, res) {
 
     if (req.method != "GET") {
-        var { id, unit, selected_copy_unit, field_to_patch, new_password } = req.body
+        var { id, unit, selected_copy_unit, field_to_patch, new_password, current_password } = req.body
+    } else {
+        var unit = "30SCE" // change in the future
     }
+
+    if (req.method == "PATCH") {
+        var cookie = req.cookies["AdminAuth"]
+    } else {
+        var cookie = req.cookies["AdminAuth"] // Change in the future        
+    }
+
+    let authenticated = authenticate(unit, cookie)
+    if (!authenticated) {
+        return res.status(401).json({ message: tokenExpiredMessage });
+    }  
 
     if (req.method == "POST" || (req.method == "PATCH" && field_to_patch == "unitName")) {
         // Parameter Validation
@@ -384,6 +398,18 @@ export default async function handler(req, res) {
                     })
                     return res.status(200).json({ message: "Unit Admin account name successfully updated." })
                 } else if (field_to_patch == "password") {
+                    // Validate current password
+                    const { password: db_password_hash, id, name } = await prisma.Unit.findUnique({
+                        where: {
+                            name: unit
+                        }
+                    })
+    
+                    const correctPassword = await bcrypt.compare(current_password, db_password_hash)
+                    if (!correctPassword){
+                        throw new Error('Invalid current password')
+                    }
+
                     // Password validation (If new password is provided)                 
                     if (new_password && new_password.length < PASSWORD_MIN_LENGTH) { throw new Error(`Your password must be at least ${PASSWORD_MIN_LENGTH} characters long`) }
 
@@ -410,6 +436,17 @@ export default async function handler(req, res) {
                     return res.status(200).json({ new_password: new_password, message: "Unit admin account password successfully updated." })
 
                 } else if (field_to_patch == "userPassword") {
+                    // Validate current password
+                    const { password: db_password_hash, id, name } = await prisma.Unit.findUnique({
+                        where: {
+                            name: unit
+                        }
+                    })
+    
+                    const correctPassword = await bcrypt.compare(current_password, db_password_hash)
+                    if (!correctPassword){
+                        throw new Error('Invalid current password')
+                    }                    
                     // Password validation
                     if (new_password.length < PASSWORD_MIN_LENGTH) { throw new Error(`Your password must be at least ${PASSWORD_MIN_LENGTH} characters long`) }
 

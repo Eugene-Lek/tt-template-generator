@@ -1,14 +1,4 @@
-import bcrypt from 'bcrypt'
-import prisma from '@/lib/prisma'
-import jwt from "jsonwebtoken";
-import { serialize } from 'cookie'
-
-const JWT_OPTIONS = {
-    expiresIn: "1d", // Expires in 1 day
-    audience: "ALL_USERS",
-    issuer: "30SCE",
-    subject: "AUTHENTICATION"
-};
+import { authenticate } from "@/src/authentication";
 
 export default async function handler(req, res) {
 
@@ -21,13 +11,11 @@ export default async function handler(req, res) {
 
         switch (req.method) {
             case "GET":
-                try {
-                    const payload = jwt.verify(cookie, process.env.JWT_KEY, JWT_OPTIONS);
-                    if (payload.unitName != unitName) return res.status(401).json({ message: "User not authenticated. Redirecting to admin login" });
-                    return res.status(200).json({ message: "Authentication successful" })
-
-                } catch (error) {
-                    return res.status(401).json({ message: "User not authenticated. Redirecting to admin login" });
+                let authenticated = authenticate(unitName, cookie)
+                if (!authenticated) {
+                    return res.status(401).json({ message: "User has not logged in. Redirecting to login page..." });
+                } else {
+                    return res.status(200).json({ message: "Authentication successful" })                    
                 }
                 break
             default:

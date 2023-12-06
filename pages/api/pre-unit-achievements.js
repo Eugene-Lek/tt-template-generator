@@ -1,8 +1,23 @@
 import prisma from "lib/prisma"
 import { v4 as uuidv4 } from "uuid"
+import { authenticate, tokenExpiredMessage } from "@/src/authentication";
 
 export default async function handler(req, res) {
 
+    if (req.method !== "GET") {
+        // 'GET' requests have no 'body'
+        var { unit, id, achievement_title, previously_saved_achievement_title, achievement_wording } = req.body
+    } else {
+        var { unit } = req.query
+    }
+
+    var cookie = req.cookies["AdminAuth"]
+
+    let authenticated = authenticate(unit, cookie)
+    if (!authenticated) {
+        return res.status(401).json({ message: tokenExpiredMessage });
+    }
+    
     const response = await prisma.PersonalParticularsField.findMany({
         where: {
             unitName: unit
@@ -14,8 +29,6 @@ export default async function handler(req, res) {
 
     if (req.method !== "GET") {
         // 'GET' requests have no 'body'
-        var { unit, id, achievement_title, previously_saved_achievement_title, achievement_wording } = req.body
-
         let introductions_raw = await prisma.Unit.findUnique({
             where: {
                 name: unit

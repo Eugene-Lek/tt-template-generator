@@ -1,8 +1,16 @@
 import prisma from "lib/prisma"
 import { v4 as uuidv4 } from "uuid"
+import { authenticate, tokenExpiredMessage } from "@/src/authentication";
 
 export default async function handler(req, res) {
     const { unit, id, vocation, have_officer, have_specialist, have_enlistee } = req.body
+    var cookie = req.cookies["AdminAuth"]
+
+    let authenticated = authenticate(unit, cookie)
+    if (!authenticated) {
+        return res.status(401).json({ message: tokenExpiredMessage });
+    }  
+
     const relevant_ranks = [have_officer ? 'Officer' : '',
     have_specialist ? 'Specialist' : '',
     have_enlistee ? 'Enlistee' : ''].filter(rank => rank) // Remove empty strings
